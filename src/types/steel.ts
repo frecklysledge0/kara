@@ -103,7 +103,7 @@ export interface MTRQCSummary {
   weldability?: string;
   chemistry_checks?: ElementComplianceCheck[];
   mechanical_checks?: MechanicalComplianceCheck[];
-  flags?: string[];
+  flags: string[];
   [key: string]: unknown;
 }
 
