@@ -28,6 +28,7 @@ import { CURATED_GRADES } from "@/lib/data/grades";
 import { SYNTHETIC_MTR_FIXTURES } from "@/lib/data/synthetic-mtr-fixtures";
 import { MTRExtraction, MTRReviewResult, MTRExtractionPipelineResponse } from "@/types/mtr";
 import { evaluateMTRComplianceAndRisk } from "@/lib/engine/mtr-qc";
+import { SolanaSignPanel } from "@/components/solana/SolanaSignPanel";
 
 export default function SellPage() {
   // Stepper & Processing states
@@ -40,6 +41,7 @@ export default function SellPage() {
   // Active Document & Extraction State
   const [selectedBenchmarkId, setSelectedBenchmarkId] = useState<string | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [documentSha256, setDocumentSha256] = useState<string | null>(null);
   const [signedPreviewUrl, setSignedPreviewUrl] = useState<string | null>(null);
   const [rawDocumentSnippet, setRawDocumentSnippet] = useState<string | null>(null);
@@ -64,6 +66,7 @@ export default function SellPage() {
 
   // Cancellation and timing state
   const abortControllerRef = React.useRef<AbortController | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -103,6 +106,7 @@ export default function SellPage() {
   async function loadBenchmarkSample(benchmarkId: string) {
     if (isProcessing) return; // Prevent duplicate concurrent extraction
 
+    setUploadedFile(null);
     setIsProcessing(true);
     setProcessingStage("Loading DEMO benchmark fixture...");
     setErrorMessage(null);
@@ -154,6 +158,7 @@ export default function SellPage() {
     setPublishedListingId(null);
     setIsEditing(false);
     setUploadedFileName(file.name);
+    setUploadedFile(file);
 
     startExtractionTimer();
     const ac = new AbortController();
@@ -460,22 +465,31 @@ export default function SellPage() {
                     </p>
                   </div>
                   <div>
-                    <label className="cursor-pointer inline-flex items-center">
-                      <Button type="button" variant="primary" size="sm" disabled={isProcessing}>
+                    <div className="inline-flex items-center">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        disabled={isProcessing}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
                         <FileText className="w-3.5 h-3.5 mr-1.5" />
                         Browse Local Files
                       </Button>
                       <input
+                        ref={fileInputRef}
                         type="file"
                         accept="application/pdf,image/png,image/jpeg,image/webp,image/tiff"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
+                          e.target.value = ""; // allow choosing the same file again
                           if (file) processFile(file);
                         }}
                         className="hidden"
+                        aria-label="Upload mill test report file"
                         disabled={isProcessing}
                       />
-                    </label>
+                    </div>
                   </div>
                 </div>
 
@@ -766,6 +780,12 @@ export default function SellPage() {
                           </span>
                         </div>
                       </div>
+
+                      {/* Solana mill signature (devnet demo) */}
+                      <SolanaSignPanel
+                        key={uploadedFile ? `${uploadedFile.name}-${uploadedFile.size}-${uploadedFile.lastModified}` : "no-file"}
+                        file={uploadedFile}
+                      />
 
                       {/* Mock or Signed Document Viewer */}
                       {rawDocumentSnippet ? (
