@@ -38,9 +38,10 @@ export default async function ListingDetailPage({ params }: ListingPageProps) {
   const destinationZip = "60601";
 
   // Fetch real record from established Supabase database layer
-  const { data: listing, error: dbError } = await fetchListingById(id);
+  const res = await fetchListingById(id);
+  const listing = res.data;
 
-  if (dbError || !listing) {
+  if (!listing) {
     notFound();
   }
 

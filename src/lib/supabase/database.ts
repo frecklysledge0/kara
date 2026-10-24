@@ -26,6 +26,7 @@ import {
   FIXTURE_ORDERS,
   getFixtureListingsWithRelations,
 } from "@/lib/data/fixtures";
+import { getListingById, inventoryListingToListingWithRelations } from "@/lib/data/listings-store";
 
 export interface DatabaseResult<T> {
   data: T;
@@ -213,44 +214,49 @@ export async function fetchListings(
 
 export async function fetchListingById(id: string): Promise<DatabaseResult<ListingWithRelations | null>> {
   const supabase = getSupabaseServerClient();
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-  if (!supabase) {
-    const fixtures = getFixtureListingsWithRelations();
-    const found = fixtures.find((l) => l.id === id) || null;
+  if (supabase && isUuid) {
+    try {
+      const { data, error } = await supabase
+        .from("listings")
+        .select(`
+          *,
+          seller:sellers(*),
+          certificate:certificates(*)
+        `)
+        .eq("id", id)
+        .maybeSingle();
+
+      if (!error && data) {
+        return {
+          data: (data as unknown as ListingWithRelations),
+          source: "supabase_live",
+          isDemoEnvironment: false,
+        };
+      }
+    } catch (e) {
+      console.warn(`Supabase fetchListingById error for ${id}, falling back:`, e);
+    }
+  }
+
+  // Fallback 1: Session store / MTR upload cache (for IDs like listing-1792854434556)
+  const storeListing = await getListingById(id);
+  if (storeListing) {
     return {
-      data: found,
+      data: inventoryListingToListingWithRelations(storeListing),
       source: "deterministic_fixture",
       isDemoEnvironment: true,
     };
   }
 
-  const { data, error } = await supabase
-    .from("listings")
-    .select(`
-      *,
-      seller:sellers(*),
-      certificate:certificates(*)
-    `)
-    .eq("id", id)
-    .maybeSingle();
-
-  if (error) {
-    if (isSchemaUnprovisioned(error.code)) {
-      const fixtures = getFixtureListingsWithRelations();
-      const found = fixtures.find((l) => l.id === id) || null;
-      return {
-        data: found,
-        source: "deterministic_fixture",
-        isDemoEnvironment: true,
-      };
-    }
-    throw new Error(`Live database failure fetching listing ${id}: [${error.code}] ${error.message}`);
-  }
-
+  // Fallback 2: Check deterministic fixture listings
+  const fixtures = getFixtureListingsWithRelations();
+  const found = fixtures.find((l) => l.id === id) || null;
   return {
-    data: (data as unknown as ListingWithRelations) || null,
-    source: "supabase_live",
-    isDemoEnvironment: false,
+    data: found,
+    source: "deterministic_fixture",
+    isDemoEnvironment: true,
   };
 }
 
