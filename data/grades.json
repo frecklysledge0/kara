@@ -1,0 +1,1225 @@
+[
+  {
+    "id": "astm-a36",
+    "canonical_name": "ASTM A36",
+    "applicable_standard": "ASTM A36/A36M-19",
+    "uns_number": "K02600",
+    "en_designation": "1.0044 (EN 10025-2 S275JR)",
+    "material_family": "Structural Carbon Steel",
+    "description": "Standard carbon structural steel widely utilized for riveted, bolted, or welded construction of buildings, bridges, and general structural components.",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": null, "max": 0.25, "unit": "% by weight", "note": "Max for plates <= 0.75 in [20 mm]. Thicknesses > 0.75 to 1.5 in allow 0.26%; > 1.5 to 4 in allow 0.27%." },
+        "Mn": { "min": 0.80, "max": 1.20, "unit": "% by weight", "note": "Applies to plates over 0.75 in [20 mm] thickness; no Mn requirement for thinner plates." },
+        "P": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Max allowable ladle analysis." },
+        "S": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Max allowable ladle analysis." },
+        "Si": { "min": 0.15, "max": 0.40, "unit": "% by weight", "note": "Mandatory only for plates over 1.5 in [40 mm] thickness." },
+        "Cu": { "min": 0.20, "max": null, "unit": "% by weight", "note": "Only required when copper-bearing steel is specified." }
+      },
+      "source": "ASTM A36/A36M-19 Table 1 Chemical Requirements"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 36.0,
+        "max": null,
+        "typical": 42.0,
+        "unit": "ksi",
+        "condition": "As-rolled, structural plates <= 8 in [200 mm] and shapes"
+      },
+      "tensile_strength": {
+        "min": 58.0,
+        "max": 80.0,
+        "typical": 68.0,
+        "unit": "ksi",
+        "condition": "As-rolled standard room temperature tensile specimen"
+      },
+      "elongation_pct": {
+        "min": 20.0,
+        "gauge_length": "8 in [200 mm] (23% min in 2 in [50 mm])"
+      },
+      "hardness": {
+        "max": 160.0,
+        "typical": 137.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": 15.0,
+        "test_temp_f": 40.0,
+        "note": "Optional supplementary requirement S5; not guaranteed in basic standard."
+      }
+    },
+    "typical_uses": [
+      "Commercial building frame columns and girders",
+      "Base plates, gussets, and anchor brackets",
+      "Equipment skids and agricultural frames",
+      "Storage tanks and non-pressure vessel enclosures"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Excellent performance with standard shop primer.",
+      "outdoor_atmospheric": "Requires durable primer and topcoat or hot-dip galvanizing to prevent uniform rusting.",
+      "marine_offshore": "Unsuitable without barrier coatings or cathodic protection.",
+      "sub_zero": "Not recommended for dynamic sub-zero service (-20°F or below) without supplementary CVN impact testing.",
+      "high_temperature": "Design allowable stress decreases rapidly above 650°F [345°C]."
+    },
+    "corrosion_resistance": {
+      "category": "Negligible (Requires Protective Coating)",
+      "pren": null,
+      "details": "Plain carbon steel with no passive chromium film. Typical unpainted corrosion rate in mild industrial atmospheres is 20-50 µm/year."
+    },
+    "weldability": {
+      "rating": "Prequalified / Excellent (AWS D1.1)",
+      "recommended_processes": ["SMAW", "GMAW", "FCAW", "SAW"],
+      "notes": "Prequalified under AWS D1.1 Group I. Low carbon equivalent (<0.40 CEV typical). Preheat only needed for thick plates (>1.5 in) or ambient temp below 32°F [0°C]."
+    },
+    "relative_cost_tier": {
+      "tier": 1,
+      "cost_factor_vs_a36": 1.0,
+      "description": "Baseline economical structural carbon steel."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Wide allowable tensile range (58-80 ksi) results in heat-to-heat yield variation.",
+        "Charpy V-notch toughness is not mandatory under standard specification.",
+        "Uncontrolled yield-to-tensile ratio limits use in high-seismic moment frames without AISC 341 testing."
+      ],
+      "avoid_for": [
+        "Unpainted marine atmospheric exposure",
+        "Sub-zero dynamic impact applications without Supplementary S5 impact test",
+        "Sour gas (H2S) service (NACE MR0175 compliance required)"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10025-2 S275JR",
+        "standard_org": "EN",
+        "confidence": "Close Substitute",
+        "source_notes": "Minimum yield is 275 MPa (39.9 ksi), slightly higher than A36; chemistry and weldability align closely."
+      },
+      {
+        "designation": "JIS G3101 SS400",
+        "standard_org": "JIS",
+        "confidence": "Close Substitute",
+        "source_notes": "Tensile range 400-510 MPa matches; SS400 does not specify chemical limits except P and S."
+      },
+      {
+        "designation": "CSA G40.21 260W",
+        "standard_org": "CSA",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Canadian standard weldable grade with minimum 260 MPa (37.7 ksi) yield."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "ASTM A36/A36M-19 Standard Specification for Carbon Structural Steel",
+        "publisher": "ASTM International",
+        "url_or_identifier": "https://doi.org/10.1520/A0036_A0036M-19"
+      },
+      {
+        "title": "AISC Steel Construction Manual (15th Edition)",
+        "publisher": "American Institute of Steel Construction",
+        "url_or_identifier": "AISC 325-17"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Verified against ASTM A36/A36M-19 Table 1 chemistry and Table 2 tensile requirements."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  },
+  {
+    "id": "astm-a572-50",
+    "canonical_name": "ASTM A572 Grade 50",
+    "applicable_standard": "ASTM A572/A572M-21",
+    "uns_number": "K02303",
+    "en_designation": "1.0577 (EN 10025-2 S355J2)",
+    "material_family": "High-Strength Low-Alloy (HSLA)",
+    "description": "Columbium-vanadium micro-alloyed structural steel offering superior strength-to-weight ratio and excellent weldability for bridges and construction equipment.",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": null, "max": 0.23, "unit": "% by weight", "note": "Max for plates up to 4 in [100 mm] thickness." },
+        "Mn": { "min": null, "max": 1.35, "unit": "% by weight", "note": "Plates up to 1.5 in allow 1.35% max; shapes up to 1.60% max." },
+        "P": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Max allowable ladle analysis." },
+        "S": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Max allowable ladle analysis." },
+        "Si": { "min": null, "max": 0.40, "unit": "% by weight", "note": "For plates over 1.5 in, Si minimum 0.15% is required." },
+        "V": { "min": 0.01, "max": 0.15, "unit": "% by weight", "note": "When alloy Type 1 is ordered." },
+        "Nb": { "min": 0.005, "max": 0.05, "unit": "% by weight", "note": "Columbium (Niobium) for grain refinement and precipitation hardening." }
+      },
+      "source": "ASTM A572/A572M-21 Table 1 and Table 2"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 50.0,
+        "max": null,
+        "typical": 56.0,
+        "unit": "ksi",
+        "condition": "As-rolled, plates <= 4 in [100 mm] and structural shapes"
+      },
+      "tensile_strength": {
+        "min": 65.0,
+        "max": null,
+        "typical": 74.0,
+        "unit": "ksi",
+        "condition": "Standard room temperature test per ASTM A6/A6M"
+      },
+      "elongation_pct": {
+        "min": 18.0,
+        "gauge_length": "8 in [200 mm] (21% min in 2 in [50 mm])"
+      },
+      "hardness": {
+        "max": 180.0,
+        "typical": 150.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": 25.0,
+        "test_temp_f": 0.0,
+        "note": "AASHTO Zone 2 toughness typically ordered via Supplementary S5."
+      }
+    },
+    "typical_uses": [
+      "Highway bridges and rail overpasses",
+      "Heavy mobile crane booms and outriggers",
+      "High-rise commercial building columns",
+      "Electrical transmission towers and utility poles"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Excellent structural capability.",
+      "outdoor_atmospheric": "Requires protective paint, hot-dip galvanizing, or metallizing.",
+      "marine_offshore": "Requires heavy epoxy barrier coatings or sacrificial anodes.",
+      "sub_zero": "Reliable down to -20°F when ordered with Charpy Supplementary S5 impact requirements.",
+      "high_temperature": "Creep and yield strength reduction begins above 650°F [345°C]."
+    },
+    "corrosion_resistance": {
+      "category": "Negligible (Requires Protective Coating)",
+      "pren": null,
+      "details": "Corrosion rate comparable to plain carbon steel. Microalloying additions (V/Nb) do not enhance atmospheric corrosion resistance."
+    },
+    "weldability": {
+      "rating": "Good with Standard Preheat",
+      "recommended_processes": ["SMAW", "GMAW", "FCAW", "SAW"],
+      "notes": "Prequalified under AWS D1.1 Group II. Low hydrogen electrodes (E7018) recommended. Typical CEV is 0.38-0.44."
+    },
+    "relative_cost_tier": {
+      "tier": 2,
+      "cost_factor_vs_a36": 1.15,
+      "description": "Modest premium over A36 with 38% higher yield strength."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Plate thickness limited to 4 in [100 mm] for Grade 50 under standard specification.",
+        "Thick sections require careful preheat to prevent hydrogen-induced heat-affected zone (HAZ) cracking."
+      ],
+      "avoid_for": [
+        "Uncoated weathering applications (use A588 instead)",
+        "Wear-abrasion chutes (use AR400 or A514 instead)"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10025-2 S355JR / S355J2",
+        "standard_org": "EN",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Minimum yield 355 MPa (51.5 ksi) closely matches A572-50. S355J2 includes verified -20°C impact toughness."
+      },
+      {
+        "designation": "CSA G40.21 350W",
+        "standard_org": "CSA",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Standard Canadian 350 MPa yield weldable grade."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "ASTM A572/A572M-21 Standard Specification for High-Strength Low-Alloy Columbium-Vanadium Structural Steel",
+        "publisher": "ASTM International",
+        "url_or_identifier": "https://doi.org/10.1520/A0572_A0572M-21"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Fully verified against ASTM A572-21."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  },
+  {
+    "id": "astm-a588",
+    "canonical_name": "ASTM A588 (Grade A)",
+    "applicable_standard": "ASTM A588/A588M-19",
+    "uns_number": "K11430",
+    "en_designation": "1.8965 (EN 10025-5 S355J2W)",
+    "material_family": "Weathering Steel (HSLA)",
+    "description": "High-strength low-alloy structural steel with enhanced atmospheric corrosion resistance (Corten-type), forming a protective, self-passivating oxide patina.",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": null, "max": 0.19, "unit": "% by weight", "note": "Max ladle analysis for Grade A." },
+        "Mn": { "min": 0.80, "max": 1.25, "unit": "% by weight", "note": "Essential for strength and toughness balance." },
+        "P": { "min": null, "max": 0.040, "unit": "% by weight", "note": "Controlled to limit weld embrittlement." },
+        "S": { "min": null, "max": 0.050, "unit": "% by weight", "note": "Max ladle analysis." },
+        "Si": { "min": 0.30, "max": 0.65, "unit": "% by weight", "note": "Silicon aids patina formation." },
+        "Cr": { "min": 0.40, "max": 0.65, "unit": "% by weight", "note": "Key alloying element for protective rust layer." },
+        "Ni": { "min": null, "max": 0.40, "unit": "% by weight", "note": "Grade A allows up to 0.40% max." },
+        "Cu": { "min": 0.25, "max": 0.40, "unit": "% by weight", "note": "Crucial element promoting dense adherence of oxide layer." },
+        "V": { "min": 0.02, "max": 0.10, "unit": "% by weight", "note": "Precipitation strengthener." }
+      },
+      "source": "ASTM A588/A588M-19 Table 1 Chemical Requirements for Grade A"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 50.0,
+        "max": null,
+        "typical": 55.0,
+        "unit": "ksi",
+        "condition": "As-rolled, plates <= 4 in [100 mm] (46 ksi for 4-5 in, 42 ksi for 5-8 in)"
+      },
+      "tensile_strength": {
+        "min": 70.0,
+        "max": null,
+        "typical": 78.0,
+        "unit": "ksi",
+        "condition": "Plates up to 4 in [100 mm] thickness"
+      },
+      "elongation_pct": {
+        "min": 18.0,
+        "gauge_length": "8 in [200 mm] (21% min in 2 in [50 mm])"
+      },
+      "hardness": {
+        "max": 190.0,
+        "typical": 155.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": 30.0,
+        "test_temp_f": 0.0,
+        "note": "Bridge structures typically specify AASHTO Zone 2 fracture-critical CVN."
+      }
+    },
+    "typical_uses": [
+      "Unpainted highway bridge girders and trusses",
+      "Architectural facades and sculptural structures",
+      "Transmission towers and telecommunications poles",
+      "Rail freight hopper cars"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Patina will not develop; requires alternating wet-dry outdoor cycles to form protective oxide.",
+      "outdoor_atmospheric": "Excellent in rural, urban, and moderate industrial climates with cyclical wet-dry conditions.",
+      "marine_offshore": "Not recommended within 0.5 miles of saltwater surf; airborne chlorides prevent stable patina formation.",
+      "sub_zero": "Good sub-zero toughness when ordered to AASHTO M270 Grade 50W impact specs.",
+      "high_temperature": "Patina stability degrades above 800°F [425°C]."
+    },
+    "corrosion_resistance": {
+      "category": "Atmospheric Weathering (Patina Forming)",
+      "pren": null,
+      "details": "ASTM G101 atmospheric corrosion index >= 6.0, providing approximately 4x greater atmospheric corrosion resistance than plain carbon steel when exposed unpainted to cyclical weather."
+    },
+    "weldability": {
+      "rating": "Good with Standard Preheat",
+      "recommended_processes": ["SMAW", "GMAW", "FCAW", "SAW"],
+      "notes": "Prequalified under AWS D1.1 Group II. Weathering matching electrodes (e.g., E8018-W2) must be used to ensure weld deposit matches base metal patina color and corrosion resistance."
+    },
+    "relative_cost_tier": {
+      "tier": 2,
+      "cost_factor_vs_a36": 1.4,
+      "description": "Higher initial material cost offset by total elimination of initial painting and maintenance repainting."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Requires alternating wet and dry environmental cycles to form adherent patina; continuously wet or buried steel will corrode like carbon steel.",
+        "Initial rust runoff during the first 2-5 years can stain underlying concrete abutments.",
+        "Yield strength drops for thicknesses > 4 in [100 mm]."
+      ],
+      "avoid_for": [
+        "Marine coastal environments subject to ocean spray (< 0.5 mi from breaking surf)",
+        "Buried applications or submerged service",
+        "Sheltered architectural pockets where moisture and debris accumulate permanently"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10025-5 S355J2W",
+        "standard_org": "EN",
+        "confidence": "Direct Equivalent",
+        "source_notes": "European standard weathering steel with 355 MPa yield and -20°C CVN impact guarantee."
+      },
+      {
+        "designation": "AASHTO M270 Grade 50W",
+        "standard_org": "AASHTO",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Highway bridge specification matching A588 chemistry with mandatory CVN testing."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "ASTM A588/A588M-19 Standard Specification for High-Strength Low-Alloy Structural Steel",
+        "publisher": "ASTM International",
+        "url_or_identifier": "https://doi.org/10.1520/A0588_A0588M-19"
+      },
+      {
+        "title": "Federal Highway Administration Technical Advisory: Uncoated Weathering Steel in Bridges",
+        "publisher": "FHWA",
+        "url_or_identifier": "FHWA T 5140.22"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Checked against ASTM A588 Grade A chemistry and mechanical limits."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  },
+  {
+    "id": "sae-1018",
+    "canonical_name": "SAE/AISI 1018",
+    "applicable_standard": "SAE J403:2014 / ASTM A108-18",
+    "uns_number": "G10180",
+    "en_designation": "1.1141 (EN 10083-2 C15E)",
+    "material_family": "Low-Carbon Engineering / Machinery Steel",
+    "description": "General-purpose low-carbon machinery steel offering excellent machinability, cold formability, case-hardening capability, and easy weldability.",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": 0.15, "max": 0.20, "unit": "% by weight", "note": "Narrow carbon range ensures predictable response to carburizing." },
+        "Mn": { "min": 0.60, "max": 0.90, "unit": "% by weight", "note": "Improves machinability and surface finish." },
+        "P": { "min": null, "max": 0.040, "unit": "% by weight", "note": "Max ladle analysis for standard carbon steel." },
+        "S": { "min": null, "max": 0.050, "unit": "% by weight", "note": "Max ladle analysis." }
+      },
+      "source": "SAE J403 / ASTM A29 Table 1 Chemical Composition"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 54.0,
+        "max": null,
+        "typical": 54.0,
+        "unit": "ksi",
+        "condition": "Cold drawn bar <= 0.75 in per ASTM A108 (Hot rolled typical is 32 ksi min)"
+      },
+      "tensile_strength": {
+        "min": 64.0,
+        "max": null,
+        "typical": 64.0,
+        "unit": "ksi",
+        "condition": "Cold drawn bar condition per ASTM A108 (Hot rolled typical is 58 ksi)"
+      },
+      "elongation_pct": {
+        "min": 15.0,
+        "gauge_length": "2 in [50 mm] (Cold drawn condition)"
+      },
+      "hardness": {
+        "max": 150.0,
+        "typical": 126.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": null,
+        "test_temp_f": null,
+        "note": "Not governed by ASTM A108 / SAE J403 specification; dependent on cold reduction."
+      }
+    },
+    "typical_uses": [
+      "Pins, studs, bolts, and threaded fasteners",
+      "Carburized gears, ratchets, and camshafts",
+      "Hydraulic fittings and cylindrical bushings",
+      "Precision machined fixture tooling and sprockets"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Requires light rust preventive oil during transit and storage.",
+      "outdoor_atmospheric": "Requires zinc plating, black oxide with oil, or painting.",
+      "marine_offshore": "Rapid rusting unless nickel/chrome plated or stainless substituted.",
+      "sub_zero": "Transition temperature is relatively high; not suitable for low-temperature impact service.",
+      "high_temperature": "Not intended for sustained elevated temperatures above 600°F [315°C]."
+    },
+    "corrosion_resistance": {
+      "category": "Negligible (Requires Protective Coating)",
+      "pren": null,
+      "details": "Plain mild engineering carbon steel with zero passive resistance."
+    },
+    "weldability": {
+      "rating": "Prequalified / Excellent (AWS D1.1)",
+      "recommended_processes": ["SMAW", "GMAW", "GTAW", "Resistance"],
+      "notes": "Low carbon content minimizes hardening during welding. Does not require preheat or postweld heat treatment in typical section thicknesses."
+    },
+    "relative_cost_tier": {
+      "tier": 1,
+      "cost_factor_vs_a36": 1.1,
+      "description": "Inexpensive precision bar stock with modest cold-drawing processing adder."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Through-hardening is impossible due to low carbon (0.20% max); surface hardness requires case carburizing.",
+        "Mechanical properties depend entirely on cold work; hot-rolled material has much lower yield strength (~32 ksi)."
+      ],
+      "avoid_for": [
+        "Heavy shock-loaded shafts requiring core hardness > 30 HRC",
+        "Direct through-hardened tooling (use 4140 or 1045 instead)",
+        "Corrosive chemical environments"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10083-2 C15 / C15E",
+        "standard_org": "EN",
+        "confidence": "Close Substitute",
+        "source_notes": "European case-hardening carbon steel with 0.12-0.18% C."
+      },
+      {
+        "designation": "JIS G4051 S15C",
+        "standard_org": "JIS",
+        "confidence": "Close Substitute",
+        "source_notes": "Japanese standard carbon steel with 0.13-0.18% C."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "SAE J403 Chemical Compositions of SAE Carbon Steels",
+        "publisher": "SAE International",
+        "url_or_identifier": "SAE J403_201406"
+      },
+      {
+        "title": "ASTM A108-18 Standard Specification for Steel Bar, Carbon and Alloy, Cold-Finished",
+        "publisher": "ASTM International",
+        "url_or_identifier": "https://doi.org/10.1520/A0108-18"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Verified against SAE J403 chemical limits and ASTM A108 cold-drawn properties."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  },
+  {
+    "id": "sae-1045",
+    "canonical_name": "SAE/AISI 1045",
+    "applicable_standard": "SAE J403:2014 / ASTM A29-20",
+    "uns_number": "G10450",
+    "en_designation": "1.1191 (EN 10083-2 C45E)",
+    "material_family": "Medium-Carbon Machinery Steel",
+    "description": "Medium-carbon engineering steel offering good strength, moderate hardenability, wear resistance, and heat treatability (quench and temper or flame/induction hardening).",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": 0.43, "max": 0.50, "unit": "% by weight", "note": "Provides sufficient carbon for 50-55 HRC surface induction hardening." },
+        "Mn": { "min": 0.60, "max": 0.90, "unit": "% by weight", "note": "Improves hardenability and tensile strength." },
+        "P": { "min": null, "max": 0.040, "unit": "% by weight", "note": "Max ladle analysis." },
+        "S": { "min": null, "max": 0.050, "unit": "% by weight", "note": "Max ladle analysis." }
+      },
+      "source": "SAE J403 Table 1 Chemical Compositions"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 45.0,
+        "max": null,
+        "typical": 50.0,
+        "unit": "ksi",
+        "condition": "As-rolled hot rolled bar (Normalized is ~54 ksi, Q&T can achieve 75-100 ksi)"
+      },
+      "tensile_strength": {
+        "min": 82.0,
+        "max": null,
+        "typical": 91.0,
+        "unit": "ksi",
+        "condition": "Hot rolled bar condition per ASTM A29"
+      },
+      "elongation_pct": {
+        "min": 16.0,
+        "gauge_length": "2 in [50 mm] (Hot rolled condition)"
+      },
+      "hardness": {
+        "max": 207.0,
+        "typical": 179.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": null,
+        "test_temp_f": null,
+        "note": "Medium carbon steels exhibit ductile-to-brittle transition near ambient temperature."
+      }
+    },
+    "typical_uses": [
+      "Power transmission shafts, axles, and spindles",
+      "Induction-hardened hydraulic cylinder rods",
+      "Forged crankshafts and heavy connecting rods",
+      "Gears, guide pins, and high-tensile bolts"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Requires corrosion preventive oil or hard chrome plating on rods.",
+      "outdoor_atmospheric": "Requires protective plating (electroless nickel, hard chrome) or paint.",
+      "marine_offshore": "Prone to severe pitting and crevice corrosion without specialized seal coatings.",
+      "sub_zero": "Low notch toughness at cold temperatures.",
+      "high_temperature": "Temper resistance drops rapidly above 750°F [400°C]."
+    },
+    "corrosion_resistance": {
+      "category": "Negligible (Requires Protective Coating)",
+      "pren": null,
+      "details": "Plain medium-carbon steel lacking chromium or nickel passivating elements."
+    },
+    "weldability": {
+      "rating": "Moderate (Preheat & Low-Hydrogen Required)",
+      "recommended_processes": ["SMAW", "GMAW"],
+      "notes": "Higher carbon content (0.43-0.50% C) produces high risk of hard, brittle martensitic HAZ and hydrogen cracking. Preheat to 300-500°F [150-260°C] and low-hydrogen electrodes mandatory."
+    },
+    "relative_cost_tier": {
+      "tier": 2,
+      "cost_factor_vs_a36": 1.2,
+      "description": "Standard medium-carbon engineering stock."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Poor weldability compared to mild steel; requires strict preheat and interpass thermal management.",
+        "Shallow hardenability in large diameters (>2.5 in) during oil quench; water quench risks distortion or quench cracking."
+      ],
+      "avoid_for": [
+        "Complex welded structural fabrications",
+        "Large diameter (>3 in) through-hardened shafts (use alloy 4140 instead)",
+        "Severe cyclic impact at low temperatures"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10083-2 C45E / 1.1191",
+        "standard_org": "EN",
+        "confidence": "Direct Equivalent",
+        "source_notes": "European standard 0.45% carbon engineering steel."
+      },
+      {
+        "designation": "JIS G4051 S45C",
+        "standard_org": "JIS",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Ubiquitous Japanese machinery steel standard with 0.42-0.48% C."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "SAE J403 Chemical Compositions of SAE Carbon Steels",
+        "publisher": "SAE International",
+        "url_or_identifier": "SAE J403_201406"
+      },
+      {
+        "title": "ASM Handbook Vol 1: Properties and Selection: Irons, Steels, and High-Performance Alloys",
+        "publisher": "ASM International",
+        "url_or_identifier": "ISBN 978-0-87170-377-4"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Verified against SAE J403 and ASTM A29."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  },
+  {
+    "id": "aisi-4140",
+    "canonical_name": "AISI 4140",
+    "applicable_standard": "ASTM A29/A29M-20 / SAE J404",
+    "uns_number": "G41400",
+    "en_designation": "1.7225 (EN 10083-3 42CrMo4)",
+    "material_family": "Low-Alloy Quenched & Tempered Steel",
+    "description": "Versatile chromium-molybdenum alloy steel with high hardenability, good fatigue strength, excellent torsional strength, and shock resistance.",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": 0.38, "max": 0.43, "unit": "% by weight", "note": "Carbon content balances core toughness and high hardened tensile strength." },
+        "Mn": { "min": 0.75, "max": 1.00, "unit": "% by weight", "note": "Improves through-hardenability." },
+        "P": { "min": null, "max": 0.035, "unit": "% by weight", "note": "Max ladle analysis." },
+        "S": { "min": null, "max": 0.040, "unit": "% by weight", "note": "Max ladle analysis." },
+        "Si": { "min": 0.15, "max": 0.35, "unit": "% by weight", "note": "Deoxidizer." },
+        "Cr": { "min": 0.80, "max": 1.10, "unit": "% by weight", "note": "Chromium provides deep hardenability and temper resistance." },
+        "Mo": { "min": 0.15, "max": 0.25, "unit": "% by weight", "note": "Molybdenum prevents temper embrittlement and enhances elevated temp strength." }
+      },
+      "source": "ASTM A29/A29M Table 1 and SAE J404 Table 1"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 95.0,
+        "max": null,
+        "typical": 105.0,
+        "unit": "ksi",
+        "condition": "Quenched & tempered / prehardened condition (28-32 HRC, e.g. ASTM A193 B7)"
+      },
+      "tensile_strength": {
+        "min": 120.0,
+        "max": null,
+        "typical": 130.0,
+        "unit": "ksi",
+        "condition": "Quenched & tempered bar up to 2.5 in diameter"
+      },
+      "elongation_pct": {
+        "min": 16.0,
+        "gauge_length": "2 in [50 mm] (Q&T condition)"
+      },
+      "hardness": {
+        "max": 321.0,
+        "typical": 285.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": 35.0,
+        "test_temp_f": -40.0,
+        "note": "Achievable in properly vacuum-degassed Q&T condition."
+      }
+    },
+    "typical_uses": [
+      "Oil & gas downhole drill collars, pup joints, and tool bodies",
+      "High-pressure studs and bolting (ASTM A193 Grade B7)",
+      "Heavy automotive drive axles, steering knuckles, and crankshafts",
+      "Machine tool spindle gears and extrusion press rams"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Requires rust preventive oil coating.",
+      "outdoor_atmospheric": "Requires barrier coating or plating (phosphate, cadmium alternative, zinc-nickel).",
+      "marine_offshore": "Requires NACE MR0175 / ISO 15156 hardness restriction (max 22 HRC) if exposed to H2S sour gas environments.",
+      "sub_zero": "Good impact toughness at -40°F when properly tempered.",
+      "high_temperature": "Creep resistant up to 900°F [480°C] due to molybdenum content."
+    },
+    "corrosion_resistance": {
+      "category": "Negligible (Requires Protective Coating)",
+      "pren": null,
+      "details": "Low-alloy steel with ~1% Cr; does not form a passive protective film."
+    },
+    "weldability": {
+      "rating": "Strict WPS & Hydrogen Control Required",
+      "recommended_processes": ["SMAW", "GTAW", "GMAW"],
+      "notes": "High hardenability (CEV ~0.70). High susceptibility to cold cracking. Mandatory preheat 400-600°F [200-315°C], low hydrogen consumables, and immediate postweld stress relief or temper."
+    },
+    "relative_cost_tier": {
+      "tier": 3,
+      "cost_factor_vs_a36": 2.2,
+      "description": "Premium alloy machinery steel reflecting Cr-Mo alloying and precision heat treatment."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Highly prone to hydrogen-induced underbead cracking during field welding.",
+        "Susceptible to sulfide stress cracking in sour service unless hardness is kept below 22 HRC per NACE MR0175."
+      ],
+      "avoid_for": [
+        "Field welding without specialized thermal preheat and post-weld stress relief equipment",
+        "Corrosive acid or saltwater exposure without protective cladding"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10083-3 42CrMo4 / 1.7225",
+        "standard_org": "EN",
+        "confidence": "Direct Equivalent",
+        "source_notes": "European standard 42CrMo4 with virtually identical chemical and mechanical limits."
+      },
+      {
+        "designation": "JIS G4053 SCM440",
+        "standard_org": "JIS",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Standard Japanese chromium-molybdenum machinery grade."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "ASTM A29/A29M-20 Standard Specification for General Requirements for Steel Bars, Carbon and Alloy",
+        "publisher": "ASTM International",
+        "url_or_identifier": "https://doi.org/10.1520/A0029_A0029M-20"
+      },
+      {
+        "title": "NACE MR0175/ISO 15156 Petroleum and natural gas industries - Materials for use in H2S-containing environments",
+        "publisher": "NACE / ISO",
+        "url_or_identifier": "ISO 15156-2:2020"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Verified against ASTM A29 and SAE J404 chemical and mechanical requirements."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  },
+  {
+    "id": "aisi-304",
+    "canonical_name": "AISI 304 / UNS S30400",
+    "applicable_standard": "ASTM A240/A240M-22a",
+    "uns_number": "S30400",
+    "en_designation": "1.4301 (EN 10088-2 X5CrNi18-10)",
+    "material_family": "Austenitic Stainless Steel",
+    "description": "The classic 18/8 austenitic stainless steel with excellent general corrosion resistance, high formability, ductility, and cryogenic toughness.",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": null, "max": 0.07, "unit": "% by weight", "note": "ASTM A240 limits C to 0.07% max (was 0.08% in older revisions)." },
+        "Mn": { "min": null, "max": 2.00, "unit": "% by weight", "note": "Austenite stabilizer and deoxidizer." },
+        "P": { "min": null, "max": 0.045, "unit": "% by weight", "note": "Ladle max." },
+        "S": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Ladle max." },
+        "Si": { "min": null, "max": 0.75, "unit": "% by weight", "note": "Ladle max." },
+        "Cr": { "min": 17.50, "max": 19.50, "unit": "% by weight", "note": "Provides passive self-healing chromium oxide film." },
+        "Ni": { "min": 8.00, "max": 10.50, "unit": "% by weight", "note": "Stabilizes fully austenitic microstructure." },
+        "N": { "min": null, "max": 0.10, "unit": "% by weight", "note": "Interstitial strengthener." }
+      },
+      "source": "ASTM A240/A240M-22a Table 1 Chemical Composition"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 30.0,
+        "max": null,
+        "typical": 35.0,
+        "unit": "ksi",
+        "condition": "Annealed sheet, strip, and plate per ASTM A240"
+      },
+      "tensile_strength": {
+        "min": 75.0,
+        "max": null,
+        "typical": 85.0,
+        "unit": "ksi",
+        "condition": "Annealed condition (515 MPa min)"
+      },
+      "elongation_pct": {
+        "min": 40.0,
+        "gauge_length": "2 in [50 mm]"
+      },
+      "hardness": {
+        "max": 201.0,
+        "typical": 160.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": 80.0,
+        "test_temp_f": -320.0,
+        "note": "Austenitic face-centered cubic structure maintains impact toughness down to liquid nitrogen temps."
+      }
+    },
+    "typical_uses": [
+      "Food and dairy processing tanks and piping",
+      "Commercial kitchen equipment and sinks",
+      "Architectural panels and exterior trim",
+      "Cryogenic storage vessels and cold-boxes"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Excellent passive performance indefinitely.",
+      "outdoor_atmospheric": "Excellent in urban and rural atmospheres; may experience brown tea-staining in marine coastal air.",
+      "marine_offshore": "Susceptible to chloride crevice corrosion and pitting; 316L or duplex preferred.",
+      "sub_zero": "Superb cryogenic ductility down to -320°F [-196°C] without brittle transition.",
+      "high_temperature": "Resists scaling up to 1600°F [870°C] intermittent service."
+    },
+    "corrosion_resistance": {
+      "category": "High General Corrosion Resistance",
+      "pren": 18.5,
+      "details": "Resistant to oxidizing acids (nitric acid) and organic food acids. PREN is approximately 18.0-19.5."
+    },
+    "weldability": {
+      "rating": "Excellent (Standard Austenitic Procedures)",
+      "recommended_processes": ["GTAW", "GMAW", "SMAW", "Laser"],
+      "notes": "Readily weldable using AWS ER308 filler. In heavy welded sections, risk of chromium carbide precipitation at grain boundaries (sensitization); use low-carbon 304L for thick as-welded assemblies."
+    },
+    "relative_cost_tier": {
+      "tier": 4,
+      "cost_factor_vs_a36": 3.2,
+      "description": "High material cost due to 8-10.5% nickel and 18% chromium content."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Susceptible to chloride stress corrosion cracking (CSCC) above 140°F [60°C].",
+        "Sensitization risk during welding or slow cooling between 800-1500°F [425-815°C] in standard carbon (non-L) grade."
+      ],
+      "avoid_for": [
+        "Warm chlorinated water or swimming pool environments (risk of sudden CSCC failure)",
+        "Seawater immersion without cathodic protection",
+        "Welded components exposed to corrosive media without post-weld solution annealing (use 304L instead)"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10088-2 1.4301 / X5CrNi18-10",
+        "standard_org": "EN",
+        "confidence": "Direct Equivalent",
+        "source_notes": "European standard 1.4301 corresponds directly to AISI 304."
+      },
+      {
+        "designation": "JIS G4303 SUS304",
+        "standard_org": "JIS",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Standard Japanese 18-8 austenitic stainless steel."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "ASTM A240/A240M-22a Standard Specification for Chromium and Chromium-Nickel Stainless Steel Plate, Sheet, and Strip",
+        "publisher": "ASTM International",
+        "url_or_identifier": "https://doi.org/10.1520/A0240_A0240M-22A"
+      },
+      {
+        "title": "Outokumpu Stainless Steel Handbook",
+        "publisher": "Outokumpu Oyj",
+        "url_or_identifier": "ISBN 978-952-93-1383-7"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Verified against ASTM A240/A240M-22a."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  },
+  {
+    "id": "aisi-316l",
+    "canonical_name": "AISI 316L / UNS S31603",
+    "applicable_standard": "ASTM A240/A240M-22a",
+    "uns_number": "S31603",
+    "en_designation": "1.4404 (EN 10088-2 X2CrNiMo17-12-2)",
+    "material_family": "Austenitic Stainless Steel",
+    "description": "Extra-low carbon molybdenum-bearing austenitic stainless steel providing superior resistance to pitting, crevice corrosion, and sensitization in chloride environments.",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Low carbon prevents chromium carbide sensitization during welding." },
+        "Mn": { "min": null, "max": 2.00, "unit": "% by weight", "note": "Ladle max." },
+        "P": { "min": null, "max": 0.045, "unit": "% by weight", "note": "Ladle max." },
+        "S": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Ladle max." },
+        "Si": { "min": null, "max": 0.75, "unit": "% by weight", "note": "Ladle max." },
+        "Cr": { "min": 16.00, "max": 18.00, "unit": "% by weight", "note": "Essential chromium passivating element." },
+        "Ni": { "min": 10.00, "max": 14.00, "unit": "% by weight", "note": "Higher nickel stabilizes austenite in presence of molybdenum." },
+        "Mo": { "min": 2.00, "max": 3.00, "unit": "% by weight", "note": "Molybdenum provides enhanced resistance to chloride pitting." },
+        "N": { "min": null, "max": 0.10, "unit": "% by weight", "note": "Ladle max." }
+      },
+      "source": "ASTM A240/A240M-22a Table 1 Chemical Requirements"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 25.0,
+        "max": null,
+        "typical": 32.0,
+        "unit": "ksi",
+        "condition": "Annealed sheet and plate per ASTM A240 (170 MPa min)"
+      },
+      "tensile_strength": {
+        "min": 70.0,
+        "max": null,
+        "typical": 82.0,
+        "unit": "ksi",
+        "condition": "Annealed condition per ASTM A240 (485 MPa min)"
+      },
+      "elongation_pct": {
+        "min": 40.0,
+        "gauge_length": "2 in [50 mm]"
+      },
+      "hardness": {
+        "max": 217.0,
+        "typical": 150.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": 90.0,
+        "test_temp_f": -320.0,
+        "note": "Superior cryogenic notch toughness down to liquid helium temperatures."
+      }
+    },
+    "typical_uses": [
+      "Marine hardware, offshore rig piping, and boat fittings",
+      "Pharmaceutical batch reactors and sterile biotechnology piping",
+      "Chemical processing tanks handling organic and sulfuric acids",
+      "Flue gas desulfurization (FGD) scrubbers and marine exhaust scrubbers"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Excellent, sanitary cleanability.",
+      "outdoor_atmospheric": "Impervious to industrial smog and coastal marine atmospheric tea-staining.",
+      "marine_offshore": "Excellent in marine atmospheres and splash zones (though stagnant seawater requires duplex or 6-Mo).",
+      "sub_zero": "Outstanding cryogenic service capability down to -320°F [-196°C].",
+      "high_temperature": "Continuous service up to 1500°F [815°C]; low carbon avoids sensitization."
+    },
+    "corrosion_resistance": {
+      "category": "Superior Chloride & Pitting Resistance",
+      "pren": 23.5,
+      "details": "PREN calculation: Cr + 3.3(Mo) + 16(N) = ~23.1 to 25.0. Significantly outperforms 304 in chlorides, de-icing salts, and acidic environments."
+    },
+    "weldability": {
+      "rating": "Excellent (Standard Austenitic Procedures)",
+      "recommended_processes": ["GTAW", "GMAW", "SMAW", "FCAW"],
+      "notes": "Welds easily with AWS ER316L filler. The 0.030% max carbon eliminates knife-line intergranular corrosion without requiring postweld solution annealing."
+    },
+    "relative_cost_tier": {
+      "tier": 4,
+      "cost_factor_vs_a36": 4.2,
+      "description": "Substantial cost premium reflecting 2-3% molybdenum and 10-14% nickel."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Susceptible to chloride stress corrosion cracking above 140°F [60°C] under tensile stress.",
+        "Relatively low minimum yield strength (25 ksi per ASTM A240) in annealed condition.",
+        "Crevice corrosion can occur under bio-fouling or gaskets in warm stagnant seawater."
+      ],
+      "avoid_for": [
+        "Warm stagnant seawater piping (use Duplex 2205 or Super Duplex 2507 instead)",
+        "Hot concentrated hydrochloric acid service"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10088-2 1.4404 / X2CrNiMo17-12-2",
+        "standard_org": "EN",
+        "confidence": "Direct Equivalent",
+        "source_notes": "European standard 1.4404 matches AISI 316L in composition and performance."
+      },
+      {
+        "designation": "JIS G4303 SUS316L",
+        "standard_org": "JIS",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Standard Japanese low-carbon 316 grade."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "ASTM A240/A240M-22a Standard Specification for Chromium and Chromium-Nickel Stainless Steel",
+        "publisher": "ASTM International",
+        "url_or_identifier": "https://doi.org/10.1520/A0240_A0240M-22A"
+      },
+      {
+        "title": "Nickel Institute: High-Performance Stainless Steels",
+        "publisher": "Nickel Institute",
+        "url_or_identifier": "Nickel Institute Publication 11021"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Verified against ASTM A240/A240M-22a Table 1 and Table 2."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  },
+  {
+    "id": "aisi-409",
+    "canonical_name": "AISI 409 / UNS S40900",
+    "applicable_standard": "ASTM A240/A240M-22a",
+    "uns_number": "S40900",
+    "en_designation": "1.4512 (EN 10088-2 X2CrTi12)",
+    "material_family": "Ferritic Stainless Steel",
+    "description": "Titanium-stabilized 11% chromium ferritic stainless steel providing heat and oxidation resistance at high temperatures, widely used in automotive exhaust systems.",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Low carbon per modern ASTM A240 revisions." },
+        "Mn": { "min": null, "max": 1.00, "unit": "% by weight", "note": "Ladle max." },
+        "P": { "min": null, "max": 0.040, "unit": "% by weight", "note": "Ladle max." },
+        "S": { "min": null, "max": 0.020, "unit": "% by weight", "note": "Ladle max." },
+        "Si": { "min": null, "max": 1.00, "unit": "% by weight", "note": "Ladle max." },
+        "Cr": { "min": 10.50, "max": 11.75, "unit": "% by weight", "note": "Entry level chromium content for stainless passivation." },
+        "Ni": { "min": null, "max": 0.50, "unit": "% by weight", "note": "Non-nickel alloy; residual max 0.50%." },
+        "Ti": { "min": 0.15, "max": 0.75, "unit": "% by weight", "note": "Titanium stabilization formula: min 6x(C+N) or 0.15% min, max 0.75%." }
+      },
+      "source": "ASTM A240/A240M-22a Table 1 Chemical Requirements"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 30.0,
+        "max": null,
+        "typical": 35.0,
+        "unit": "ksi",
+        "condition": "Annealed condition per ASTM A240 (205 MPa min)"
+      },
+      "tensile_strength": {
+        "min": 55.0,
+        "max": null,
+        "typical": 65.0,
+        "unit": "ksi",
+        "condition": "Annealed condition per ASTM A240 (380 MPa min)"
+      },
+      "elongation_pct": {
+        "min": 20.0,
+        "gauge_length": "2 in [50 mm]"
+      },
+      "hardness": {
+        "max": 179.0,
+        "typical": 140.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": null,
+        "test_temp_f": null,
+        "note": "Ferritic stainless undergoes ductile-to-brittle transition near 32°F [0°C]; not rated for cryogenic impact."
+      }
+    },
+    "typical_uses": [
+      "Automotive exhaust pipes, mufflers, and catalytic converter shells",
+      "Agricultural fertilizer spreaders and grain dry chutes",
+      "Industrial furnace flue boxes and heat exchangers",
+      "Culvert pipe liners and bus structural frames"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Excellent, maintenance free.",
+      "outdoor_atmospheric": "Forms a superficial cosmetic brown surface discoloration (tea staining), but resists perforation.",
+      "marine_offshore": "Unsuitable for aesthetic or severe salt spray applications.",
+      "sub_zero": "Poor low-temperature impact toughness; exhibits room-temperature DBTT transition.",
+      "high_temperature": "Resists scaling and oxidation up to 1250°F [675°C] continuous (1400°F [760°C] intermittent)."
+    },
+    "corrosion_resistance": {
+      "category": "Moderate High-Temperature / Exhaust",
+      "pren": 11.0,
+      "details": "Sufficient chromium to resist hot exhaust gas condensate corrosion and atmospheric rust-through, but will discolor on surface. PREN ~11.0."
+    },
+    "weldability": {
+      "rating": "Specialized (Ferritic Grain Coarsening Risk)",
+      "recommended_processes": ["GMAW", "GTAW", "Resistance"],
+      "notes": "Weldable with ER409 or ER309 filler. Excessive heat input causes rapid grain coarsening in the HAZ, leading to reduced toughness. Titanium stabilization prevents sensitization."
+    },
+    "relative_cost_tier": {
+      "tier": 3,
+      "cost_factor_vs_a36": 2.1,
+      "description": "Economical stainless steel due to absence of expensive nickel and molybdenum."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Develops superficial cosmetic rust staining in outdoor atmospheres.",
+        "HAZ grain coarsening limits weld joint toughness in heavy sections (>0.125 in).",
+        "Brittle at sub-zero temperatures."
+      ],
+      "avoid_for": [
+        "Decorative architectural surfaces where visual appearance matters (use 304 or 316 instead)",
+        "Food contact surfaces or sterile pharmaceutical equipment",
+        "Cryogenic storage tanks"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10088-2 1.4512 / X2CrTi12",
+        "standard_org": "EN",
+        "confidence": "Direct Equivalent",
+        "source_notes": "European standard 1.4512 corresponds directly to titanium-stabilized 409."
+      },
+      {
+        "designation": "JIS G4305 SUS409L",
+        "standard_org": "JIS",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Japanese standard low-carbon 409 sheet grade."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "ASTM A240/A240M-22a Standard Specification for Chromium and Chromium-Nickel Stainless Steel",
+        "publisher": "ASTM International",
+        "url_or_identifier": "https://doi.org/10.1520/A0240_A0240M-22A"
+      },
+      {
+        "title": "Specialty Steel Industry of North America: Ferritic Stainless Steels",
+        "publisher": "SSINA",
+        "url_or_identifier": "SSINA Design Guidelines for Ferritic Stainless Steels"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Verified against ASTM A240 Table 1 and Table 2 requirements."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  },
+  {
+    "id": "duplex-2205",
+    "canonical_name": "2205 Duplex Stainless Steel (UNS S32205 / S31803)",
+    "applicable_standard": "ASTM A240/A240M-22a / EN 10088-2",
+    "uns_number": "S32205 (also S31803)",
+    "en_designation": "1.4462 (EN 10088-2 X2CrNiMoN22-5-3)",
+    "material_family": "Duplex Stainless Steel",
+    "description": "Austenitic-ferritic (50/50 phase balance) duplex stainless steel combining approximately twice the yield strength of 300-series stainless with outstanding resistance to chloride stress corrosion cracking.",
+    "chemistry_limits": {
+      "elements": {
+        "C": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Low carbon prevents intergranular carbide precipitation." },
+        "Mn": { "min": null, "max": 2.00, "unit": "% by weight", "note": "Ladle max." },
+        "P": { "min": null, "max": 0.030, "unit": "% by weight", "note": "Strictly controlled." },
+        "S": { "min": null, "max": 0.020, "unit": "% by weight", "note": "Strictly controlled." },
+        "Si": { "min": null, "max": 1.00, "unit": "% by weight", "note": "Ladle max." },
+        "Cr": { "min": 22.00, "max": 23.00, "unit": "% by weight", "note": "UNS S32205 restricts Cr to 22.0-23.0% (S31803 allows 21.0-23.0%)." },
+        "Ni": { "min": 4.50, "max": 6.50, "unit": "% by weight", "note": "Balances the 50/50 austenite/ferrite phase structure." },
+        "Mo": { "min": 3.00, "max": 3.50, "unit": "% by weight", "note": "UNS S32205 restricts Mo to 3.0-3.5% (S31803 allows 2.5-3.5%)." },
+        "N": { "min": 0.14, "max": 0.20, "unit": "% by weight", "note": "Nitrogen boosts PREN and ensures rapid austenite reformation during welding cooling." }
+      },
+      "source": "ASTM A240/A240M-22a Table 1 for UNS S32205"
+    },
+    "mechanical_properties": {
+      "yield_strength": {
+        "min": 65.0,
+        "max": null,
+        "typical": 75.0,
+        "unit": "ksi",
+        "condition": "Annealed sheet and plate per ASTM A240 (450 MPa min, >2x AISI 304/316)"
+      },
+      "tensile_strength": {
+        "min": 95.0,
+        "max": null,
+        "typical": 110.0,
+        "unit": "ksi",
+        "condition": "Annealed plate condition (655 MPa min)"
+      },
+      "elongation_pct": {
+        "min": 25.0,
+        "gauge_length": "2 in [50 mm]"
+      },
+      "hardness": {
+        "max": 293.0,
+        "typical": 250.0,
+        "scale": "HBW"
+      },
+      "charpy_impact": {
+        "min_avg_ft_lbs": 60.0,
+        "test_temp_f": -40.0,
+        "note": "Standard specification guarantees good impact toughness down to -40°F [-40°C]."
+      }
+    },
+    "typical_uses": [
+      "Offshore oil & gas separation vessels, piping, and manifolds",
+      "Chemical cargo tanks for marine product tankers",
+      "Pulp & paper bleach plant digesters and liquor tanks",
+      "Reverse osmosis seawater desalination pressure vessels and pumps"
+    ],
+    "environmental_suitability": {
+      "indoor_dry": "Superb, high strength allows thinner wall sections.",
+      "outdoor_atmospheric": "Completely immune to coastal and industrial atmospheric staining.",
+      "marine_offshore": "Outstanding resistance to seawater splash zones, salt spray, and brackish brine.",
+      "sub_zero": "Rated down to -40°F [-40°C]; below -50°F ferrite phase suffers ductile-to-brittle transition.",
+      "high_temperature": "Restricted to maximum 572°F [300°C] continuous due to risk of 475°C [885°F] embrittlement and sigma phase."
+    },
+    "corrosion_resistance": {
+      "category": "Superior Chloride & Pitting Resistance",
+      "pren": 35.0,
+      "details": "PREN: Cr + 3.3(Mo) + 16(N) = 34.0 to 36.0. High resistance to chloride stress corrosion cracking, erosion-corrosion, and pitting."
+    },
+    "weldability": {
+      "rating": "Good (Requires Controlled Heat Input & Phase Balance)",
+      "recommended_processes": ["GTAW", "GMAW", "SMAW", "SAW"],
+      "notes": "Weldable with matching over-alloyed filler (AWS ER2209). Heat input must be controlled (1.0-2.5 kJ/mm) to maintain 40-60% ferrite/austenite ratio and prevent intermetallic precipitation."
+    },
+    "relative_cost_tier": {
+      "tier": 5,
+      "cost_factor_vs_a36": 5.0,
+      "description": "High alloy cost balanced by 2x strength capability that enables 30-40% vessel wall thickness reductions."
+    },
+    "limitations_and_guidance": {
+      "known_limitations": [
+        "Temperature upper limit is strictly 572°F [300°C] to prevent '475°C embrittlement'.",
+        "Temperature lower limit is -40°F [-40°C]; unsuitable for cryogenic liquid gas service.",
+        "Requires qualified welding procedures to ensure ferrite phase balance remains between 35-65%."
+      ],
+      "avoid_for": [
+        "High-temperature service exceeding 572°F [300°C] (risk of sigma phase embrittlement)",
+        "Cryogenic service below -40°F [-40°C] (use 304L or 316L instead)"
+      ]
+    },
+    "cross_standard_equivalents": [
+      {
+        "designation": "EN 10088-2 1.4462 / X2CrNiMoN22-5-3",
+        "standard_org": "EN",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Exact European standard designation for 2205 duplex stainless steel."
+      },
+      {
+        "designation": "ISO 15156-3 / NACE MR0175",
+        "standard_org": "ISO",
+        "confidence": "Direct Equivalent",
+        "source_notes": "Accepted for sour service up to 450°F and partial pressure H2S limits."
+      }
+    ],
+    "source_references": [
+      {
+        "title": "ASTM A240/A240M-22a Standard Specification for Chromium and Chromium-Nickel Stainless Steel Plate, Sheet, and Strip",
+        "publisher": "ASTM International",
+        "url_or_identifier": "https://doi.org/10.1520/A0240_A0240M-22A"
+      },
+      {
+        "title": "International Molybdenum Association (IMOA): Practical Guide to Using Duplex Stainless Steels",
+        "publisher": "IMOA",
+        "url_or_identifier": "IMOA Publication ISBN 978-1-907470-09-7"
+      }
+    ],
+    "review_metadata": {
+      "status": "fully_checked",
+      "last_reviewed": "2026-10-24",
+      "reviewer_notes": "Verified against ASTM A240/A240M-22a UNS S32205 chemistry and mechanical limits."
+    },
+    "disclaimer": "Informational guidance only. Not intended as engineering certification or WPS qualification. Always refer to certified Mill Test Reports (MTRs) and official ASTM/ASME standards for specific project design calculations."
+  }
+]

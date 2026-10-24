@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "db:verify": "npx -y tsx scripts/db-verify.ts"
+    "db:verify": "npx -y tsx scripts/db-verify.ts",
+    "grades:validate": "npx -y tsx scripts/validate-grades.ts"
   },
   "dependencies": {
     "@google/genai": "^2.31.0",
