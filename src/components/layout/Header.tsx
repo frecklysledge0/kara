@@ -12,7 +12,8 @@ import {
   Sparkles, 
   FileText,
   BookOpen,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
@@ -27,6 +28,7 @@ export function Header() {
     { href: "/assistant", label: "Sourcing Assistant", icon: Sparkles },
     { href: "/standards", label: "Standards Registry", icon: BookOpen },
     { href: "/sell", label: "Sell Materials", icon: UploadCloud },
+    { href: "/verify", label: "Verify MTR", icon: ShieldCheck },
     { href: "/orders", label: "Orders & Quotes", icon: FileText },
   ];
 

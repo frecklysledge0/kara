@@ -28,6 +28,7 @@ import { CURATED_GRADES } from "@/lib/data/grades";
 import { SYNTHETIC_MTR_FIXTURES } from "@/lib/data/synthetic-mtr-fixtures";
 import { MTRExtraction, MTRReviewResult, MTRExtractionPipelineResponse } from "@/types/mtr";
 import { evaluateMTRComplianceAndRisk } from "@/lib/engine/mtr-qc";
+import { SolanaSignPanel } from "@/components/solana/SolanaSignPanel";
 
 export default function SellPage() {
   // Stepper & Processing states
@@ -40,6 +41,7 @@ export default function SellPage() {
   // Active Document & Extraction State
   const [selectedBenchmarkId, setSelectedBenchmarkId] = useState<string | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [documentSha256, setDocumentSha256] = useState<string | null>(null);
   const [signedPreviewUrl, setSignedPreviewUrl] = useState<string | null>(null);
   const [rawDocumentSnippet, setRawDocumentSnippet] = useState<string | null>(null);
@@ -70,6 +72,7 @@ export default function SellPage() {
 
   // Load a synthetic benchmark fixture
   async function loadBenchmarkSample(benchmarkId: string) {
+    setUploadedFile(null);
     setIsProcessing(true);
     setProcessingStage("Loading DEMO benchmark fixture...");
     setErrorMessage(null);
@@ -119,6 +122,7 @@ export default function SellPage() {
     setPublishedListingId(null);
     setIsEditing(false);
     setUploadedFileName(file.name);
+    setUploadedFile(file);
 
     // Sequence stages for realistic feedback
     setProcessingStage("Validating file format & magic bytes...");
@@ -701,6 +705,12 @@ export default function SellPage() {
                           </span>
                         </div>
                       </div>
+
+                      {/* Solana mill signature (devnet demo) */}
+                      <SolanaSignPanel
+                        key={uploadedFile ? `${uploadedFile.name}-${uploadedFile.size}-${uploadedFile.lastModified}` : "no-file"}
+                        file={uploadedFile}
+                      />
 
                       {/* Mock or Signed Document Viewer */}
                       {rawDocumentSnippet ? (

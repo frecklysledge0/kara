@@ -109,3 +109,10 @@ export async function verifyFingerprint(hash: string, millAddressBase58: string)
     explorerUrl: explorerTxUrl(match.signature),
   };
 }
+
+/** The three DEMO mills (synthetic — not real companies). Addresses come from the env keys. */
+export const DEMO_MILLS: { id: MillId; name: string }[] = [
+  { id: 1, name: "Demo Mill 1 (synthetic EAF mini-mill)" },
+  { id: 2, name: "Demo Mill 2 (synthetic plate mill)" },
+  { id: 3, name: "Demo Mill 3 (synthetic bar mill)" },
+];
