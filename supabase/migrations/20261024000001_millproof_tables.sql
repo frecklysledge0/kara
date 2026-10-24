@@ -8,25 +8,34 @@
 -- Enable UUID extension if not enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Ensure sellers table has canonical city and state columns if upgrading from legacy schema
+-- Ensure sellers table has all canonical columns if migrating from legacy prototype
 DO $$
 BEGIN
     IF EXISTS (
         SELECT 1 FROM information_schema.tables 
         WHERE table_schema = 'public' AND table_name = 'sellers'
     ) THEN
-        IF NOT EXISTS (
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS city TEXT DEFAULT 'Gary';
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS state TEXT DEFAULT 'IN';
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS country TEXT DEFAULT 'USA';
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS latitude NUMERIC(10, 6);
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS longitude NUMERIC(10, 6);
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS mill_route TEXT;
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS description TEXT;
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS demo_status TEXT DEFAULT 'synthetic_demo';
+
+        IF EXISTS (
             SELECT 1 FROM information_schema.columns 
-            WHERE table_schema = 'public' AND table_name = 'sellers' AND column_name = 'state'
+            WHERE table_schema = 'public' AND table_name = 'sellers' AND column_name = 'headquarters_city'
         ) THEN
-            ALTER TABLE sellers ADD COLUMN IF NOT EXISTS state TEXT DEFAULT 'IN';
-            ALTER TABLE sellers ADD COLUMN IF NOT EXISTS city TEXT DEFAULT 'Gary';
-            IF EXISTS (
-                SELECT 1 FROM information_schema.columns 
-                WHERE table_schema = 'public' AND table_name = 'sellers' AND column_name = 'headquarters_city'
-            ) THEN
-                UPDATE sellers SET city = headquarters_city, state = headquarters_state;
-            END IF;
+            UPDATE sellers SET city = headquarters_city, state = headquarters_state;
+        END IF;
+
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_schema = 'public' AND table_name = 'sellers' AND column_name = 'is_synthetic_demo'
+        ) THEN
+            UPDATE sellers SET demo_status = CASE WHEN is_synthetic_demo THEN 'synthetic_demo' ELSE 'verified_live' END;
         END IF;
     END IF;
 END $$;
