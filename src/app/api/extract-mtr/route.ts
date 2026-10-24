@@ -203,6 +203,37 @@ JSON SCHEMA STRUCTURE TO RETURN:
 }
 `;
 
+function isQuotaOrResourceExhausted(err: unknown): boolean {
+  if (!err) return false;
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  const status = (err as Record<string, unknown>)?.status;
+  return (
+    status === 429 ||
+    status === 503 ||
+    status === "RESOURCE_EXHAUSTED" ||
+    status === "UNAVAILABLE" ||
+    msg.includes("429") ||
+    msg.includes("503") ||
+    msg.includes("quota") ||
+    msg.includes("resource_exhausted") ||
+    msg.includes("high demand") ||
+    msg.includes("spikes in demand") ||
+    msg.includes("unavailable")
+  );
+}
+
+async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 6000): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Extraction timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    clearTimeout(timer!);
+  }
+}
+
     // Resilient model cascade
     const candidateModels = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"];
     let responseText: string | null = null;
@@ -210,30 +241,33 @@ JSON SCHEMA STRUCTURE TO RETURN:
 
     for (const model of candidateModels) {
       try {
-        const response = await ai.models.generateContent({
-          model,
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  inlineData: {
-                    mimeType: detectedMime,
-                    data: base64Data,
+        const response = await callWithTimeout(
+          ai.models.generateContent({
+            model,
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    inlineData: {
+                      mimeType: detectedMime,
+                      data: base64Data,
+                    },
                   },
-                },
-                {
-                  text: "Extract all chemical ladle analysis, mechanical tension tests, heat number, and specification from this Mill Test Report into structured JSON adhering strictly to instructions.",
-                },
-              ],
+                  {
+                    text: "Extract all chemical ladle analysis, mechanical tension tests, heat number, and specification from this Mill Test Report into structured JSON adhering strictly to instructions.",
+                  },
+                ],
+              },
+            ],
+            config: {
+              systemInstruction,
+              responseMimeType: "application/json",
+              temperature: 0.1,
             },
-          ],
-          config: {
-            systemInstruction,
-            responseMimeType: "application/json",
-            temperature: 0.1,
-          },
-        });
+          }),
+          6000
+        );
 
         if (response.text) {
           responseText = response.text;
@@ -242,6 +276,10 @@ JSON SCHEMA STRUCTURE TO RETURN:
         }
       } catch (callErr: unknown) {
         console.warn(`Extraction model ${model} unavailable, trying fallback...`, callErr);
+        if (isQuotaOrResourceExhausted(callErr)) {
+          console.info("Gemini quota or capacity exhausted in OCR; terminating model cascade early.");
+          break;
+        }
       }
     }
 

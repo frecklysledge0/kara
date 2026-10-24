@@ -475,7 +475,7 @@ export default function BuyerDashboardPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-slate-900 text-xs">
-                            {lot.grade}
+                            {typeof lot.grade === "string" ? lot.grade : ((lot.grade as Record<string, unknown>)?.grade_name as string) || "ASTM A572 Grade 50"}
                           </span>
                           <Badge variant="outline" size="sm" className="font-mono text-[10px]">
                             {lot.form}

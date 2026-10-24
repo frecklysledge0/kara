@@ -119,19 +119,53 @@ Candidate Batches & Computed Ranking Details:
 ${JSON.stringify(candidateGradeFacts, null, 2)}
 `;
 
+function isQuotaOrResourceExhausted(err: unknown): boolean {
+  if (!err) return false;
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  const status = (err as Record<string, unknown>)?.status;
+  return (
+    status === 429 ||
+    status === 503 ||
+    status === "RESOURCE_EXHAUSTED" ||
+    status === "UNAVAILABLE" ||
+    msg.includes("429") ||
+    msg.includes("503") ||
+    msg.includes("quota") ||
+    msg.includes("resource_exhausted") ||
+    msg.includes("high demand") ||
+    msg.includes("spikes in demand") ||
+    msg.includes("unavailable")
+  );
+}
+
+async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`AI generation timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    clearTimeout(timer!);
+  }
+}
+
   const candidateModels = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"];
 
   for (const model of candidateModels) {
     try {
-      const response = await ai.models.generateContent({
-        model,
-        contents: [{ role: "user", parts: [{ text: promptContent }] }],
-        config: {
-          systemInstruction,
-          responseMimeType: "application/json",
-          temperature: 0.2,
-        },
-      });
+      const response = await callWithTimeout(
+        ai.models.generateContent({
+          model,
+          contents: [{ role: "user", parts: [{ text: promptContent }] }],
+          config: {
+            systemInstruction,
+            responseMimeType: "application/json",
+            temperature: 0.2,
+          },
+        }),
+        3500
+      );
 
       if (response.text) {
         const parsed = JSON.parse(response.text);
@@ -142,6 +176,10 @@ ${JSON.stringify(candidateGradeFacts, null, 2)}
       }
     } catch (err) {
       console.warn(`Model ${model} failed in explanation generator:`, err);
+      if (isQuotaOrResourceExhausted(err)) {
+        console.info("Gemini quota or capacity issue in explainer; terminating cascade to use deterministic explanation.");
+        break;
+      }
     }
   }
 

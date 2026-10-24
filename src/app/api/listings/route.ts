@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       seller_id: SYNTHETIC_SELLERS[0].id,
       seller: SYNTHETIC_SELLERS[0],
       grade_id,
-      grade: GRADE_STANDARDS_REGISTRY[grade_id],
+      grade: GRADE_STANDARDS_REGISTRY[grade_id]?.grade_name || grade_id,
       title,
       product_form,
       dimensions_display: `${thickness.toFixed(3)}" x ${width.toFixed(0)}" x ${length > 0 ? `${length.toFixed(0)}"` : "Coil"}`,
