@@ -234,12 +234,14 @@ ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
 -- 1. Sellers Policies:
 -- Public can view registered seller profiles.
+DROP POLICY IF EXISTS "Public read sellers" ON sellers;
 CREATE POLICY "Public read sellers"
     ON sellers FOR SELECT
     USING (true);
 
 -- 2. Listings Policies:
 -- Public and buyers can search active and reserved listings.
+DROP POLICY IF EXISTS "Public read active listings" ON listings;
 CREATE POLICY "Public read active listings"
     ON listings FOR SELECT
     USING (status IN ('active', 'reserved'));
@@ -247,6 +249,7 @@ CREATE POLICY "Public read active listings"
 -- 3. Certificates Security:
 -- NEVER allow arbitrary public access to private certificates.
 -- Only authenticated users associated with the lot, verified buyers, or service role.
+DROP POLICY IF EXISTS "Restricted certificates access" ON certificates;
 CREATE POLICY "Restricted certificates access"
     ON certificates FOR SELECT
     USING (
@@ -264,6 +267,7 @@ CREATE POLICY "Restricted certificates access"
 
 -- 4. Orders Policies:
 -- Allow buyers to create orders, but restrict visibility to the buyer and seller.
+DROP POLICY IF EXISTS "Buyers and sellers read orders" ON orders;
 CREATE POLICY "Buyers and sellers read orders"
     ON orders FOR SELECT
     USING (
@@ -272,6 +276,7 @@ CREATE POLICY "Buyers and sellers read orders"
         OR true -- Demo access fallback documented below
     );
 
+DROP POLICY IF EXISTS "Buyers insert orders" ON orders;
 CREATE POLICY "Buyers insert orders"
     ON orders FOR INSERT
     WITH CHECK (
