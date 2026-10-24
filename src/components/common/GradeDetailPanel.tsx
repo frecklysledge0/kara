@@ -2,18 +2,14 @@
 
 import React from "react";
 import { 
-  ShieldCheck, 
   AlertTriangle, 
   CheckCircle2, 
-  ExternalLink, 
   Flame, 
   Scale, 
   Layers, 
   BookOpen, 
   Info,
-  DollarSign,
   Compass,
-  Zap,
   Globe
 } from "lucide-react";
 import { SteelGradeEntry } from "@/types/grades";

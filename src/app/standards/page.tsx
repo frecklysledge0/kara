@@ -2,22 +2,16 @@
 
 import React, { useState } from "react";
 import { 
-  BookOpen, 
-  Search, 
-  Filter, 
   Calculator, 
-  Flame, 
-  Scale, 
-  ShieldCheck,
   ChevronRight
 } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { GradeDetailPanel } from "@/components/common/GradeDetailPanel";
+import { GradeTranslatorPanel } from "@/components/common/GradeTranslatorPanel";
 import { getAllGrades, getGradeById } from "@/lib/data/grades";
 import { calculateIIWCarbonEquivalent, calculatePREN } from "@/lib/engine/metallurgy";
 
@@ -71,6 +65,10 @@ export default function StandardsPage() {
     <PageContainer
       title="Curated Steel Grade Knowledge Base"
       description="Peer-reviewed chemical tolerances, mechanical property ranges, weldability ratings, and cross-standard equivalents."
+      breadcrumbs={[
+        { label: "Marketplace", href: "/listings" },
+        { label: "Standards Registry" },
+      ]}
       badge={<Badge variant="outline" size="sm">ASTM &bull; AISI &bull; EN Reference Library</Badge>}
     >
       <div className="space-y-8">
@@ -160,6 +158,11 @@ export default function StandardsPage() {
           <div className="lg:col-span-8">
             <GradeDetailPanel grade={selectedGrade} />
           </div>
+        </div>
+
+        {/* Cross-Standard Steel Grade Translator */}
+        <div id="translator">
+          <GradeTranslatorPanel />
         </div>
 
         {/* Metallurgical Formula Sandbox Section */}

@@ -113,6 +113,7 @@ export interface MaterialTestCertificate {
   cert_number: string;
   mill_name: string;
   mill_country: string;
+  melt_pour_country?: string | null;
   specification: string;
   en10204_type: '2.1' | '2.2' | '3.1' | '3.2';
   product_form: string;

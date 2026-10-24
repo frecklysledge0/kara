@@ -8,7 +8,7 @@ import {
   MechanicalComplianceCheck, 
   MTRQCSummary 
 } from "@/types/steel";
-import { calculateIIWCarbonEquivalent, calculatePREN } from "./metallurgy";
+import { calculateIIWCarbonEquivalent } from "./metallurgy";
 
 /**
  * Evaluates an individual chemical element against ASTM specified bounds.

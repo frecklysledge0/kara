@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
-  Layers, 
   Menu, 
   X, 
   Search, 
@@ -12,7 +11,7 @@ import {
   LayoutDashboard, 
   Sparkles, 
   FileText,
-  ShieldCheck,
+  BookOpen,
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,6 +25,7 @@ export function Header() {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/listings", label: "Marketplace", icon: Search },
     { href: "/assistant", label: "Sourcing Assistant", icon: Sparkles },
+    { href: "/standards", label: "Standards Registry", icon: BookOpen },
     { href: "/sell", label: "Sell Materials", icon: UploadCloud },
     { href: "/orders", label: "Orders & Quotes", icon: FileText },
   ];
@@ -44,6 +44,7 @@ export function Header() {
             <Link
               href="/"
               className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 rounded py-1"
+              aria-label="MillProof B2B Industrial Steel Home"
             >
               <div className="w-7 h-7 rounded bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs">
                 MP
@@ -52,14 +53,14 @@ export function Header() {
                 <span className="font-bold text-base tracking-tight text-slate-900">
                   MillProof
                 </span>
-                <span className="text-[11px] font-mono text-slate-400 font-normal">
+                <span className="text-[11px] font-mono text-slate-500 font-normal">
                   B2B
                 </span>
               </div>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-1" aria-label="Main Navigation">
+            <nav className="hidden lg:flex items-center space-x-1" aria-label="Main Navigation">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
                 return (
@@ -67,7 +68,7 @@ export function Header() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "px-3 py-1.5 rounded text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900",
+                      "px-2.5 py-1.5 rounded text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900",
                       active
                         ? "bg-slate-100 text-slate-900 font-semibold"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
@@ -95,7 +96,7 @@ export function Header() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center sm:hidden">
+          <div className="flex items-center lg:hidden">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -111,7 +112,7 @@ export function Header() {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1 animate-in slide-in-from-top-2 duration-150">
+        <div className="lg:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1 animate-in slide-in-from-top-2 duration-150">
           <div className="pb-2 mb-2 border-b border-slate-100 flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Navigation

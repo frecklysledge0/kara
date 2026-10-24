@@ -1,44 +1,83 @@
+// =====================================================================
+// MillProof: Server-Side MTR Extraction & Quality-Control Pipeline
+// Multimodal document OCR via Gemini API + Private Supabase Storage +
+// Deterministic ASTM/SAE rules audit + 0-100 review score calculation.
+// =====================================================================
+
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI, Type, Schema } from "@google/genai";
-import { evaluateMTR } from "@/lib/engine/compliance";
-import { GRADE_STANDARDS_REGISTRY } from "@/lib/data/standards";
-import { ChemicalAnalysis, MechanicalResults } from "@/types/steel";
+import { GoogleGenAI } from "@google/genai";
+import {
+  MTRExtractionSchema,
+  MTRExtraction,
+  MTRExtractionPipelineResponse,
+} from "@/types/mtr";
+import { evaluateMTRComplianceAndRisk } from "@/lib/engine/mtr-qc";
+import {
+  uploadPrivateMTRDocument,
+  validateDocumentMagicBytes,
+  checkRateLimit,
+  MAX_FILE_SIZE_BYTES,
+  ALLOWED_MIME_TYPES,
+} from "@/lib/supabase/storage";
+import { findExistingCertificatesForHeat } from "@/lib/supabase/database";
+import { SYNTHETIC_MTR_FIXTURES } from "@/lib/data/synthetic-mtr-fixtures";
 
-export const maxDuration = 60; // Allow sufficient time for multimodal document OCR
-
-interface MTRParsedResponse {
-  heatNumber: string;
-  certNumber: string;
-  millName: string;
-  millCountry: string;
-  specification: string;
-  standardGradeId?: string;
-  productForm: string;
-  dimensions: {
-    thickness_in: number;
-    width_in: number;
-    length_in: number;
-    weight_lbs: number;
-  };
-  chemicalAnalysis: ChemicalAnalysis;
-  mechanicalResults: MechanicalResults;
-  heatTreatment: string;
-  en10204Type: string;
-  notes: string;
-}
+export const maxDuration = 60; // Allow sufficient time for vision/document processing
 
 export async function POST(req: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    const body = await req.json();
-    const { sampleId, fileData, mimeType, standardGradeId } = body;
-
-    // Handle explicit sample test case selection
-    if (sampleId) {
-      return handleSampleMTR(sampleId, standardGradeId);
+    // 1. In-process demo rate limiting
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
+    const rateCheck = checkRateLimit(clientIp);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: "Rate limit exceeded. Please wait 1 minute before uploading additional documents.",
+          code: "RATE_LIMIT_EXCEEDED",
+        },
+        { status: 429 }
+      );
     }
 
+    const body = await req.json();
+    const { sampleId, fileData, fileName, mimeType, sellerId } = body;
+
+    // 2. Fast-path: Synthetic Benchmark Fixture Demo (All labeled DEMO)
+    if (sampleId) {
+      const benchmark = SYNTHETIC_MTR_FIXTURES.find((s) => s.id === sampleId);
+      if (!benchmark) {
+        return NextResponse.json(
+          { error: `Benchmark sample ID '${sampleId}' not recognized.` },
+          { status: 404 }
+        );
+      }
+
+      // Check for duplicate heat records across database/fixtures
+      const existingRecords = await findExistingCertificatesForHeat(benchmark.data.heat_number || "");
+      const reviewResult = evaluateMTRComplianceAndRisk(benchmark.data, {
+        existingCertificates: existingRecords,
+      });
+
+      const response: MTRExtractionPipelineResponse = {
+        success: true,
+        certificate_id: `demo-${benchmark.id}`,
+        document_sha256: `demo-hash-${benchmark.id}`,
+        file_path: `fixtures/${benchmark.id}.pdf`,
+        extracted_data: benchmark.data,
+        review_result: reviewResult,
+        provenance: {
+          ocr_model: "Synthetic Benchmark Fixture Suite (DEMO)",
+          engine: "MillProof ASTM Rule Engine v1.0",
+          rules_version: "2026.1 ASTM/SAE Unified Matrix",
+          disclaimer:
+            "This is a pre-validated synthetic test certificate labeled as DEMO for system verification. Review score measures data completeness and standard compliance, not proof of authenticity.",
+        },
+      };
+
+      return NextResponse.json(response);
+    }
+
+    // 3. User Document Upload Validation
     if (!fileData) {
       return NextResponse.json(
         { error: "No document data provided. Please upload a PDF or image MTR document." },
@@ -46,41 +85,128 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Extract base64 payload
+    const base64Data = fileData.replace(/^data:([A-Za-z-+/]+);base64,/, "");
+    const fileBuffer = Buffer.from(base64Data, "base64");
+
+    // File size check (max 20MB)
+    if (fileBuffer.length > MAX_FILE_SIZE_BYTES) {
+      return NextResponse.json(
+        {
+          error: `Document exceeds maximum allowable file size (${(MAX_FILE_SIZE_BYTES / (1024 * 1024)).toFixed(0)}MB).`,
+          code: "FILE_TOO_LARGE",
+        },
+        { status: 413 }
+      );
+    }
+
+    // Content validation via magic bytes (anti-spoofing)
+    const magicCheck = validateDocumentMagicBytes(fileBuffer);
+    if (!magicCheck.valid) {
+      return NextResponse.json(
+        {
+          error: "Uploaded file is not a valid PDF or supported image document.",
+          code: "INVALID_FILE_SIGNATURE",
+        },
+        { status: 400 }
+      );
+    }
+
+    const detectedMime = magicCheck.detectedType || mimeType || "application/pdf";
+    if (!ALLOWED_MIME_TYPES.includes(detectedMime)) {
+      return NextResponse.json(
+        {
+          error: `Unsupported MIME type '${detectedMime}'. Allowed types: PDF, PNG, JPEG, TIFF, WEBP.`,
+          code: "UNSUPPORTED_MIME_TYPE",
+        },
+        { status: 415 }
+      );
+    }
+
+    // 4. Store the file privately in Supabase Storage
+    const originalName = fileName || `document_${Date.now()}.${detectedMime.includes("pdf") ? "pdf" : "png"}`;
+    const storageResult = await uploadPrivateMTRDocument(
+      fileBuffer,
+      originalName,
+      detectedMime,
+      sellerId
+    );
+
+    // 5. Query Gemini API with Strict Schema
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
         {
           error: "GEMINI_API_KEY is not configured on the server. Please check your environment variables.",
-          code: "MISSING_GEMINI_API_KEY"
+          code: "MISSING_GEMINI_API_KEY",
         },
         { status: 500 }
       );
     }
 
-    // Call server-side Gemini SDK
     const ai = new GoogleGenAI({ apiKey });
 
     const systemInstruction = `
-You are a licensed metallurgist and certified quality control inspector auditing industrial Mill Test Reports (MTRs / MTC EN 10204 3.1).
-Extract all technical data with high precision:
-- Heat Number (Ladle / Melt number)
-- Certificate Number
-- Mill Name and Country of Origin
-- Governing Specification (e.g., ASTM A572 Grade 50, ASTM A516 Grade 70, etc.)
-- Product Form (Plate, Hot Rolled Coil, Beam, Tube, Round Bar)
-- Dimensions: thickness (in inches), width (in inches), length (in inches, or 0 if coil), total weight (in lbs)
-- Chemical Analysis (heat/ladle percentages for C, Mn, P, S, Si, Cr, Ni, Mo, Cu, V, Nb, Ti, Al, B, N)
-- Mechanical Results: Yield Strength (in ksi, convert from psi or MPa if necessary: 1 ksi = 1000 psi = 6.89476 MPa), Tensile Strength (in ksi), Elongation % (in 2-inch or 50mm gage length), Hardness (HBW/HRC if present), Charpy Impact (ft-lbs and test temp in °F)
-- Heat Treatment condition (As-Rolled, Normalized, Quenched & Tempered, Annealed)
-- EN 10204 Certificate Type (3.1 or 3.2)
-Return structured JSON only. Never fabricate values that are missing or illegible.
-`;
+You are a licensed metallurgist and certified materials test engineer auditing industrial Mill Test Reports (MTRs, Mill Test Certificates, EN 10204 3.1 / 3.2).
+Your objective is to extract all verifiable technical data from the provided document into strict structured JSON.
 
-    // Extract base64 content
-    const base64Data = fileData.replace(/^data:([A-Za-z-+/]+);base64,/, "");
+CRITICAL EXTRACTION RULES:
+1. NEVER invent absent values. If a field or element is not explicitly written on the document, set its value to null.
+2. Distinguish ladle analysis (heat chemistry) from check/product analysis if both appear; prioritize ladle analysis.
+3. Extract exact verbatim quotations from the document for "field_evidence" to cite where each key field was found.
+4. If any section is torn, blurred, illegible, or cropped, add the name of the section to "unreadable_or_missing_fields".
+5. For mechanical tension tests:
+   - Extract yield strength value and unit (e.g., ksi or MPa).
+   - Extract tensile strength value and unit (e.g., ksi or MPa).
+   - Extract elongation % value and gauge length in test_context.
+   - Extract hardness if present (e.g., HBW, HRB, HRC).
+   - Extract Charpy V-Notch impact if present (ft-lbs or Joules, and test temperature).
+6. For chemistry:
+   - Extract each reported element percentage by weight (C, Mn, P, S, Si, Cr, Ni, Mo, Cu, V, Nb, Ti, Al, B, N).
+7. If a printed carbon equivalent is present (e.g., "CE", "CEV", "CE (IIW)"), extract it as a number in "printed_cev".
+8. Assess overall extraction confidence as "high", "medium", or "low", and note reasons in "confidence_notes".
+
+JSON SCHEMA STRUCTURE TO RETURN:
+{
+  "mill_name": string or null,
+  "heat_number": string or null,
+  "grade": string or null,
+  "standard": string or null,
+  "product_form": string or null,
+  "melt_and_pour_country": string or null,
+  "chemistry": {
+    "C": { "value": number or null, "unit": "% by weight" },
+    "Mn": { "value": number or null, "unit": "% by weight" },
+    ...
+  },
+  "mechanical_properties": {
+    "yield_strength": { "value": number or null, "unit": "ksi" or "MPa", "test_context": string or null },
+    "tensile_strength": { "value": number or null, "unit": "ksi" or "MPa", "test_context": string or null },
+    "elongation_pct": { "value": number or null, "unit": "%", "test_context": string or null },
+    "hardness": { "value": number or null, "scale": "HBW" or "HRB" or "HRC" or null },
+    "charpy_impact": { "value": number or null, "unit": "ft-lbs" or "J" or null, "test_temp_f": number or null }
+  },
+  "dimensions": {
+    "thickness_in": number or null,
+    "width_in": number or null,
+    "length_in": number or null,
+    "weight_lbs": number or null
+  },
+  "printed_cev": number or null,
+  "unreadable_or_missing_fields": [string],
+  "field_evidence": {
+    "heat_number": { "quote": string, "page": 1, "confidence": "high" | "medium" | "low" },
+    ...
+  },
+  "overall_confidence": "high" | "medium" | "low",
+  "confidence_notes": string or null
+}
+`;
 
     // Resilient model cascade
     const candidateModels = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"];
     let responseText: string | null = null;
+    let selectedModel = candidateModels[0];
 
     for (const model of candidateModels) {
       try {
@@ -92,220 +218,133 @@ Return structured JSON only. Never fabricate values that are missing or illegibl
               parts: [
                 {
                   inlineData: {
-                    mimeType: mimeType || "application/pdf",
-                    data: base64Data
-                  }
+                    mimeType: detectedMime,
+                    data: base64Data,
+                  },
                 },
                 {
-                  text: "Extract all chemical ladle analysis, mechanical tension tests, heat number, and specification from this Mill Test Report into structured JSON."
-                }
-              ]
-            }
+                  text: "Extract all chemical ladle analysis, mechanical tension tests, heat number, and specification from this Mill Test Report into structured JSON adhering strictly to instructions.",
+                },
+              ],
+            },
           ],
           config: {
             systemInstruction,
             responseMimeType: "application/json",
-            temperature: 0.1
-          }
+            temperature: 0.1,
+          },
         });
 
         if (response.text) {
           responseText = response.text;
+          selectedModel = model;
           break;
         }
       } catch (callErr: unknown) {
-        console.warn(`Extraction model ${model} unavailable, trying next...`);
+        console.warn(`Extraction model ${model} unavailable, trying fallback...`, callErr);
       }
     }
+
     if (!responseText) {
       return NextResponse.json(
-        { error: "Model returned an empty response. Document may be illegible or corrupt." },
+        {
+          error: "Model returned an empty response. The document may be corrupted or unreadable.",
+          code: "OCR_EXTRACTION_EMPTY",
+        },
         { status: 502 }
       );
     }
 
-    let parsed: MTRParsedResponse;
+    // 6. Server-side validation of Gemini response
+    let rawParsed: unknown;
     try {
-      parsed = JSON.parse(responseText);
+      rawParsed = JSON.parse(responseText);
     } catch {
       return NextResponse.json(
-        { error: "Failed to parse structured JSON from extraction output.", raw: responseText },
+        {
+          error: "Failed to parse JSON structure from extraction model output. The document format may be unreadable or malformed.",
+          code: "JSON_PARSE_ERROR",
+        },
         { status: 502 }
       );
     }
 
-    // Determine target grade standard for deterministic compliance evaluation
-    const targetGradeKey = standardGradeId || mapSpecificationToGradeId(parsed.specification);
-    const standard = GRADE_STANDARDS_REGISTRY[targetGradeKey] || GRADE_STANDARDS_REGISTRY["astm-a572-50"];
+    const validation = MTRExtractionSchema.safeParse(rawParsed);
+    let extractedMTR: MTRExtraction;
 
-    // Execute pure deterministic compliance audit
-    const qcSummary = evaluateMTR(parsed.chemicalAnalysis, parsed.mechanicalResults, standard);
+    if (!validation.success) {
+      console.warn("MTR schema validation warning:", validation.error.format());
+      // Gracefully coerce / fill defaults while preserving extracted fields
+      extractedMTR = {
+        mill_name: (rawParsed as Record<string, unknown>)?.mill_name as string || null,
+        heat_number: (rawParsed as Record<string, unknown>)?.heat_number as string || null,
+        grade: (rawParsed as Record<string, unknown>)?.grade as string || null,
+        standard: (rawParsed as Record<string, unknown>)?.standard as string || null,
+        product_form: (rawParsed as Record<string, unknown>)?.product_form as string || null,
+        melt_and_pour_country: (rawParsed as Record<string, unknown>)?.melt_and_pour_country as string || null,
+        chemistry: ((rawParsed as Record<string, unknown>)?.chemistry as MTRExtraction["chemistry"]) || {},
+        mechanical_properties: {
+          yield_strength: { value: null, unit: "ksi" },
+          tensile_strength: { value: null, unit: "ksi" },
+          elongation_pct: { value: null, unit: "%" },
+          hardness: { value: null, scale: null },
+          charpy_impact: { value: null, unit: "ft-lbs" },
+          ...(((rawParsed as Record<string, unknown>)?.mechanical_properties as object) || {}),
+        },
+        dimensions: {
+          thickness_in: null,
+          width_in: null,
+          length_in: null,
+          weight_lbs: null,
+          ...(((rawParsed as Record<string, unknown>)?.dimensions as object) || {}),
+        },
+        printed_cev: ((rawParsed as Record<string, unknown>)?.printed_cev as number) ?? null,
+        unreadable_or_missing_fields: Array.isArray((rawParsed as Record<string, unknown>)?.unreadable_or_missing_fields)
+          ? ((rawParsed as Record<string, unknown>).unreadable_or_missing_fields as string[])
+          : [],
+        field_evidence: ((rawParsed as Record<string, unknown>)?.field_evidence as MTRExtraction["field_evidence"]) || {},
+        overall_confidence: "medium",
+        confidence_notes: "Schema recovered gracefully with partial defaults.",
+      };
+    } else {
+      extractedMTR = validation.data;
+    }
 
-    return NextResponse.json({
-      success: true,
-      extractedData: parsed,
-      targetGrade: standard,
-      qcSummary,
-      extractionProvenance: {
-        engine: "Gemini 2.5 Flash Server-Side Vision / OCR",
-        deterministicEngine: "MillProof ASTM Rule Engine v1.0",
-        notice: "AI was utilized for text extraction only. Pass/fail compliance and Carbon Equivalent were determined mathematically by software rules against published standards."
-      }
+    // 7. Check Duplicate Heat Numbers Against Registry
+    const existingRecords = await findExistingCertificatesForHeat(extractedMTR.heat_number || "");
+
+    // 8. Run Pure Deterministic Quality-Control Engine
+    const reviewResult = evaluateMTRComplianceAndRisk(extractedMTR, {
+      existingCertificates: existingRecords,
     });
-  } catch (error: unknown) {
-    console.error("MTR extraction error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error during document extraction";
+
+    // 9. Assemble Secure Pipeline Response
+    const pipelineResponse: MTRExtractionPipelineResponse = {
+      success: true,
+      document_sha256: storageResult.documentSha256,
+      file_path: storageResult.filePath,
+      signed_preview_url: storageResult.signedUrl,
+      extracted_data: extractedMTR,
+      review_result: reviewResult,
+      provenance: {
+        ocr_model: `${selectedModel} Server-Side Vision / OCR`,
+        engine: "MillProof ASTM Rule Engine v1.0",
+        rules_version: "2026.1 ASTM/SAE Unified Matrix",
+        disclaimer:
+          "AI was utilized exclusively for optical character recognition. Pass/fail compliance, Carbon Equivalent, and review risk score were computed deterministically by software rules against published standards. A clean review score is not a guarantee of certificate authenticity.",
+      },
+    };
+
+    return NextResponse.json(pipelineResponse);
+  } catch (err: unknown) {
+    console.error("MTR extraction pipeline fatal error:", err);
+    const msg = err instanceof Error ? err.message : "Unknown server error in MTR extraction pipeline";
     return NextResponse.json(
       {
-        error: `MTR Document Extraction Failed: ${errorMessage}`,
-        code: "EXTRACTION_API_ERROR"
+        error: `MTR Pipeline Processing Error: ${msg}`,
+        code: "PIPELINE_ERROR",
       },
       { status: 500 }
     );
   }
-}
-
-/**
- * Handles realistic pre-loaded synthetic test samples for seller demonstration.
- */
-function handleSampleMTR(sampleId: string, customGradeId?: string) {
-  let sampleData: MTRParsedResponse;
-  let gradeId = customGradeId || "astm-a572-50";
-
-  if (sampleId === "sample-a572-pass") {
-    gradeId = "astm-a572-50";
-    sampleData = {
-      heatNumber: "H-784291",
-      certNumber: "MTR-2026-GLS-0419",
-      millName: "Burns Harbor Heavy Plate Works",
-      millCountry: "USA",
-      specification: "ASTM A572 Grade 50 / AASHTO M223",
-      productForm: "Plate",
-      dimensions: {
-        thickness_in: 0.750,
-        width_in: 96.0,
-        length_in: 240.0,
-        weight_lbs: 4896.0
-      },
-      chemicalAnalysis: {
-        C: 0.18,
-        Mn: 1.15,
-        P: 0.015,
-        S: 0.008,
-        Si: 0.24,
-        V: 0.035,
-        Nb: 0.021,
-        Cr: 0.04,
-        Ni: 0.03,
-        Mo: 0.01,
-        Cu: 0.12
-      },
-      mechanicalResults: {
-        yield_strength_ksi: 54.8,
-        tensile_strength_ksi: 72.4,
-        elongation_pct: 23.5
-      },
-      heatTreatment: "As-Rolled",
-      en10204Type: "3.1",
-      notes: "Sample 1: Fully compliant structural bridge plate with low carbon equivalent."
-    };
-  } else if (sampleId === "sample-a514-qt") {
-    gradeId = "astm-a514";
-    sampleData = {
-      heatNumber: "H-643810",
-      certNumber: "MTR-2026-AP-1033",
-      millName: "Coatesville Specialty Rolling Mill",
-      millCountry: "USA",
-      specification: "ASTM A514 Grade B (T-1)",
-      productForm: "Plate",
-      dimensions: {
-        thickness_in: 0.500,
-        width_in: 96.0,
-        length_in: 288.0,
-        weight_lbs: 3916.8
-      },
-      chemicalAnalysis: {
-        C: 0.17,
-        Mn: 0.88,
-        P: 0.014,
-        S: 0.003,
-        Si: 0.27,
-        Cr: 0.52,
-        Mo: 0.21,
-        B: 0.0022
-      },
-      mechanicalResults: {
-        yield_strength_ksi: 108.5,
-        tensile_strength_ksi: 118.2,
-        elongation_pct: 19.0,
-        hardness_hbw: 269
-      },
-      heatTreatment: "Quenched @ 1650°F, Tempered @ 1150°F",
-      en10204Type: "3.1",
-      notes: "Sample 2: Quenched & Tempered 100 ksi minimum yield mining wear plate."
-    };
-  } else {
-    // Problematic Out-of-Spec Batch
-    gradeId = "astm-a572-50";
-    sampleData = {
-      heatNumber: "H-519022-FLAGGED",
-      certNumber: "MTR-2026-DEV-9901",
-      millName: "Synthetic Service Center Test Mill",
-      millCountry: "USA",
-      specification: "ASTM A572 Grade 50",
-      productForm: "Plate",
-      dimensions: {
-        thickness_in: 0.625,
-        width_in: 96.0,
-        length_in: 240.0,
-        weight_lbs: 4080.0
-      },
-      chemicalAnalysis: {
-        C: 0.27, // VIOLATION: max is 0.23%
-        Mn: 1.45, // VIOLATION: max is 1.35%
-        P: 0.048, // VIOLATION: max is 0.040%
-        S: 0.012,
-        Si: 0.35,
-        V: 0.02
-      },
-      mechanicalResults: {
-        yield_strength_ksi: 48.2, // VIOLATION: min is 50.0 ksi
-        tensile_strength_ksi: 74.0,
-        elongation_pct: 15.0 // VIOLATION: min is 18.0%
-      },
-      heatTreatment: "As-Rolled",
-      en10204Type: "3.1",
-      notes: "Sample 3: Deliberately out-of-spec test batch demonstrating automatic deterministic quality flags."
-    };
-  }
-
-  const standard = GRADE_STANDARDS_REGISTRY[gradeId] || GRADE_STANDARDS_REGISTRY["astm-a572-50"];
-  const qcSummary = evaluateMTR(sampleData.chemicalAnalysis, sampleData.mechanicalResults, standard);
-
-  return NextResponse.json({
-    success: true,
-    isSample: true,
-    sampleId,
-    extractedData: sampleData,
-    targetGrade: standard,
-    qcSummary,
-    extractionProvenance: {
-      engine: "Deterministic Synthetic Benchmark Suite",
-      deterministicEngine: "MillProof ASTM Rule Engine v1.0",
-      notice: "Pre-validated benchmark test certificate with realistic ladle analysis and tensile tests."
-    }
-  });
-}
-
-function mapSpecificationToGradeId(specString?: string): string {
-  if (!specString) return "astm-a572-50";
-  const s = specString.toLowerCase();
-  if (s.includes("a36") || s.includes("a-36")) return "astm-a36";
-  if (s.includes("572") || s.includes("gr 50") || s.includes("grade 50")) return "astm-a572-50";
-  if (s.includes("514") || s.includes("t-1") || s.includes("t1")) return "astm-a514";
-  if (s.includes("516") || s.includes("pvq") || s.includes("pressure vessel")) return "astm-a516-70";
-  if (s.includes("304")) return "aisi-304l";
-  if (s.includes("316")) return "aisi-316l";
-  if (s.includes("4140")) return "aisi-4140";
-  return "astm-a572-50";
 }

@@ -110,7 +110,7 @@ Output strictly structured JSON adhering to this schema:
       parsed = JSON.parse(responseText);
     } catch {
       return NextResponse.json(
-        { error: "Failed to parse structured JSON from translation output.", raw: responseText },
+        { error: "Failed to parse structured JSON from translation output. Please rephrase your requirements." },
         { status: 502 }
       );
     }
@@ -119,7 +119,8 @@ Output strictly structured JSON adhering to this schema:
       success: true,
       translation: parsed,
       provenance: {
-        engine: "Gemini 2.5 Flash Server-Side",
+        engine: `Gemini (${modelUsed || "gemini-2.5-flash"}) Server-Side`,
+        modelUsed: modelUsed || "gemini-2.5-flash",
         rule: "Translates natural-language requirements into ASTM grade candidates. Numeric acceptance thresholds are enforced by deterministic rules."
       }
     });

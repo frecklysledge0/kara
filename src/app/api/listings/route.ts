@@ -6,7 +6,7 @@ import { GRADE_STANDARDS_REGISTRY } from "@/lib/data/standards";
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const searchParams = req.nextUrl.searchParams;
     const gradeId = searchParams.get("gradeId");
     const productForm = searchParams.get("productForm");
 

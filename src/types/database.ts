@@ -11,6 +11,15 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type QuoteStatus =
+  | "draft"
+  | "submitted"
+  | "under_review"
+  | "quoted"
+  | "accepted"
+  | "declined"
+  | "closed";
+
 export interface Database {
   public: {
     Tables: {
@@ -67,7 +76,7 @@ export interface Database {
           heat_number: string;
           mill_name: string;
           grade: string;
-          melt_pour_country: string;
+          melt_pour_country: string | null;
           chemistry: Json;
           mechanical: Json;
           extraction_status: "pending" | "processing" | "completed" | "failed";
@@ -86,7 +95,7 @@ export interface Database {
           heat_number: string;
           mill_name: string;
           grade: string;
-          melt_pour_country?: string;
+          melt_pour_country?: string | null;
           chemistry?: Json;
           mechanical?: Json;
           extraction_status?: "pending" | "processing" | "completed" | "failed";
@@ -105,7 +114,7 @@ export interface Database {
           heat_number?: string;
           mill_name?: string;
           grade?: string;
-          melt_pour_country?: string;
+          melt_pour_country?: string | null;
           chemistry?: Json;
           mechanical?: Json;
           extraction_status?: "pending" | "processing" | "completed" | "failed";
@@ -188,32 +197,80 @@ export interface Database {
         Row: {
           id: string;
           listing_id: string;
+          buyer_id?: string;
+          seller_id?: string | null;
           buyer_name: string;
+          buyer_email?: string;
+          buyer_company?: string | null;
           buyer_city: string;
+          buyer_state?: string;
+          buyer_zip?: string | null;
           quantity_tons: number;
           estimated_delivered_cost: number;
-          status: "submitted" | "under_review" | "quoted" | "accepted" | "fulfilled" | "cancelled";
+          original_price_per_ton?: number;
+          original_estimated_delivered_cost?: number;
+          quoted_price_per_ton?: number | null;
+          final_quoted_cost?: number | null;
+          is_estimate?: boolean;
+          quoted_at?: string | null;
+          seller_notes?: string | null;
+          buyer_notes?: string | null;
+          decline_reason?: string | null;
+          status: QuoteStatus;
           created_at: string;
+          updated_at?: string;
         };
         Insert: {
           id?: string;
           listing_id: string;
+          buyer_id?: string;
+          seller_id?: string | null;
           buyer_name: string;
+          buyer_email?: string;
+          buyer_company?: string | null;
           buyer_city: string;
+          buyer_state?: string;
+          buyer_zip?: string | null;
           quantity_tons: number;
           estimated_delivered_cost: number;
-          status?: "submitted" | "under_review" | "quoted" | "accepted" | "fulfilled" | "cancelled";
+          original_price_per_ton?: number;
+          original_estimated_delivered_cost?: number;
+          quoted_price_per_ton?: number | null;
+          final_quoted_cost?: number | null;
+          is_estimate?: boolean;
+          quoted_at?: string | null;
+          seller_notes?: string | null;
+          buyer_notes?: string | null;
+          decline_reason?: string | null;
+          status?: QuoteStatus;
           created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
           listing_id?: string;
+          buyer_id?: string;
+          seller_id?: string | null;
           buyer_name?: string;
+          buyer_email?: string;
+          buyer_company?: string | null;
           buyer_city?: string;
+          buyer_state?: string;
+          buyer_zip?: string | null;
           quantity_tons?: number;
           estimated_delivered_cost?: number;
-          status?: "submitted" | "under_review" | "quoted" | "accepted" | "fulfilled" | "cancelled";
+          original_price_per_ton?: number;
+          original_estimated_delivered_cost?: number;
+          quoted_price_per_ton?: number | null;
+          final_quoted_cost?: number | null;
+          is_estimate?: boolean;
+          quoted_at?: string | null;
+          seller_notes?: string | null;
+          buyer_notes?: string | null;
+          decline_reason?: string | null;
+          status?: QuoteStatus;
           created_at?: string;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -380,6 +437,10 @@ export function validateOrderInput(data: Partial<OrderInsert>): { valid: boolean
 
   if (typeof data.estimated_delivered_cost !== "number" || data.estimated_delivered_cost <= 0 || isNaN(data.estimated_delivered_cost)) {
     errors.push("estimated_delivered_cost must be a positive numeric value");
+  }
+
+  if (data.status && !["draft", "submitted", "under_review", "quoted", "accepted", "declined", "closed"].includes(data.status)) {
+    errors.push(`Invalid status '${data.status}'. Allowed: draft, submitted, under_review, quoted, accepted, declined, closed`);
   }
 
   return { valid: errors.length === 0, errors };

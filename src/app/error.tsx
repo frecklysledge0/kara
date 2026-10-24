@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Link from "next/link";
 import { AlertTriangle, RefreshCw, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -40,14 +41,12 @@ export default function ErrorBoundary({
           <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
           Retry Operation
         </Button>
-        <Button
-          onClick={() => (window.location.href = "/")}
-          variant="outline"
-          size="sm"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-          Return to Home
-        </Button>
+        <Link href="/">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+            Return to Home
+          </Button>
+        </Link>
       </div>
     </div>
   );
