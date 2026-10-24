@@ -8,6 +8,29 @@
 -- Enable UUID extension if not enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Ensure sellers table has canonical city and state columns if upgrading from legacy schema
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'public' AND table_name = 'sellers'
+    ) THEN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_schema = 'public' AND table_name = 'sellers' AND column_name = 'state'
+        ) THEN
+            ALTER TABLE sellers ADD COLUMN IF NOT EXISTS state TEXT DEFAULT 'IN';
+            ALTER TABLE sellers ADD COLUMN IF NOT EXISTS city TEXT DEFAULT 'Gary';
+            IF EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_schema = 'public' AND table_name = 'sellers' AND column_name = 'headquarters_city'
+            ) THEN
+                UPDATE sellers SET city = headquarters_city, state = headquarters_state;
+            END IF;
+        END IF;
+    END IF;
+END $$;
+
 -- ---------------------------------------------------------------------
 -- 1. Table: sellers
 -- ---------------------------------------------------------------------
@@ -124,6 +147,10 @@ CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 -- Backward Compatibility Views
 -- Maps previous schema expectations to canonical tables
 -- ---------------------------------------------------------------------
+DROP TABLE IF EXISTS inventory_listings CASCADE;
+DROP TABLE IF EXISTS material_test_certificates CASCADE;
+DROP TABLE IF EXISTS rfqs CASCADE;
+
 CREATE OR REPLACE VIEW inventory_listings AS
 SELECT 
     l.id,
