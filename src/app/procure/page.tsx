@@ -50,7 +50,17 @@ export default function ProcurePage() {
   const [inspectingListing, setInspectingListing] = useState<InventoryListing | null>(null);
 
   // Comparison State
-  const [comparisonIds, setComparisonIds] = useState<string[]>([]);
+  const [comparisonIds, setComparisonIds] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = sessionStorage.getItem("millproof_compare_lots");
+        if (saved) return JSON.parse(saved);
+      } catch {
+        // ignore
+      }
+    }
+    return [];
+  });
   const [comparisonAlert, setComparisonAlert] = useState<string | null>(null);
 
   // Load listings on mount
@@ -70,16 +80,6 @@ export default function ProcurePage() {
     }
 
     fetchListings();
-
-    // Check for saved comparison list in sessionStorage
-    const saved = sessionStorage.getItem("millproof_compare_lots");
-    if (saved) {
-      try {
-        setComparisonIds(JSON.parse(saved));
-      } catch {
-        // ignore
-      }
-    }
   }, []);
 
   // Update session storage when comparison changes

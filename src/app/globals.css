@@ -1,33 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --background: #090d16;
-  --foreground: #f1f5f9;
-  --card: #0f172a;
-  --card-foreground: #f8fafc;
-  --popover: #0f172a;
-  --popover-foreground: #f8fafc;
-  --primary: #f59e0b;
-  --primary-foreground: #090d16;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #38bdf8;
-  --accent-foreground: #090d16;
-  --destructive: #ef4444;
-  --destructive-foreground: #f8fafc;
-  --border: #334155;
-  --input: #1e293b;
-  --ring: #f59e0b;
-  --radius: 0.5rem;
+  --background: #f8f9fb;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #1e3a5f;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f4f8;
+  --secondary-foreground: #1e293b;
+  --muted: #f1f4f8;
+  --muted-foreground: #475569;
+  --accent: #2563eb;
+  --accent-foreground: #ffffff;
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #1e3a5f;
+  --radius: 0.375rem;
 
-  /* Industrial steel accents */
-  --steel-plate: #1e293b;
-  --steel-border: #334155;
-  --steel-amber: #f59e0b;
-  --steel-glow: rgba(245, 158, 11, 0.15);
-  --steel-cyan: #0284c7;
+  /* Industrial procurement tokens */
+  --steel-slate: #1e3a5f;
+  --steel-graphite: #0f172a;
+  --steel-surface: #ffffff;
+  --steel-stone: #f8f9fb;
+  --steel-border: #e2e8f0;
+  --steel-border-subtle: #cbd5e1;
+  --steel-badge-bg: #edf2f7;
+  --steel-badge-text: #1e293b;
 }
 
 body {
@@ -36,27 +39,34 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.04) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.04) 0px, transparent 50%);
-  background-attachment: fixed;
 }
 
-/* Custom scrollbars for data tables and logs */
+/* Accessible focus visible outlines */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Compact data table styling */
+table {
+  border-collapse: collapse;
+}
+
+/* Refined industrial scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #f1f4f8;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94a3b8;
 }

@@ -61,7 +61,7 @@ export function ChemistryChart({ actual, spec }: ChemistryChartProps) {
               fontSize: "12px",
               fontFamily: "monospace"
             }}
-            formatter={(val: any) => [`${val}%`, ""]}
+            formatter={(val: unknown) => [`${val}%`, ""]}
           />
           <Legend
             wrapperStyle={{ fontSize: "11px", paddingTop: "6px" }}

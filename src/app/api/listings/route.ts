@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
         mill_name: certificate.millName || "Certified Mill",
         mill_country: certificate.millCountry || "USA",
         specification: certificate.specification || grade_id,
-        en10204_type: (certificate.en10204Type as any) || "3.1",
+        en10204_type: (certificate.en10204Type as "2.1" | "2.2" | "3.1" | "3.2") || "3.1",
         product_form,
         dimensions: {
           thickness_in: thickness,

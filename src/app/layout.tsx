@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Suspense } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { DemoBanner } from "@/components/common/DemoBanner";
@@ -16,9 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MillProof | AI-Assisted B2B Steel Marketplace & MTR Verification",
+  title: "MillProof | Enterprise B2B Steel Marketplace & Verification",
   description:
-    "Translate engineering requirements into suitable ASTM/EN steel grades, compare available verified inventory lots with delivered freight costs, and audit mill test reports with deterministic quality rules.",
+    "Source steel with confidence. Translate engineering requirements into standard ASTM grades, compare delivered inventory costs, and verify material test certificates with mathematical certainty.",
 };
 
 export default function RootLayout({
@@ -27,10 +28,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}>
-      <body className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-amber-500/30 selection:text-amber-200">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className="min-h-screen flex flex-col bg-[#F8F9FB] text-slate-900 font-sans selection:bg-slate-900 selection:text-white">
         <DemoBanner />
-        <Header />
+        <Suspense fallback={<div className="h-14 border-b border-slate-200 bg-white" />}>
+          <Header />
+        </Suspense>
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

@@ -93,8 +93,9 @@ Output strictly structured JSON adhering to this schema:
           modelUsed = model;
           break;
         }
-      } catch (callErr: any) {
-        console.warn(`Model ${model} unavailable (${callErr.status || callErr.message}), trying next candidate...`);
+      } catch (callErr: unknown) {
+        const errorMsg = callErr instanceof Error ? callErr.message : String(callErr);
+        console.warn(`Model ${model} unavailable (${errorMsg}), trying next candidate...`);
       }
     }
     if (!responseText) {

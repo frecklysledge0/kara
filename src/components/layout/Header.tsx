@@ -1,119 +1,148 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
   Layers, 
+  Menu, 
+  X, 
   Search, 
   UploadCloud, 
-  BookOpen, 
-  Scale, 
-  Sparkles,
+  LayoutDashboard, 
+  Sparkles, 
+  FileText,
   ShieldCheck,
-  Building2
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/Badge";
 
 export function Header() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    {
-      href: "/procure",
-      label: "Buyer Procurement",
-      icon: Search,
-      badge: "AI Search"
-    },
-    {
-      href: "/seller",
-      label: "Seller Hub & MTR Ingestion",
-      icon: UploadCloud,
-      badge: "MTC QC"
-    },
-    {
-      href: "/compare",
-      label: "Lot Comparison",
-      icon: Scale,
-    },
-    {
-      href: "/standards",
-      label: "ASTM Standards",
-      icon: BookOpen,
-    }
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/listings", label: "Marketplace", icon: Search },
+    { href: "/assistant", label: "Sourcing Assistant", icon: Sparkles },
+    { href: "/sell", label: "Sell Materials", icon: UploadCloud },
+    { href: "/orders", label: "Orders & Quotes", icon: FileText },
   ];
 
+  function isActive(href: string) {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname === href || pathname?.startsWith(`${href}/`);
+  }
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/85 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        {/* Brand Logo */}
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 p-0.5 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:shadow-amber-500/30 transition-shadow">
-              <div className="w-full h-full bg-slate-950 rounded-[7px] flex items-center justify-center">
-                <Layers className="w-5 h-5 text-amber-400 group-hover:scale-105 transition-transform" />
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14">
+          {/* Brand Wordmark */}
+          <div className="flex items-center gap-6">
+            <Link
+              href="/"
+              className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 rounded py-1"
+            >
+              <div className="w-7 h-7 rounded bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                MP
               </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl font-bold tracking-tight text-white">
-                  Mill<span className="text-amber-400">Proof</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-bold text-base tracking-tight text-slate-900">
+                  MillProof
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700 uppercase tracking-wider">
+                <span className="text-[11px] font-mono text-slate-400 font-normal">
                   B2B
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-none">
-                AI-Assisted Steel Marketplace &amp; MTR Ingestion
-              </p>
-            </div>
-          </Link>
-        </div>
+            </Link>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-1" aria-label="Main Navigation">
+              {navLinks.map((link) => {
+                const active = isActive(link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "px-3 py-1.5 rounded text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900",
+                      active
+                        ? "bg-slate-100 text-slate-900 font-semibold"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Right Area: Demo Badge & Action */}
+          <div className="hidden sm:flex items-center gap-3">
+            <Badge variant="demo" size="sm">
+              Demo Environment
+            </Badge>
+
+            <Link
+              href="/listings"
+              className="inline-flex items-center justify-center px-3 py-1.5 rounded text-xs font-medium bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
+            >
+              Browse Inventory
+            </Link>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="flex items-center sm:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-1.5 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1 animate-in slide-in-from-top-2 duration-150">
+          <div className="pb-2 mb-2 border-b border-slate-100 flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Navigation
+            </span>
+            <Badge variant="demo" size="sm">Demo Mode</Badge>
+          </div>
           {navLinks.map((link) => {
             const Icon = link.icon;
-            const isActive = pathname === link.href || pathname?.startsWith(`${link.href}/`);
+            const active = isActive(link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors relative",
-                  isActive
-                    ? "bg-slate-800 text-amber-400 border border-slate-700 shadow-sm"
-                    : "text-slate-300 hover:text-white hover:bg-slate-900"
+                  "flex items-center justify-between px-3 py-2 rounded text-sm transition-colors",
+                  active
+                    ? "bg-slate-100 text-slate-900 font-semibold"
+                    : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                 )}
               >
-                <Icon className={cn("w-4 h-4", isActive ? "text-amber-400" : "text-slate-400")} />
-                <span>{link.label}</span>
-                {link.badge && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                    {link.badge}
-                  </span>
-                )}
+                <div className="flex items-center gap-2.5">
+                  <Icon className="w-4 h-4 text-slate-500" />
+                  <span>{link.label}</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>
             );
           })}
-        </nav>
-
-        {/* Action Button & Environment Status */}
-        <div className="flex items-center gap-3">
-          <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-md">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Deterministic QC Engine: <strong className="text-slate-200">Active</strong></span>
-          </div>
-
-          <Link
-            href="/procure"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs transition-colors shadow-md shadow-amber-500/20"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>AI Requirement Matcher</span>
-          </Link>
         </div>
-      </div>
+      )}
     </header>
   );
 }

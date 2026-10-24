@@ -47,7 +47,7 @@ export function FreightCostChart({ delivered }: FreightCostChartProps) {
               fontSize: "12px",
               fontFamily: "monospace"
             }}
-            formatter={(val: any) => [`$${Number(val).toLocaleString()}`, ""]}
+            formatter={(val: unknown) => [`$${Number(val ?? 0).toLocaleString()}`, ""]}
           />
           <Legend wrapperStyle={{ fontSize: "11px" }} />
           <Bar dataKey="baseMaterial" stackId="a" fill="#f59e0b" name="Base Material" radius={[0, 0, 0, 0]} />

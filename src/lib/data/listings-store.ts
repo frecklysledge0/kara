@@ -1,9 +1,9 @@
 import { InventoryListing } from "@/types/steel";
-import { SYNTHETIC_LISTINGS, SYNTHETIC_SELLERS } from "./synthetic-listings";
+import { SYNTHETIC_LISTINGS } from "./synthetic-listings";
 import { getSupabaseServerClient } from "../supabase/server";
 
 // In-memory active store for session-persistent listings
-let activeListingsStore: InventoryListing[] = [...SYNTHETIC_LISTINGS];
+const activeListingsStore: InventoryListing[] = [...SYNTHETIC_LISTINGS];
 
 export async function getAllListings(): Promise<InventoryListing[]> {
   const supabase = getSupabaseServerClient();

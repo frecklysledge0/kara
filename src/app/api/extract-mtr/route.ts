@@ -113,7 +113,7 @@ Return structured JSON only. Never fabricate values that are missing or illegibl
           responseText = response.text;
           break;
         }
-      } catch (callErr: any) {
+      } catch (callErr: unknown) {
         console.warn(`Extraction model ${model} unavailable, trying next...`);
       }
     }

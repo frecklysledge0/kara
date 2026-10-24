@@ -1,267 +1,304 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { 
-  Sparkles, 
-  UploadCloud, 
   Search, 
+  ArrowRight, 
   ShieldCheck, 
   Layers, 
-  Scale, 
-  ArrowRight, 
-  CheckCircle2, 
-  Factory, 
   Truck, 
-  FileText,
-  AlertTriangle,
-  Flame,
-  Gauge
+  FileText, 
+  CheckCircle2, 
+  Building2, 
+  Compass, 
+  Scale, 
+  Sparkles,
+  Info
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { SYNTHETIC_LISTINGS } from "@/lib/data/synthetic-listings";
-import { ALL_GRADE_STANDARDS } from "@/lib/data/standards";
 
-export default function HomePage() {
+export default function LandingPage() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  function handleSearchSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/listings?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push("/listings");
+    }
+  }
+
+  const workflowSteps = [
+    {
+      step: "01",
+      title: "Define Engineering Specifications",
+      description: "Specify structural, PVQ, or alloy requirements using natural language or standard ASTM/EN designations. Our assistant maps your application to compliant grades.",
+      icon: Compass,
+    },
+    {
+      step: "02",
+      title: "Compare Inventory & Landed Freight",
+      description: "Evaluate verified plates, coils, and structural shapes with itemized delivered logistics calculated against legal 45,000 lb flatbed payload constraints.",
+      icon: Truck,
+    },
+    {
+      step: "03",
+      title: "Inspect Certified Batch MTRs",
+      description: "Audit chemical heat analysis, tensile pull tests, and Carbon Equivalent (CEV) values deterministically before issuing purchase orders.",
+      icon: ShieldCheck,
+    },
+  ];
+
   return (
-    <div className="flex flex-col gap-16 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="space-y-16 pb-16">
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/90 via-slate-900/50 to-slate-950 p-8 sm:p-12 lg:p-16 shadow-2xl">
-        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+      <section className="border-b border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="max-w-3xl space-y-6">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-slate-800 text-xs font-mono font-medium">
+              <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
+              <span>Deterministic Batch Compliance &bull; B2B Steel Marketplace</span>
+            </div>
 
-        <div className="relative max-w-3xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold">
-            <Flame className="w-3.5 h-3.5" />
-            <span>AI Translation &bull; Deterministic ASTM Validation &bull; Delivered Landed Cost</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
+              Source steel with confidence.
+            </h1>
+
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
+              MillProof pairs verified physical steel inventory with deterministic Mill Test Report (MTR) quality audits, realistic delivered flatbed freight calculations, and intelligent requirement translation.
+            </p>
+
+            {/* Buyer-Oriented Search Box */}
+            <form onSubmit={handleSearchSubmit} className="pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 max-w-2xl bg-white p-2 rounded-lg border border-slate-300 shadow-sm focus-within:border-slate-900 focus-within:ring-1 focus-within:ring-slate-900">
+                <div className="flex items-center flex-1 px-2 gap-2.5">
+                  <Search className="w-4 h-4 text-slate-400 shrink-0" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by ASTM grade, thickness, form (e.g. A572 Gr 50 Plate 0.750&quot;)..."
+                    className="w-full text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent"
+                  />
+                </div>
+                <Button type="submit" variant="primary" size="md" className="shrink-0">
+                  Search Inventory
+                </Button>
+              </div>
+
+              {/* Search Suggestions */}
+              <div className="flex flex-wrap items-center gap-2 pt-3 text-xs text-slate-500">
+                <span className="font-medium text-slate-700">Quick Searches:</span>
+                {[
+                  "ASTM A572 Grade 50",
+                  "A516 Gr 70 PVQ",
+                  "A514 (T-1) 100 ksi",
+                  "316L Stainless Plate",
+                  "A36 Master Coil",
+                ].map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery(tag);
+                      router.push(`/listings?q=${encodeURIComponent(tag)}`);
+                    }}
+                    className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </form>
+
+            {/* Primary Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-4">
+              <Link href="/listings">
+                <Button variant="primary" size="lg">
+                  Explore Marketplace Catalog
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              <Link href="/assistant">
+                <Button variant="outline" size="lg">
+                  <Sparkles className="w-4 h-4 mr-2 text-slate-600" />
+                  AI Sourcing Assistant
+                </Button>
+              </Link>
+              <Link href="/sell">
+                <Button variant="ghost" size="lg">
+                  Supplier MTR Ingestion
+                </Button>
+              </Link>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            Procure Industrial Steel with{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500">
-              Verified Batch Certainty
-            </span>
-          </h1>
-
-          <p className="text-lg text-slate-300 leading-relaxed">
-            Translate engineering requirements into suitable ASTM/EN grades, compare verified inventory lots with delivered flatbed freight rates, and audit Mill Test Reports with mathematical precision.
+      {/* Three Concise Workflow Steps */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="space-y-1.5 max-w-2xl">
+          <Badge variant="outline" size="sm">Procurement Workflow</Badge>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+            Engineered for Industrial Steel Buyers
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600">
+            A structured, transparent procurement process eliminating specification mismatch and surprise freight surcharges.
           </p>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-4 pt-2">
-            <Link
-              href="/procure"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-amber-500/25 hover:scale-[1.02]"
-            >
-              <Search className="w-4 h-4" />
-              <span>Explore Marketplace &amp; AI Matcher</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <Link
-              href="/seller"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 transition-all hover:scale-[1.02]"
-            >
-              <UploadCloud className="w-4 h-4 text-amber-400" />
-              <span>Seller MTR Upload &amp; QC</span>
-            </Link>
-
-            <Link
-              href="/standards"
-              className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors"
-            >
-              <span>View ASTM Grade Specs</span>
-            </Link>
-          </div>
-
-          <div className="pt-6 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-            <div>
-              <span className="text-slate-400 block">Chemistry Rules</span>
-              <span className="font-semibold text-slate-200">ASTM C, Mn, P, S, Si</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Weldability Calc</span>
-              <span className="font-semibold text-slate-200">CEV &amp; Pcm Deterministic</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Logistics Engine</span>
-              <span className="font-semibold text-slate-200">45k lb Flatbed Haversine</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block">Data Integrity</span>
-              <span className="font-semibold text-emerald-400">Zero Crypto / Real Specs</span>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {workflowSteps.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Card key={item.step} className="relative">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-xs font-bold text-slate-400">
+                      {item.step}
+                    </span>
+                    <div className="w-8 h-8 rounded bg-slate-100 text-slate-700 flex items-center justify-center">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <CardTitle>{item.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {item.description}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </section>
 
-      {/* Two Core Workflows */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Buyer Workflow */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between hover:border-slate-700 transition-colors">
-          <div className="space-y-4">
-            <div className="w-12 h-12 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
-              <Search className="w-6 h-6" />
-            </div>
-            <h2 className="text-xl font-bold text-white">For Industrial Buyers &amp; Fabricators</h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Input natural language application criteria (e.g. <i>&quot;Need 50 ksi yield structural plate for an outdoor sub-zero bridge girder with good weldability&quot;</i>). MillProof identifies standard ASTM matches, filters verified inventory lots, and itemizes delivered freight.
-            </p>
-            <ul className="space-y-2 text-xs text-slate-300 pt-2">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-sky-400" />
-                <span>AI requirement translation into ASTM A572, A516, A514, or 316L</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-sky-400" />
-                <span>Delivered cost breakdown: Base CWT + Truckload Freight + Surcharges</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-sky-400" />
-                <span>Chemical tolerance radar &amp; mechanical batch verification</span>
-              </li>
-            </ul>
-          </div>
-          <div className="pt-6">
-            <Link
-              href="/procure"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:text-sky-300"
-            >
-              <span>Launch Buyer Procurement Workspace</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Seller Workflow */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 flex flex-col justify-between hover:border-slate-700 transition-colors">
-          <div className="space-y-4">
-            <div className="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <UploadCloud className="w-6 h-6" />
-            </div>
-            <h2 className="text-xl font-bold text-white">For Mills &amp; Steel Service Centers</h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Upload raw Mill Test Reports (PDF / scan). Server-side Gemini extracts heat number, ladle chemical analysis, and tensile pull tests. Deterministic code immediately benchmarks every value against published ASTM tolerances.
-            </p>
-            <ul className="space-y-2 text-xs text-slate-300 pt-2">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400" />
-                <span>Automated extraction of heat numbers, chemistry, and tensile limits</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400" />
-                <span>Deterministic pass/fail flagging against ASTM chemical limits</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-amber-400" />
-                <span>One-click listing publish to verified inventory marketplace</span>
-              </li>
-            </ul>
-          </div>
-          <div className="pt-6">
-            <Link
-              href="/seller"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300"
-            >
-              <span>Open Seller Ingestion Workbench</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Synthetic Inventory Benchmark Preview */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+      {/* Preview of Available Material Listings (Marked clearly as Demo Data) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
           <div>
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Factory className="w-5 h-5 text-amber-400" />
-              <span>Available Inventory Lots (Synthetic Benchmarks)</span>
-            </h3>
-            <p className="text-xs text-slate-400">
-              Real-time lot availability backed by synthetic EN 10204 3.1 Mill Test Certificates.
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                Available Material Lots
+              </h2>
+              <Badge variant="demo" size="sm">Demo Data Preview</Badge>
+            </div>
+            <p className="text-xs text-slate-500">
+              Representative synthetic inventory backed by standardized EN 10204 3.1 Mill Test Reports.
             </p>
           </div>
-          <Link
-            href="/procure"
-            className="text-xs text-amber-400 hover:underline flex items-center gap-1"
-          >
-            <span>View All in Catalog</span>
+
+          <Link href="/listings" className="text-xs font-semibold text-slate-800 hover:text-slate-950 flex items-center gap-1">
+            <span>View All {SYNTHETIC_LISTINGS.length} Lots</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {SYNTHETIC_LISTINGS.slice(0, 3).map((lot) => (
-            <div
-              key={lot.id}
-              className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-4 hover:border-slate-700 transition-all flex flex-col justify-between"
-            >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+            <Card key={lot.id} elevated className="flex flex-col justify-between">
+              <CardHeader>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                     Heat: {lot.certificate?.heat_number}
                   </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" />
-                    <span>ASTM Verified</span>
-                  </span>
+                  <Badge variant="success" size="sm">ASTM Passed</Badge>
+                </div>
+                <CardTitle className="text-sm line-clamp-1">{lot.title}</CardTitle>
+                <CardDescription>
+                  {lot.dimensions_display} &bull; {lot.product_form}
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-3 pt-0">
+                <div className="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 font-mono">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Base Price</span>
+                    <span className="font-bold text-slate-900">${lot.price_per_cwt.toFixed(2)}/cwt</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Available</span>
+                    <span className="text-slate-700">{(lot.total_weight_lbs / 2000).toFixed(1)} tons</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Yield Actual</span>
+                    <span className="font-semibold text-slate-800">
+                      {lot.certificate?.mechanical_results.yield_strength_ksi} ksi
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase">Origin</span>
+                    <span className="text-slate-700">{lot.warehouse_city}, {lot.warehouse_state}</span>
+                  </div>
                 </div>
 
-                <h4 className="text-sm font-bold text-white line-clamp-1">{lot.title}</h4>
-                <p className="text-xs text-slate-400">{lot.dimensions_display} &bull; {lot.product_form}</p>
-              </div>
-
-              <div className="pt-3 border-t border-slate-800/80 space-y-2 text-xs">
-                <div className="flex justify-between text-slate-400">
-                  <span>Available Weight:</span>
-                  <span className="text-slate-200 font-mono font-medium">
-                    {lot.total_weight_lbs.toLocaleString()} lbs ({(lot.total_weight_lbs / 2000).toFixed(1)} tons)
-                  </span>
+                <div className="pt-1 flex items-center justify-between">
+                  <Link href={`/listings/${lot.id}`} className="w-full">
+                    <Button variant="outline" size="sm" className="w-full justify-between">
+                      <span>Inspect Batch &amp; Freight</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Button>
+                  </Link>
                 </div>
-
-                <div className="flex justify-between text-slate-400">
-                  <span>Base Mill Price:</span>
-                  <span className="text-amber-400 font-mono font-bold">
-                    ${lot.price_per_cwt.toFixed(2)} / cwt
-                  </span>
-                </div>
-
-                <div className="flex justify-between text-slate-400">
-                  <span>FOB Warehouse:</span>
-                  <span className="text-slate-300">
-                    {lot.warehouse_city}, {lot.warehouse_state}
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <Link
-                  href={`/procure?selected=${lot.id}`}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors"
-                >
-                  <Scale className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Calculate Delivered Cost</span>
-                </Link>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </section>
 
-      {/* Standards Summary Banner */}
-      <section className="rounded-xl border border-slate-800 bg-slate-900/30 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <Gauge className="w-5 h-5 text-amber-400" />
-            <h3 className="text-base font-bold text-white">Pre-Loaded ASTM &amp; AISI Structural Standards</h3>
+      {/* Clear Explanation of What MillProof Does */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-lg border border-slate-200 bg-white p-8 sm:p-10 space-y-6">
+          <div className="space-y-2 max-w-3xl">
+            <Badge variant="secondary" size="sm">Platform Purpose</Badge>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              What MillProof Does
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              In industrial steel procurement, buyers lose days transcribing paper Mill Test Reports, resolving ASTM chemistry mismatches, and negotiating freight rates. MillProof delivers a deterministic engineering workflow:
+            </p>
           </div>
-          <p className="text-xs text-slate-400 max-w-2xl">
-            Deterministic validation against ASTM A36, A572-50, A514 (T-1), A516-70 PVQ, AISI 304L, AISI 316L, and AISI 4140 with chemical limits and Carbon Equivalent thresholds.
-          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
+            <div className="space-y-2">
+              <div className="font-semibold text-sm text-slate-900 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-slate-800 shrink-0" />
+                <span>Deterministic Verification</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Chemical ladle analysis and tensile properties are evaluated against standard ASTM tolerances strictly using deterministic math—never opaque AI judgements or speculative verification.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="font-semibold text-sm text-slate-900 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-slate-800 shrink-0" />
+                <span>Delivered Cost Transparency</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Every material listing calculates legal flatbed freight mileage, fuel surcharges, and multi-truckload partitioning based on 45,000 lb trailer limits to your destination ZIP.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="font-semibold text-sm text-slate-900 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-slate-800 shrink-0" />
+                <span>EN 10204 3.1 Traceability</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Suppliers upload material test certificates, and our system extracts heat numbers, chemistry, and pull tests for review before inventory publication.
+              </p>
+            </div>
+          </div>
         </div>
-        <Link
-          href="/standards"
-          className="shrink-0 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 text-xs font-semibold transition-colors"
-        >
-          Explore Grade Library
-        </Link>
       </section>
     </div>
   );

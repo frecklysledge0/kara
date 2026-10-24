@@ -1,86 +1,95 @@
 import React from "react";
 import Link from "next/link";
-import { Layers, ShieldCheck, FileCheck, CheckCircle2 } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-slate-800 bg-slate-950 text-slate-400 py-12 text-sm mt-auto">
+    <footer className="w-full border-t border-slate-200 bg-white text-slate-600 text-xs py-10 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <div className="space-y-3">
+          {/* Brand & Purpose */}
+          <div className="space-y-2 md:col-span-1">
             <div className="flex items-center gap-2">
-              <Layers className="w-5 h-5 text-amber-400" />
-              <span className="text-base font-bold text-white tracking-tight">MillProof</span>
+              <div className="w-6 h-6 rounded bg-slate-900 text-white flex items-center justify-center font-bold text-[10px]">
+                MP
+              </div>
+              <span className="font-bold text-sm text-slate-900 tracking-tight">MillProof</span>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Industrial B2B steel marketplace connecting structural fabricators, OEMs, and EPC contractors with verified mill inventory and deterministic MTR quality validation.
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Industrial B2B steel procurement platform connecting verified mill inventory with deterministic batch document verification.
             </p>
           </div>
 
+          {/* Navigation */}
           <div>
-            <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Platform</h4>
+            <h4 className="font-semibold text-slate-900 uppercase tracking-wider text-[11px] mb-3">
+              Procurement
+            </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/procure" className="hover:text-amber-400 transition-colors">
-                  Buyer Procurement &amp; Requirement Matcher
+                <Link href="/dashboard" className="hover:text-slate-900 transition-colors">
+                  Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/seller" className="hover:text-amber-400 transition-colors">
-                  Seller MTR Ingestion &amp; QC Workbench
+                <Link href="/listings" className="hover:text-slate-900 transition-colors">
+                  Material Marketplace
                 </Link>
               </li>
               <li>
-                <Link href="/compare" className="hover:text-amber-400 transition-colors">
-                  Multi-Lot Comparison Matrix
+                <Link href="/assistant" className="hover:text-slate-900 transition-colors">
+                  Sourcing Assistant
                 </Link>
               </li>
               <li>
-                <Link href="/standards" className="hover:text-amber-400 transition-colors">
-                  ASTM &amp; EN Steel Grade Standards
+                <Link href="/orders" className="hover:text-slate-900 transition-colors">
+                  Orders &amp; Quotations
                 </Link>
               </li>
             </ul>
           </div>
 
+          {/* Supplier */}
           <div>
-            <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Compliance &amp; Rules</h4>
+            <h4 className="font-semibold text-slate-900 uppercase tracking-wider text-[11px] mb-3">
+              Suppliers &amp; Mills
+            </h4>
             <ul className="space-y-2 text-xs">
-              <li className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Deterministic ASTM Tolerance Checks</span>
+              <li>
+                <Link href="/sell" className="hover:text-slate-900 transition-colors">
+                  Upload &amp; Verify MTRs
+                </Link>
               </li>
-              <li className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Carbon Equivalent (CEV / Pcm) Calculation</span>
+              <li>
+                <Link href="/sell#guidelines" className="hover:text-slate-900 transition-colors">
+                  EN 10204 3.1 Standards
+                </Link>
               </li>
-              <li className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>EN 10204 Type 3.1 &amp; 3.2 Material Reports</span>
-              </li>
-              <li className="flex items-center gap-1.5 text-amber-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>Zero Crypto / No Fake Authenticity Claims</span>
+              <li>
+                <Link href="/listings" className="hover:text-slate-900 transition-colors">
+                  Published Inventory
+                </Link>
               </li>
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Engineering Notice</h4>
-            <p className="text-[11px] text-slate-400 leading-relaxed bg-slate-900 border border-slate-800 p-3 rounded-lg">
-              Documents are processed with AI for extraction only. All compliance pass/fail determinations, carbon equivalents, and delivered logistics costs are computed by deterministic software rules against published standards.
+          {/* Compliance Notice */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-slate-900 uppercase tracking-wider text-[11px] mb-3">
+              Deterministic Verification
+            </h4>
+            <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-3 rounded border border-slate-200">
+              Material batch evaluations are performed deterministically against published ASTM/EN standards. Document fields are verified numerically, not cryptographically. All sample data is clearly identified.
             </p>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <p>&copy; 2026 MillProof Industrial Systems. Synthetic demonstration benchmark platform.</p>
-          <div className="flex items-center gap-4 text-xs">
-            <span className="text-slate-400">Next.js App Router</span>
-            <span className="text-slate-400">&bull;</span>
-            <span className="text-slate-400">TypeScript Strict</span>
-            <span className="text-slate-400">&bull;</span>
-            <span className="text-slate-400">Deterministic Rule Engine</span>
+        {/* Bottom bar */}
+        <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500 text-[11px]">
+          <p>&copy; 2026 MillProof Industrial Procurement Systems. Synthetic demo environment.</p>
+          <div className="flex items-center gap-3 text-[11px] font-mono">
+            <span>ASTM A36 / A572 / A514 / A516</span>
+            <span>&bull;</span>
+            <span>Flatbed Freight Bounds</span>
           </div>
         </div>
       </div>
