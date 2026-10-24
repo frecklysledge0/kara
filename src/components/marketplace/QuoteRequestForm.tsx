@@ -21,6 +21,10 @@ interface QuoteRequestFormProps {
 }
 
 export function QuoteRequestForm({ listing, onSuccess, onClose }: QuoteRequestFormProps) {
+  const displayGrade = typeof listing.grade === "string" && listing.grade.trim()
+    ? listing.grade
+    : ((listing.grade as unknown as Record<string, unknown>)?.grade_name as string) || "ASTM Standard Grade";
+
   const [buyerName, setBuyerName] = useState("");
   const [buyerEmail, setBuyerEmail] = useState("");
   const [buyerCompany, setBuyerCompany] = useState("");
@@ -116,7 +120,7 @@ export function QuoteRequestForm({ listing, onSuccess, onClose }: QuoteRequestFo
           <div className="grid grid-cols-2 gap-2 text-slate-600">
             <div>
               <span className="text-[10px] text-slate-400 block uppercase">Material Grade:</span>
-              <strong className="text-slate-900">{listing.grade}</strong>
+              <strong className="text-slate-900">{displayGrade}</strong>
             </div>
             <div>
               <span className="text-[10px] text-slate-400 block uppercase">Requested Tonnage:</span>
@@ -185,7 +189,7 @@ export function QuoteRequestForm({ listing, onSuccess, onClose }: QuoteRequestFo
       {/* Lot Context Box */}
       <div className="p-3 rounded bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
         <div>
-          <span className="font-semibold text-slate-900">{listing.grade}</span>
+          <span className="font-semibold text-slate-900">{displayGrade}</span>
           <span className="text-slate-500 block text-[11px]">
             {listing.form} &bull; {listing.thickness_in.toFixed(3)}&quot; &bull; FOB ${listing.price_per_ton}/ton
           </span>

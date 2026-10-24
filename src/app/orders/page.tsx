@@ -68,6 +68,18 @@ const DEMO_PERSONAS: DemoPersona[] = [
   },
 ];
 
+function formatGradeString(raw: unknown, fallback = "ASTM Specification"): string {
+  if (typeof raw === "string" && raw.trim()) return raw;
+  if (raw && typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    if (typeof obj.grade_name === "string" && obj.grade_name.trim()) return obj.grade_name;
+    if (typeof obj.canonical_name === "string" && obj.canonical_name.trim()) return obj.canonical_name;
+    if (typeof obj.name === "string" && obj.name.trim()) return obj.name;
+    if (typeof obj.id === "string" && obj.id.trim()) return obj.id;
+  }
+  return fallback;
+}
+
 function OrdersContent() {
   const searchParams = useSearchParams();
   const highlightedQuoteId = searchParams.get("highlight");
@@ -194,7 +206,7 @@ function OrdersContent() {
       const q = searchTerm.toLowerCase();
       const matchesSearch =
         o.id.toLowerCase().includes(q) ||
-        (o.listing?.grade || "").toLowerCase().includes(q) ||
+        formatGradeString(o.listing?.grade, "").toLowerCase().includes(q) ||
         (o.buyer_name || "").toLowerCase().includes(q) ||
         (o.buyer_city || "").toLowerCase().includes(q) ||
         (o.listing?.seller?.name || "").toLowerCase().includes(q);
@@ -619,7 +631,7 @@ function OrdersContent() {
                         </TableCell>
                         <TableCell>
                           <span className="font-medium text-slate-900 block text-xs">
-                            {order.listing?.grade || "Standard Specification"}
+                            {formatGradeString(order.listing?.grade, "Standard Specification")}
                           </span>
                           <span className="text-[11px] text-slate-500">
                             {order.listing?.form || "Plate"} &bull; {order.listing?.thickness_in ? `${order.listing.thickness_in.toFixed(3)}"` : "Lot"}
@@ -701,7 +713,7 @@ function OrdersContent() {
               setSelectedOrder(null);
               setTransitionSuccessMessage(null);
             }}
-            title={`${selectedOrder.id}: ${selectedOrder.listing?.grade || "Quote Request"}`}
+            title={`${selectedOrder.id}: ${formatGradeString(selectedOrder.listing?.grade, "Quote Request")}`}
             description={`Lifecycle management and commercial agreement review for lot ${selectedOrder.listing_id}.`}
             maxWidth="lg"
           >
@@ -811,7 +823,7 @@ function OrdersContent() {
                     <div className="flex justify-between">
                       <span className="text-slate-500">Grade / Standard:</span>
                       <span className="font-semibold text-slate-900">
-                        {selectedOrder.listing?.grade || "ASTM Specification"}
+                        {formatGradeString(selectedOrder.listing?.grade, "ASTM Specification")}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1195,11 +1207,18 @@ function OrdersContent() {
                   onChange={(e) => setRfqListingId(e.target.value)}
                   required
                 >
-                  {listings.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.grade} &bull; {l.form} ({l.thickness_in.toFixed(3)}&quot;) &bull; {l.quantity_tons}t avail &bull; ${l.price_per_ton}/t
-                    </option>
-                  ))}
+                  {listings.map((l) => {
+                    const gradeName = formatGradeString(l.grade, (l as unknown as { grade_id?: string }).grade_id || "ASTM Grade");
+                    const formName = l.form || (l as unknown as { product_form?: string }).product_form || "Plate";
+                    const thickness = typeof l.thickness_in === "number" ? l.thickness_in.toFixed(3) : "0.500";
+                    const tons = l.quantity_tons ?? ((l as unknown as { total_weight_lbs?: number }).total_weight_lbs ? Number(((l as unknown as { total_weight_lbs?: number }).total_weight_lbs! / 2000).toFixed(1)) : 20);
+                    const pricePerTon = l.price_per_ton ?? ((l as unknown as { price_per_cwt?: number }).price_per_cwt ? (l as unknown as { price_per_cwt?: number }).price_per_cwt! * 20 : 1000);
+                    return (
+                      <option key={l.id} value={l.id}>
+                        {gradeName} &bull; {formName} ({thickness}&quot;) &bull; {tons}t avail &bull; ${pricePerTon}/t
+                      </option>
+                    );
+                  })}
                 </Select>
               </div>
 

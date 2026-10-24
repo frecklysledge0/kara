@@ -413,7 +413,7 @@ export default function ComparePage() {
         <Dialog
           open={Boolean(activeQuoteListing)}
           onClose={() => setActiveQuoteListing(null)}
-          title={`Request Quotation: ${activeQuoteListing.grade}`}
+          title={`Request Quotation: ${typeof activeQuoteListing.grade === "string" ? activeQuoteListing.grade : (activeQuoteListing.grade as unknown as { grade_name?: string })?.grade_name || "Material Lot"}`}
           description={`Submit commercial inquiry for ${activeQuoteListing.quantity_tons} tons of ${activeQuoteListing.form}.`}
         >
           <QuoteRequestForm

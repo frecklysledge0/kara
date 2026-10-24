@@ -20,10 +20,31 @@ export async function GET(req: NextRequest) {
       listings = listings.filter((l) => l.product_form === productForm);
     }
 
+    // Normalize listings to guarantee string grade and cross-compatible fields
+    const normalizedListings = listings.map((l) => {
+      const rawGrade = (l as unknown as { grade?: unknown }).grade;
+      const gradeObj = typeof rawGrade === "object" && rawGrade !== null ? (rawGrade as Record<string, unknown>) : null;
+      const gradeName = typeof rawGrade === "string" && rawGrade.trim()
+        ? rawGrade
+        : (gradeObj?.grade_name as string) || (gradeObj?.canonical_name as string) || l.grade_id || "ASTM Standard Grade";
+      const tons = (l as unknown as { quantity_tons?: number }).quantity_tons ?? (l.total_weight_lbs ? Number((l.total_weight_lbs / 2000).toFixed(2)) : 20);
+      const pricePerTon = (l as unknown as { price_per_ton?: number }).price_per_ton ?? (l.price_per_cwt ? l.price_per_cwt * 20 : 1000);
+      const form = (l as unknown as { form?: string }).form || l.product_form || "Plate";
+
+      return {
+        ...l,
+        grade: gradeName,
+        grade_standard: gradeObj || undefined,
+        form,
+        quantity_tons: tons,
+        price_per_ton: pricePerTon,
+      };
+    });
+
     return NextResponse.json({
       success: true,
-      count: listings.length,
-      listings
+      count: normalizedListings.length,
+      listings: normalizedListings
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Failed to fetch listings";
