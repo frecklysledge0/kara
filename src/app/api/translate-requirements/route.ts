@@ -66,22 +66,37 @@ Output strictly structured JSON adhering to this schema:
 }
 `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: `Customer Application Requirements: "${prompt.trim()}"` }]
-        }
-      ],
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        temperature: 0.2
-      }
-    });
+    // Resilient model cascade: try fast reliable flash model, fallback to 3.8 and latest
+    const candidateModels = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"];
+    let responseText: string | null = null;
+    let modelUsed = candidateModels[0];
 
-    const responseText = response.text;
+    for (const model of candidateModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: `Customer Application Requirements: "${prompt.trim()}"` }]
+            }
+          ],
+          config: {
+            systemInstruction,
+            responseMimeType: "application/json",
+            temperature: 0.2
+          }
+        });
+
+        if (response.text) {
+          responseText = response.text;
+          modelUsed = model;
+          break;
+        }
+      } catch (callErr: any) {
+        console.warn(`Model ${model} unavailable (${callErr.status || callErr.message}), trying next candidate...`);
+      }
+    }
     if (!responseText) {
       return NextResponse.json(
         { error: "Model returned an empty response. Please rephrase your requirements." },

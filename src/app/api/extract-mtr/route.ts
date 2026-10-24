@@ -78,32 +78,45 @@ Return structured JSON only. Never fabricate values that are missing or illegibl
     // Extract base64 content
     const base64Data = fileData.replace(/^data:([A-Za-z-+/]+);base64,/, "");
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              inlineData: {
-                mimeType: mimeType || "application/pdf",
-                data: base64Data
-              }
-            },
-            {
-              text: "Extract all chemical ladle analysis, mechanical tension tests, heat number, and specification from this Mill Test Report into structured JSON."
-            }
-          ]
-        }
-      ],
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        temperature: 0.1
-      }
-    });
+    // Resilient model cascade
+    const candidateModels = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"];
+    let responseText: string | null = null;
 
-    const responseText = response.text;
+    for (const model of candidateModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: mimeType || "application/pdf",
+                    data: base64Data
+                  }
+                },
+                {
+                  text: "Extract all chemical ladle analysis, mechanical tension tests, heat number, and specification from this Mill Test Report into structured JSON."
+                }
+              ]
+            }
+          ],
+          config: {
+            systemInstruction,
+            responseMimeType: "application/json",
+            temperature: 0.1
+          }
+        });
+
+        if (response.text) {
+          responseText = response.text;
+          break;
+        }
+      } catch (callErr: any) {
+        console.warn(`Extraction model ${model} unavailable, trying next...`);
+      }
+    }
     if (!responseText) {
       return NextResponse.json(
         { error: "Model returned an empty response. Document may be illegible or corrupt." },
