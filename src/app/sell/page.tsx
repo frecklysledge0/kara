@@ -64,6 +64,37 @@ export default function SellPage() {
   const [confirmedReview, setConfirmedReview] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
 
+  // Cancellation and timing state
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  function startExtractionTimer() {
+    setElapsedSeconds(0);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+  }
+
+  function stopExtractionTimer() {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }
+
+  function cancelExtraction() {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    stopExtractionTimer();
+    setIsProcessing(false);
+    setProcessingStage("idle");
+    setErrorMessage("Document extraction was cancelled by user.");
+  }
+
   // Drag and drop visual state
   const [isDragging, setIsDragging] = useState(false);
 
@@ -72,6 +103,8 @@ export default function SellPage() {
 
   // Load a synthetic benchmark fixture
   async function loadBenchmarkSample(benchmarkId: string) {
+    if (isProcessing) return; // Prevent duplicate concurrent extraction
+
     setUploadedFile(null);
     setIsProcessing(true);
     setProcessingStage("Loading DEMO benchmark fixture...");
@@ -115,6 +148,8 @@ export default function SellPage() {
 
   // Handle uploaded file (PDF / Image)
   async function processFile(file: File) {
+    if (isProcessing) return; // Prevent duplicate concurrent extraction
+
     setIsProcessing(true);
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -123,6 +158,10 @@ export default function SellPage() {
     setIsEditing(false);
     setUploadedFileName(file.name);
     setUploadedFile(file);
+
+    startExtractionTimer();
+    const ac = new AbortController();
+    abortControllerRef.current = ac;
 
     // Sequence stages for realistic feedback
     setProcessingStage("Validating file format & magic bytes...");
@@ -140,7 +179,7 @@ export default function SellPage() {
           setProcessingStage("Storing document in private Supabase vault...");
           await new Promise((r) => setTimeout(r, 400));
 
-          setProcessingStage("Gemini multimodal extraction in progress...");
+          setProcessingStage("Gemini multimodal extraction in progress (extracting chemistry & mechanical specs)...");
           const res = await fetch("/api/extract-mtr", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -150,6 +189,7 @@ export default function SellPage() {
               mimeType: file.type || "application/pdf",
               sellerId: "demo-seller-01",
             }),
+            signal: ac.signal,
           });
 
           setProcessingStage("Running deterministic ASTM/SAE quality-control audit...");
@@ -166,9 +206,15 @@ export default function SellPage() {
           setProvenanceNotice(data.provenance?.disclaimer || null);
           setRawDocumentSnippet(`Uploaded Document: ${file.name}\nSize: ${(file.size / 1024).toFixed(1)} KB\nMIME: ${file.type || "application/pdf"}\nIntegrity Hash: ${data.document_sha256}`);
         } catch (postErr: unknown) {
-          const msg = postErr instanceof Error ? postErr.message : "Extraction API error";
-          setErrorMessage(msg);
+          if (postErr instanceof Error && postErr.name === "AbortError") {
+            setErrorMessage("MTR extraction was cancelled.");
+          } else {
+            const msg = postErr instanceof Error ? postErr.message : "Extraction API error";
+            setErrorMessage(msg);
+          }
         } finally {
+          stopExtractionTimer();
+          abortControllerRef.current = null;
           setIsProcessing(false);
           setProcessingStage("idle");
         }
@@ -180,6 +226,8 @@ export default function SellPage() {
 
       reader.readAsDataURL(file);
     } catch (err: unknown) {
+      stopExtractionTimer();
+      abortControllerRef.current = null;
       const msg = err instanceof Error ? err.message : "Error reading file";
       setErrorMessage(msg);
       setIsProcessing(false);
@@ -389,11 +437,12 @@ export default function SellPage() {
               </CardHeader>
               <CardContent>
                 <div
-                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragOver={(e) => { e.preventDefault(); if (!isProcessing) setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={(e) => {
                     e.preventDefault();
                     setIsDragging(false);
+                    if (isProcessing) return;
                     const file = e.dataTransfer.files?.[0];
                     if (file) processFile(file);
                   }}
@@ -474,7 +523,7 @@ export default function SellPage() {
                         isSelected
                           ? "border-slate-900 bg-slate-100 ring-1 ring-slate-900"
                           : "border-slate-200 bg-white hover:bg-slate-50"
-                      }`}
+                      } ${isProcessing ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
                       <div className="space-y-0.5 min-w-0">
                         <div className="flex items-center gap-2">
@@ -517,9 +566,25 @@ export default function SellPage() {
                 <p className="text-xs text-slate-600 font-mono">
                   {processingStage}
                 </p>
+                {elapsedSeconds > 0 && (
+                  <p className="text-[11px] text-slate-500 font-mono">
+                    Elapsed: {elapsedSeconds}s (deadline: 45s maximum)
+                  </p>
+                )}
               </div>
               <div className="max-w-md mx-auto w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
                 <div className="bg-slate-900 h-1.5 rounded-full animate-pulse w-3/4" />
+              </div>
+              <div className="pt-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={cancelExtraction}
+                  className="text-xs text-slate-600 border-slate-300 hover:bg-slate-100"
+                >
+                  <XCircle className="w-3.5 h-3.5 mr-1 text-slate-500" />
+                  Cancel Ingestion
+                </Button>
               </div>
             </CardContent>
           </Card>

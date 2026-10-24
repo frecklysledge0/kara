@@ -1,4 +1,3 @@
-import { GoogleGenAI } from "@google/genai";
 import { 
   BuyerSpecification, 
   CandidateExplanation, 
@@ -6,6 +5,7 @@ import {
   RankedListingCandidate 
 } from "@/types/assistant";
 import { CURATED_GRADES } from "@/lib/data/grades";
+import { executeGeminiJson } from "@/lib/ai/gemini-client";
 import { z } from "zod";
 
 // =====================================================================
@@ -18,7 +18,8 @@ const BatchExplanationSchema = z.array(CandidateExplanationSchema);
 
 export async function explainRankedCandidates(
   spec: BuyerSpecification,
-  candidates: RankedListingCandidate[]
+  candidates: RankedListingCandidate[],
+  clientSignal?: AbortSignal | null
 ): Promise<Map<string, CandidateExplanation>> {
   const explanationMap = new Map<string, CandidateExplanation>();
 
@@ -29,19 +30,15 @@ export async function explainRankedCandidates(
   // Only explain top candidates (max 5) to optimize tokens and response latency
   const topCandidates = candidates.slice(0, 5);
 
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (apiKey) {
-    try {
-      const aiResults = await generateExplanationsWithGemini(spec, topCandidates, apiKey);
-      if (aiResults) {
-        for (const exp of aiResults) {
-          explanationMap.set(exp.listing_id, exp);
-        }
+  try {
+    const aiResults = await generateExplanationsWithGemini(spec, topCandidates, clientSignal);
+    if (aiResults) {
+      for (const exp of aiResults) {
+        explanationMap.set(exp.listing_id, exp);
       }
-    } catch (err) {
-      console.warn("Gemini explanation generation failed, falling back to deterministic explanation:", err);
     }
+  } catch (err) {
+    console.warn("Gemini explanation generation failed, falling back to deterministic explanation:", err);
   }
 
   // Fill in any missing or fallback candidates deterministically
@@ -57,10 +54,8 @@ export async function explainRankedCandidates(
 async function generateExplanationsWithGemini(
   spec: BuyerSpecification,
   candidates: RankedListingCandidate[],
-  apiKey: string
+  clientSignal?: AbortSignal | null
 ): Promise<CandidateExplanation[] | null> {
-  const ai = new GoogleGenAI({ apiKey });
-
   // Curate isolated facts for only the candidate grades
   const candidateGradeFacts = candidates.map((c) => {
     const grade = CURATED_GRADES.find((g) => g.id === c.grade_id);
@@ -119,71 +114,23 @@ Candidate Batches & Computed Ranking Details:
 ${JSON.stringify(candidateGradeFacts, null, 2)}
 `;
 
-function isQuotaOrResourceExhausted(err: unknown): boolean {
-  if (!err) return false;
-  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
-  const status = (err as Record<string, unknown>)?.status;
-  return (
-    status === 429 ||
-    status === 503 ||
-    status === "RESOURCE_EXHAUSTED" ||
-    status === "UNAVAILABLE" ||
-    msg.includes("429") ||
-    msg.includes("503") ||
-    msg.includes("quota") ||
-    msg.includes("resource_exhausted") ||
-    msg.includes("high demand") ||
-    msg.includes("spikes in demand") ||
-    msg.includes("unavailable")
-  );
-}
-
-async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T> {
-  let timer: NodeJS.Timeout;
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error(`AI generation timed out after ${timeoutMs}ms`)), timeoutMs);
+  const result = await executeGeminiJson<CandidateExplanation[]>({
+    operationName: "assistant-explainer",
+    contents: [{ role: "user", parts: [{ text: promptContent }] }],
+    systemInstruction,
+    temperature: 0.2,
+    deadlineMs: 15000,
+    clientSignal,
+    schemaValidator: (raw: unknown) => {
+      const validated = BatchExplanationSchema.safeParse(raw);
+      if (validated.success) {
+        return { success: true, data: validated.data };
+      }
+      return { success: false, error: validated.error };
+    },
   });
-  try {
-    return await Promise.race([promise, timeoutPromise]);
-  } finally {
-    clearTimeout(timer!);
-  }
-}
 
-  const candidateModels = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"];
-
-  for (const model of candidateModels) {
-    try {
-      const response = await callWithTimeout(
-        ai.models.generateContent({
-          model,
-          contents: [{ role: "user", parts: [{ text: promptContent }] }],
-          config: {
-            systemInstruction,
-            responseMimeType: "application/json",
-            temperature: 0.2,
-          },
-        }),
-        3500
-      );
-
-      if (response.text) {
-        const parsed = JSON.parse(response.text);
-        const validated = BatchExplanationSchema.safeParse(parsed);
-        if (validated.success) {
-          return validated.data;
-        }
-      }
-    } catch (err) {
-      console.warn(`Model ${model} failed in explanation generator:`, err);
-      if (isQuotaOrResourceExhausted(err)) {
-        console.info("Gemini quota or capacity issue in explainer; terminating cascade to use deterministic explanation.");
-        break;
-      }
-    }
-  }
-
-  return null;
+  return result.data;
 }
 
 /**

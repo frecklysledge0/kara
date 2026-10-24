@@ -8,6 +8,38 @@
 -- Enable UUID extension if not enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Ensure sellers table has all canonical columns if migrating from legacy prototype
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'public' AND table_name = 'sellers'
+    ) THEN
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS city TEXT DEFAULT 'Gary';
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS state TEXT DEFAULT 'IN';
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS country TEXT DEFAULT 'USA';
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS latitude NUMERIC(10, 6);
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS longitude NUMERIC(10, 6);
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS mill_route TEXT;
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS description TEXT;
+        ALTER TABLE sellers ADD COLUMN IF NOT EXISTS demo_status TEXT DEFAULT 'synthetic_demo';
+
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_schema = 'public' AND table_name = 'sellers' AND column_name = 'headquarters_city'
+        ) THEN
+            UPDATE sellers SET city = headquarters_city, state = headquarters_state;
+        END IF;
+
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_schema = 'public' AND table_name = 'sellers' AND column_name = 'is_synthetic_demo'
+        ) THEN
+            UPDATE sellers SET demo_status = CASE WHEN is_synthetic_demo THEN 'synthetic_demo' ELSE 'verified_live' END;
+        END IF;
+    END IF;
+END $$;
+
 -- ---------------------------------------------------------------------
 -- 1. Table: sellers
 -- ---------------------------------------------------------------------
@@ -124,6 +156,10 @@ CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 -- Backward Compatibility Views
 -- Maps previous schema expectations to canonical tables
 -- ---------------------------------------------------------------------
+DROP TABLE IF EXISTS inventory_listings CASCADE;
+DROP TABLE IF EXISTS material_test_certificates CASCADE;
+DROP TABLE IF EXISTS rfqs CASCADE;
+
 CREATE OR REPLACE VIEW inventory_listings AS
 SELECT 
     l.id,
@@ -198,12 +234,14 @@ ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
 -- 1. Sellers Policies:
 -- Public can view registered seller profiles.
+DROP POLICY IF EXISTS "Public read sellers" ON sellers;
 CREATE POLICY "Public read sellers"
     ON sellers FOR SELECT
     USING (true);
 
 -- 2. Listings Policies:
 -- Public and buyers can search active and reserved listings.
+DROP POLICY IF EXISTS "Public read active listings" ON listings;
 CREATE POLICY "Public read active listings"
     ON listings FOR SELECT
     USING (status IN ('active', 'reserved'));
@@ -211,6 +249,7 @@ CREATE POLICY "Public read active listings"
 -- 3. Certificates Security:
 -- NEVER allow arbitrary public access to private certificates.
 -- Only authenticated users associated with the lot, verified buyers, or service role.
+DROP POLICY IF EXISTS "Restricted certificates access" ON certificates;
 CREATE POLICY "Restricted certificates access"
     ON certificates FOR SELECT
     USING (
@@ -228,6 +267,7 @@ CREATE POLICY "Restricted certificates access"
 
 -- 4. Orders Policies:
 -- Allow buyers to create orders, but restrict visibility to the buyer and seller.
+DROP POLICY IF EXISTS "Buyers and sellers read orders" ON orders;
 CREATE POLICY "Buyers and sellers read orders"
     ON orders FOR SELECT
     USING (
@@ -236,6 +276,7 @@ CREATE POLICY "Buyers and sellers read orders"
         OR true -- Demo access fallback documented below
     );
 
+DROP POLICY IF EXISTS "Buyers insert orders" ON orders;
 CREATE POLICY "Buyers insert orders"
     ON orders FOR INSERT
     WITH CHECK (
