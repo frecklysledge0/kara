@@ -1,34 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
 import { TranslatedRequirement } from "@/types/steel";
 import { ALL_GRADE_STANDARDS } from "@/lib/data/standards";
+import { executeGeminiJson, GeminiOperationError } from "@/lib/ai/gemini-client";
 
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
     const body = await req.json();
     const { prompt } = body;
 
     if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
       return NextResponse.json(
-        { error: "A non-empty requirement description is required." },
+        { error: "A non-empty requirement description is required.", code: "EMPTY_PROMPT" },
         { status: 400 }
       );
     }
-
-    if (!apiKey) {
-      return NextResponse.json(
-        {
-          error: "GEMINI_API_KEY is not configured on the server. Please verify your environment variables.",
-          code: "MISSING_GEMINI_API_KEY"
-        },
-        { status: 500 }
-      );
-    }
-
-    const ai = new GoogleGenAI({ apiKey });
 
     // Standards library reference for the prompt context
     const standardsContext = ALL_GRADE_STANDARDS.map(
@@ -66,109 +53,61 @@ Output strictly structured JSON adhering to this schema:
 }
 `;
 
-    // Resilient model cascade: try fast reliable flash model, fallback to 3.8 and latest
-    function isQuotaOrResourceExhausted(err: unknown): boolean {
-      if (!err) return false;
-      const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
-      const status = (err as Record<string, unknown>)?.status;
-      return (
-        status === 429 ||
-        status === 503 ||
-        status === "RESOURCE_EXHAUSTED" ||
-        status === "UNAVAILABLE" ||
-        msg.includes("429") ||
-        msg.includes("503") ||
-        msg.includes("quota") ||
-        msg.includes("resource_exhausted") ||
-        msg.includes("high demand") ||
-        msg.includes("spikes in demand") ||
-        msg.includes("unavailable")
-      );
-    }
-
-    async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 4000): Promise<T> {
-      let timer: NodeJS.Timeout;
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error(`Translation timed out after ${timeoutMs}ms`)), timeoutMs);
-      });
-      try {
-        return await Promise.race([promise, timeoutPromise]);
-      } finally {
-        clearTimeout(timer!);
-      }
-    }
-
-    const candidateModels = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"];
-    let responseText: string | null = null;
-    let modelUsed = candidateModels[0];
-
-    for (const model of candidateModels) {
-      try {
-        const response = await callWithTimeout(
-          ai.models.generateContent({
-            model,
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: `Customer Application Requirements: "${prompt.trim()}"` }]
-              }
-            ],
-            config: {
-              systemInstruction,
-              responseMimeType: "application/json",
-              temperature: 0.2
-            }
-          }),
-          4000
-        );
-
-        if (response.text) {
-          responseText = response.text;
-          modelUsed = model;
-          break;
+    const result = await executeGeminiJson<TranslatedRequirement>({
+      operationName: "translate-requirements",
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: `Customer Application Requirements: "${prompt.trim()}"` }],
+        },
+      ],
+      systemInstruction,
+      temperature: 0.2,
+      deadlineMs: 15000,
+      clientSignal: req.signal,
+      schemaValidator: (raw: unknown) => {
+        const obj = raw as Record<string, unknown>;
+        if (
+          obj &&
+          Array.isArray(obj.suggestedGrades) &&
+          obj.keyMechanicalCriteria &&
+          typeof obj.keyMechanicalCriteria === "object"
+        ) {
+          return { success: true, data: raw as TranslatedRequirement };
         }
-      } catch (callErr: unknown) {
-        const errorMsg = callErr instanceof Error ? callErr.message : String(callErr);
-        console.warn(`Model ${model} unavailable (${errorMsg}), checking fallback...`);
-        if (isQuotaOrResourceExhausted(callErr)) {
-          console.info("Gemini quota or capacity exhausted in translation; terminating model cascade early.");
-          break;
-        }
-      }
-    }
-    if (!responseText) {
-      return NextResponse.json(
-        { error: "Model returned an empty response. Please rephrase your requirements." },
-        { status: 502 }
-      );
-    }
-
-    let parsed: TranslatedRequirement;
-    try {
-      parsed = JSON.parse(responseText);
-    } catch {
-      return NextResponse.json(
-        { error: "Failed to parse structured JSON from translation output. Please rephrase your requirements." },
-        { status: 502 }
-      );
-    }
+        return { success: false, error: "Missing required translation fields" };
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      translation: parsed,
+      translation: result.data,
       provenance: {
-        engine: `Gemini (${modelUsed || "gemini-2.5-flash"}) Server-Side`,
-        modelUsed: modelUsed || "gemini-2.5-flash",
-        rule: "Translates natural-language requirements into ASTM grade candidates. Numeric acceptance thresholds are enforced by deterministic rules."
-      }
+        engine: `Gemini (${result.modelUsed}) Server-Side`,
+        modelUsed: result.modelUsed,
+        durationMs: result.durationMs,
+        isFallback: result.isFallback,
+        rule: "Translates natural-language requirements into ASTM grade candidates. Numeric acceptance thresholds are enforced by deterministic rules.",
+      },
     });
   } catch (error: unknown) {
-    console.error("Requirement translation error:", error);
+    if (error instanceof GeminiOperationError) {
+      return NextResponse.json(
+        {
+          error: `Requirement Translation Failed: ${error.message}`,
+          code: error.code,
+          durationMs: error.durationMs,
+          modelUsed: error.modelUsed,
+        },
+        { status: error.status }
+      );
+    }
+
     const errorMessage = error instanceof Error ? error.message : "Translation service failed";
     return NextResponse.json(
       {
         error: `Requirement Translation Failed: ${errorMessage}`,
-        code: "TRANSLATION_API_ERROR"
+        code: "TRANSLATION_API_ERROR",
       },
       { status: 500 }
     );

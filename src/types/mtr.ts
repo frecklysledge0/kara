@@ -155,6 +155,7 @@ export interface MTRExtractionPipelineResponse {
     engine: string;
     rules_version: string;
     disclaimer: string;
+    timings?: Record<string, number>;
   };
   error?: string;
 }

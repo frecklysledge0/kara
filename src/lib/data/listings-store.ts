@@ -62,8 +62,8 @@ export function inventoryListingToListingWithRelations(item: InventoryListing): 
     price_per_ton: pricePerTon,
     certificate_id: item.certificate?.id || item.certificate_id || null,
     status: (item.status as "draft" | "active" | "reserved" | "closed") || "active",
-    created_at: item.created_at || new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    created_at: item.created_at || "2026-10-20T10:00:00.000Z",
+    updated_at: item.created_at || "2026-10-20T10:00:00.000Z",
     seller: {
       id: item.seller?.id || item.seller_id || "11111111-1111-4111-8111-111111111111",
       name: item.seller?.name || "Great Lakes Steel Service (Synthetic Demo)",
@@ -75,7 +75,7 @@ export function inventoryListingToListingWithRelations(item: InventoryListing): 
       mill_route: "EAF",
       description: null,
       demo_status: "synthetic_demo",
-      created_at: new Date().toISOString(),
+      created_at: item.created_at || "2026-10-20T10:00:00.000Z",
     },
     certificate: item.certificate
       ? {
@@ -88,8 +88,8 @@ export function inventoryListingToListingWithRelations(item: InventoryListing): 
           mill_name: item.certificate.mill_name || item.seller?.name || "Burns Harbor Heavy Plate Works",
           grade: gradeName,
           melt_pour_country: item.certificate.mill_country || "USA",
-          chemistry: (item.certificate.chemical_analysis as Record<string, number | null>) || {},
-          mechanical: (item.certificate.mechanical_results as Record<string, number | null>) || {},
+          chemistry: (item.certificate.chemical_analysis as unknown as Record<string, number | null>) || {},
+          mechanical: (item.certificate.mechanical_results as unknown as Record<string, number | null>) || {},
           extraction_status: "completed",
           review_status: item.certificate.qc_status === "passed" ? "approved" : "unreviewed",
           risk_score: item.certificate.qc_status === "passed" ? 3.5 : 45.0,
@@ -99,7 +99,7 @@ export function inventoryListingToListingWithRelations(item: InventoryListing): 
             en10204_type: item.certificate.en10204_type || "3.1",
             specification: item.certificate.specification || gradeName,
           },
-          created_at: new Date().toISOString(),
+          created_at: item.created_at || "2026-10-20T10:00:00.000Z",
         }
       : null,
   };

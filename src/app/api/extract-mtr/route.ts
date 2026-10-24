@@ -5,7 +5,6 @@
 // =====================================================================
 
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
 import {
   MTRExtractionSchema,
   MTRExtraction,
@@ -21,10 +20,18 @@ import {
 } from "@/lib/supabase/storage";
 import { findExistingCertificatesForHeat } from "@/lib/supabase/database";
 import { SYNTHETIC_MTR_FIXTURES } from "@/lib/data/synthetic-mtr-fixtures";
+import { executeGeminiGenerate, GeminiOperationError } from "@/lib/ai/gemini-client";
 
 export const maxDuration = 60; // Allow sufficient time for vision/document processing
 
 export async function POST(req: NextRequest) {
+  const pipelineStart = Date.now();
+  let fileValidationMs = 0;
+  let storageUploadMs = 0;
+  let geminiOcrMs = 0;
+  let dbLookupMs = 0;
+  let qcRulesMs = 0;
+
   try {
     // 1. In-process demo rate limiting
     const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
@@ -47,16 +54,21 @@ export async function POST(req: NextRequest) {
       const benchmark = SYNTHETIC_MTR_FIXTURES.find((s) => s.id === sampleId);
       if (!benchmark) {
         return NextResponse.json(
-          { error: `Benchmark sample ID '${sampleId}' not recognized.` },
+          { error: `Benchmark sample ID '${sampleId}' not recognized.`, code: "BENCHMARK_NOT_FOUND" },
           { status: 404 }
         );
       }
 
       // Check for duplicate heat records across database/fixtures
+      const dbStart = Date.now();
       const existingRecords = await findExistingCertificatesForHeat(benchmark.data.heat_number || "");
+      dbLookupMs = Date.now() - dbStart;
+
+      const qcStart = Date.now();
       const reviewResult = evaluateMTRComplianceAndRisk(benchmark.data, {
         existingCertificates: existingRecords,
       });
+      qcRulesMs = Date.now() - qcStart;
 
       const response: MTRExtractionPipelineResponse = {
         success: true,
@@ -71,6 +83,11 @@ export async function POST(req: NextRequest) {
           rules_version: "2026.1 ASTM/SAE Unified Matrix",
           disclaimer:
             "This is a pre-validated synthetic test certificate labeled as DEMO for system verification. Review score measures data completeness and standard compliance, not proof of authenticity.",
+          timings: {
+            dbLookupMs,
+            qcRulesMs,
+            totalPipelineMs: Date.now() - pipelineStart,
+          },
         },
       };
 
@@ -80,11 +97,12 @@ export async function POST(req: NextRequest) {
     // 3. User Document Upload Validation
     if (!fileData) {
       return NextResponse.json(
-        { error: "No document data provided. Please upload a PDF or image MTR document." },
+        { error: "No document data provided. Please upload a PDF or image MTR document.", code: "MISSING_DOCUMENT" },
         { status: 400 }
       );
     }
 
+    const valStart = Date.now();
     // Extract base64 payload
     const base64Data = fileData.replace(/^data:([A-Za-z-+/]+);base64,/, "");
     const fileBuffer = Buffer.from(base64Data, "base64");
@@ -122,8 +140,10 @@ export async function POST(req: NextRequest) {
         { status: 415 }
       );
     }
+    fileValidationMs = Date.now() - valStart;
 
     // 4. Store the file privately in Supabase Storage
+    const uploadStart = Date.now();
     const originalName = fileName || `document_${Date.now()}.${detectedMime.includes("pdf") ? "pdf" : "png"}`;
     const storageResult = await uploadPrivateMTRDocument(
       fileBuffer,
@@ -131,21 +151,9 @@ export async function POST(req: NextRequest) {
       detectedMime,
       sellerId
     );
+    storageUploadMs = Date.now() - uploadStart;
 
-    // 5. Query Gemini API with Strict Schema
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        {
-          error: "GEMINI_API_KEY is not configured on the server. Please check your environment variables.",
-          code: "MISSING_GEMINI_API_KEY",
-        },
-        { status: 500 }
-      );
-    }
-
-    const ai = new GoogleGenAI({ apiKey });
-
+    // 5. Query Gemini API with Strict Schema and 45s Deadline
     const systemInstruction = `
 You are a licensed metallurgist and certified materials test engineer auditing industrial Mill Test Reports (MTRs, Mill Test Certificates, EN 10204 3.1 / 3.2).
 Your objective is to extract all verifiable technical data from the provided document into strict structured JSON.
@@ -203,87 +211,59 @@ JSON SCHEMA STRUCTURE TO RETURN:
 }
 `;
 
-function isQuotaOrResourceExhausted(err: unknown): boolean {
-  if (!err) return false;
-  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
-  const status = (err as Record<string, unknown>)?.status;
-  return (
-    status === 429 ||
-    status === 503 ||
-    status === "RESOURCE_EXHAUSTED" ||
-    status === "UNAVAILABLE" ||
-    msg.includes("429") ||
-    msg.includes("503") ||
-    msg.includes("quota") ||
-    msg.includes("resource_exhausted") ||
-    msg.includes("high demand") ||
-    msg.includes("spikes in demand") ||
-    msg.includes("unavailable")
-  );
-}
-
-async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 6000): Promise<T> {
-  let timer: NodeJS.Timeout;
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error(`Extraction timed out after ${timeoutMs}ms`)), timeoutMs);
-  });
-  try {
-    return await Promise.race([promise, timeoutPromise]);
-  } finally {
-    clearTimeout(timer!);
-  }
-}
-
-    // Resilient model cascade
-    const candidateModels = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"];
-    let responseText: string | null = null;
-    let selectedModel = candidateModels[0];
-
-    for (const model of candidateModels) {
-      try {
-        const response = await callWithTimeout(
-          ai.models.generateContent({
-            model,
-            contents: [
+    const ocrStart = Date.now();
+    let geminiResult;
+    try {
+      geminiResult = await executeGeminiGenerate({
+        operationName: "extract-mtr",
+        contents: [
+          {
+            role: "user",
+            parts: [
               {
-                role: "user",
-                parts: [
-                  {
-                    inlineData: {
-                      mimeType: detectedMime,
-                      data: base64Data,
-                    },
-                  },
-                  {
-                    text: "Extract all chemical ladle analysis, mechanical tension tests, heat number, and specification from this Mill Test Report into structured JSON adhering strictly to instructions.",
-                  },
-                ],
+                inlineData: {
+                  mimeType: detectedMime,
+                  data: base64Data,
+                },
+              },
+              {
+                text: "Extract all chemical ladle analysis, mechanical tension tests, heat number, and specification from this Mill Test Report into structured JSON adhering strictly to instructions.",
               },
             ],
-            config: {
-              systemInstruction,
-              responseMimeType: "application/json",
-              temperature: 0.1,
-            },
-          }),
-          6000
-        );
+          },
+        ],
+        systemInstruction,
+        responseMimeType: "application/json",
+        temperature: 0.1,
+        deadlineMs: 45000,
+        clientSignal: req.signal,
+      });
+    } catch (genErr: unknown) {
+      geminiOcrMs = Date.now() - ocrStart;
+      console.error(
+        `[MTR Pipeline Failure] fileValidationMs=${fileValidationMs} storageUploadMs=${storageUploadMs} geminiOcrMs=${geminiOcrMs} totalMs=${Date.now() - pipelineStart}`,
+        genErr
+      );
 
-        if (response.text) {
-          responseText = response.text;
-          selectedModel = model;
-          break;
-        }
-      } catch (callErr: unknown) {
-        console.warn(`Extraction model ${model} unavailable, trying fallback...`, callErr);
-        if (isQuotaOrResourceExhausted(callErr)) {
-          console.info("Gemini quota or capacity exhausted in OCR; terminating model cascade early.");
-          break;
-        }
+      if (genErr instanceof GeminiOperationError) {
+        return NextResponse.json(
+          {
+            error: `MTR Document Extraction Failed: ${genErr.message}`,
+            code: genErr.code,
+            durationMs: genErr.durationMs,
+            modelUsed: genErr.modelUsed,
+          },
+          { status: genErr.status }
+        );
       }
+      throw genErr;
     }
 
-    if (!responseText) {
+    geminiOcrMs = geminiResult.durationMs;
+    const responseText = geminiResult.text;
+    const selectedModel = geminiResult.modelUsed;
+
+    if (!responseText || responseText.trim().length === 0) {
       return NextResponse.json(
         {
           error: "Model returned an empty response. The document may be corrupted or unreadable.",
@@ -349,12 +329,23 @@ async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 6000): Promis
     }
 
     // 7. Check Duplicate Heat Numbers Against Registry
+    const dbStart = Date.now();
     const existingRecords = await findExistingCertificatesForHeat(extractedMTR.heat_number || "");
+    dbLookupMs = Date.now() - dbStart;
 
     // 8. Run Pure Deterministic Quality-Control Engine
+    const qcStart = Date.now();
     const reviewResult = evaluateMTRComplianceAndRisk(extractedMTR, {
       existingCertificates: existingRecords,
     });
+    qcRulesMs = Date.now() - qcStart;
+
+    const totalPipelineMs = Date.now() - pipelineStart;
+
+    // Log complete breakdown
+    console.info(
+      `[MTR Pipeline Timing] fileValidationMs=${fileValidationMs} storageUploadMs=${storageUploadMs} geminiOcrMs=${geminiOcrMs} dbLookupMs=${dbLookupMs} qcRulesMs=${qcRulesMs} totalPipelineMs=${totalPipelineMs} model="${selectedModel}" fallback=${geminiResult.isFallback}`
+    );
 
     // 9. Assemble Secure Pipeline Response
     const pipelineResponse: MTRExtractionPipelineResponse = {
@@ -370,6 +361,14 @@ async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 6000): Promis
         rules_version: "2026.1 ASTM/SAE Unified Matrix",
         disclaimer:
           "AI was utilized exclusively for optical character recognition. Pass/fail compliance, Carbon Equivalent, and review risk score were computed deterministically by software rules against published standards. A clean review score is not a guarantee of certificate authenticity.",
+        timings: {
+          fileValidationMs,
+          storageUploadMs,
+          geminiOcrMs,
+          dbLookupMs,
+          qcRulesMs,
+          totalPipelineMs,
+        },
       },
     };
 
@@ -381,6 +380,12 @@ async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 6000): Promis
       {
         error: `MTR Pipeline Processing Error: ${msg}`,
         code: "PIPELINE_ERROR",
+        timings: {
+          fileValidationMs,
+          storageUploadMs,
+          geminiOcrMs,
+          totalPipelineMs: Date.now() - pipelineStart,
+        },
       },
       { status: 500 }
     );

@@ -1,5 +1,5 @@
-import { GoogleGenAI } from "@google/genai";
 import { BuyerSpecification, BuyerSpecificationSchema } from "@/types/assistant";
+import { executeGeminiJson } from "@/lib/ai/gemini-client";
 
 // =====================================================================
 // MillProof: AI Requirements Parser (Step 1)
@@ -8,36 +8,34 @@ import { BuyerSpecification, BuyerSpecificationSchema } from "@/types/assistant"
 // =====================================================================
 
 export async function parseBuyerRequirements(
-  prompt: string
+  prompt: string,
+  clientSignal?: AbortSignal | null
 ): Promise<BuyerSpecification> {
   const cleanPrompt = prompt.trim();
   if (!cleanPrompt) {
     throw new Error("Cannot parse empty requirements prompt.");
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (apiKey) {
-    try {
-      const parsed = await parseWithGemini(cleanPrompt, apiKey);
-      if (parsed) {
-        return parsed;
-      }
-    } catch (err) {
-      console.warn("Gemini requirements parsing encountered error, activating deterministic fallback:", err);
+  try {
+    const parsed = await parseWithGemini(cleanPrompt, clientSignal);
+    if (parsed) {
+      return parsed;
     }
+  } catch (err) {
+    console.warn("Gemini requirements parsing encountered error, activating deterministic fallback:", err);
   }
 
-  // Deterministic rule-based fallback when Gemini is unavailable or rate-limited
+  // Deterministic rule-based fallback when Gemini is unconfigured, rate-limited, or unavailable
   return parseRequirementsDeterministic(cleanPrompt);
 }
 
 /**
- * Parses requirements using Google GenAI with strict JSON schema instructions.
+ * Parses requirements using centralized Gemini client with strict JSON schema instructions.
  */
-async function parseWithGemini(prompt: string, apiKey: string): Promise<BuyerSpecification | null> {
-  const ai = new GoogleGenAI({ apiKey });
-
+async function parseWithGemini(
+  prompt: string,
+  clientSignal?: AbortSignal | null
+): Promise<BuyerSpecification | null> {
   const systemInstruction = `
 You are a metallurgical procurement specification parser for an industrial B2B steel marketplace.
 Convert the user's natural language request into a strictly structured JSON object.
@@ -72,78 +70,28 @@ JSON SCHEMA:
 }
 `;
 
-function isQuotaOrResourceExhausted(err: unknown): boolean {
-  if (!err) return false;
-  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
-  const status = (err as Record<string, unknown>)?.status;
-  return (
-    status === 429 ||
-    status === 503 ||
-    status === "RESOURCE_EXHAUSTED" ||
-    status === "UNAVAILABLE" ||
-    msg.includes("429") ||
-    msg.includes("503") ||
-    msg.includes("quota") ||
-    msg.includes("resource_exhausted") ||
-    msg.includes("high demand") ||
-    msg.includes("spikes in demand") ||
-    msg.includes("unavailable")
-  );
-}
-
-async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promise<T> {
-  let timer: NodeJS.Timeout;
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error(`AI generation timed out after ${timeoutMs}ms`)), timeoutMs);
+  const result = await executeGeminiJson<BuyerSpecification>({
+    operationName: "requirements-parser",
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: `Customer Request: "${prompt}"` }],
+      },
+    ],
+    systemInstruction,
+    temperature: 0.1,
+    deadlineMs: 15000,
+    clientSignal,
+    schemaValidator: (raw: unknown) => {
+      const validated = BuyerSpecificationSchema.safeParse(raw);
+      if (validated.success) {
+        return { success: true, data: validated.data };
+      }
+      return { success: false, error: validated.error };
+    },
   });
-  try {
-    return await Promise.race([promise, timeoutPromise]);
-  } finally {
-    clearTimeout(timer!);
-  }
-}
 
-  const candidateModels = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"];
-
-  for (const model of candidateModels) {
-    try {
-      const response = await callWithTimeout(
-        ai.models.generateContent({
-          model,
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: `Customer Request: "${prompt}"` }],
-            },
-          ],
-          config: {
-            systemInstruction,
-            responseMimeType: "application/json",
-            temperature: 0.1,
-          },
-        }),
-        3500
-      );
-
-      if (response.text) {
-        const rawJson = JSON.parse(response.text);
-        const validated = BuyerSpecificationSchema.safeParse(rawJson);
-        if (validated.success) {
-          return validated.data;
-        } else {
-          console.warn(`Model ${model} JSON did not match schema:`, validated.error.format());
-        }
-      }
-    } catch (err) {
-      console.warn(`Model ${model} failed in requirements parser:`, err);
-      if (isQuotaOrResourceExhausted(err)) {
-        console.info("Gemini quota or capacity issue detected; switching immediately to deterministic parser.");
-        break;
-      }
-    }
-  }
-
-  return null;
+  return result.data;
 }
 
 /**
