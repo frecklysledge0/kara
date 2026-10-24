@@ -66,6 +66,7 @@ export default function SellPage() {
 
   // Cancellation and timing state
   const abortControllerRef = React.useRef<AbortController | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -464,22 +465,31 @@ export default function SellPage() {
                     </p>
                   </div>
                   <div>
-                    <label className="cursor-pointer inline-flex items-center">
-                      <Button type="button" variant="primary" size="sm" disabled={isProcessing}>
+                    <div className="inline-flex items-center">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        disabled={isProcessing}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
                         <FileText className="w-3.5 h-3.5 mr-1.5" />
                         Browse Local Files
                       </Button>
                       <input
+                        ref={fileInputRef}
                         type="file"
                         accept="application/pdf,image/png,image/jpeg,image/webp,image/tiff"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
+                          e.target.value = ""; // allow choosing the same file again
                           if (file) processFile(file);
                         }}
                         className="hidden"
+                        aria-label="Upload mill test report file"
                         disabled={isProcessing}
                       />
-                    </label>
+                    </div>
                   </div>
                 </div>
 
