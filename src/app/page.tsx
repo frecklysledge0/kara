@@ -74,11 +74,37 @@ export default function LandingPage() {
 
             <div className="space-y-3">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                Source physical steel inventory with certified metallurgical proof.
+                Where steel buyers and verified sellers meet.
               </h1>
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-                Industrial procurement buyers lose days deciphering paper Mill Test Reports, resolving ASTM chemistry mismatches, and negotiating freight rates. MillProof pairs verified inventory with deterministic quality audits, certified melt provenance, and instant jobsite trucking calculations.
+                Describe what you&apos;re building and MillProof finds the right grade, the best delivered price, and a certificate you can trust. We don&apos;t sell steel. We connect you with the mills and service centers that do.
               </p>
+            </div>
+
+            {/* Two doors: buyers (no account) and sellers (account required) */}
+            <div className="grid sm:grid-cols-2 gap-3 pt-2 max-w-2xl">
+              <Link
+                href="/assistant"
+                className="group rounded-lg border border-slate-900 bg-slate-900 text-white p-4 transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
+              >
+                <span className="flex items-center justify-between">
+                  <span className="text-xs font-mono uppercase tracking-wider text-slate-300">I&apos;m sourcing steel</span>
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                </span>
+                <span className="block mt-2 text-base font-semibold">Find steel for my project</span>
+                <span className="block mt-1 text-xs text-slate-300">No account needed. Ask in plain English, compare delivered prices, request quotes.</span>
+              </Link>
+              <Link
+                href="/login?next=/sell"
+                className="group rounded-lg border border-slate-300 bg-white p-4 transition-colors hover:border-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
+              >
+                <span className="flex items-center justify-between">
+                  <span className="text-xs font-mono uppercase tracking-wider text-slate-500">I&apos;m listing steel</span>
+                  <ArrowRight className="w-4 h-4 text-slate-700 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                </span>
+                <span className="block mt-2 text-base font-semibold text-slate-900">List inventory as a seller</span>
+                <span className="block mt-1 text-xs text-slate-600">Seller account required. Upload certificates, get them checked, reach buyers.</span>
+              </Link>
             </div>
 
             {/* Buyer-Oriented Search Box */}
@@ -169,26 +195,6 @@ export default function LandingPage() {
               </div>
             </form>
 
-            {/* Primary Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <Link href="/listings">
-                <Button variant="primary" size="md">
-                  Explore Marketplace Catalog
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-              <Link href="/assistant">
-                <Button variant="outline" size="md">
-                  <Sparkles className="w-4 h-4 mr-2 text-slate-700" />
-                  AI Sourcing Assistant
-                </Button>
-              </Link>
-              <Link href="/sell">
-                <Button variant="ghost" size="md">
-                  Supplier MTR Ingestion
-                </Button>
-              </Link>
-            </div>
           </div>
         </div>
       </section>

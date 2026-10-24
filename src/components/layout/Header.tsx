@@ -8,29 +8,40 @@ import {
   X, 
   Search, 
   UploadCloud, 
-  LayoutDashboard, 
   Sparkles, 
   FileText,
-  BookOpen,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  Scale,
+  LogOut,
+  Factory
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/listings", label: "Marketplace", icon: Search },
-    { href: "/assistant", label: "Sourcing Assistant", icon: Sparkles },
-    { href: "/standards", label: "Standards Registry", icon: BookOpen },
-    { href: "/sell", label: "Sell Materials", icon: UploadCloud },
+  const { user, companyName, signOut } = useAuth();
+  const isSeller = Boolean(user);
+
+  // Buyers never need an account; signed-in sellers get their own workspace links.
+  const buyerLinks = [
+    { href: "/assistant", label: "Find Steel", icon: Sparkles },
+    { href: "/listings", label: "Browse Lots", icon: Search },
+    { href: "/compare", label: "Compare", icon: Scale },
+    { href: "/orders", label: "My Quotes", icon: FileText },
     { href: "/verify", label: "Verify MTR", icon: ShieldCheck },
-    { href: "/orders", label: "Orders & Quotes", icon: FileText },
   ];
+  const sellerLinks = [
+    { href: "/sell", label: "List Inventory", icon: UploadCloud },
+    { href: "/orders", label: "Quote Requests", icon: FileText },
+    { href: "/listings", label: "Marketplace", icon: Search },
+    { href: "/verify", label: "Verify MTR", icon: ShieldCheck },
+  ];
+  const navLinks = isSeller ? sellerLinks : buyerLinks;
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -89,12 +100,28 @@ export function Header() {
               Demo Environment
             </Badge>
 
-            <Link
-              href="/listings"
-              className="inline-flex items-center justify-center px-3 py-1.5 rounded text-xs font-medium bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
-            >
-              Browse Inventory
-            </Link>
+            {isSeller ? (
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 max-w-[180px] truncate" title={user?.email ?? undefined}>
+                  <Factory className="w-3.5 h-3.5 text-slate-500 shrink-0" aria-hidden="true" />
+                  {companyName || user?.email}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
+                >
+                  <LogOut className="w-3.5 h-3.5" aria-hidden="true" /> Sign out
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login?next=/sell"
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded text-xs font-medium bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
+              >
+                For Sellers
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -144,6 +171,27 @@ export function Header() {
               </Link>
             );
           })}
+          <div className="pt-2 mt-2 border-t border-slate-100">
+            {isSeller ? (
+              <button
+                type="button"
+                onClick={() => { setMobileMenuOpen(false); signOut(); }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded text-sm text-slate-700 hover:bg-slate-50"
+              >
+                <LogOut className="w-4 h-4 text-slate-500" aria-hidden="true" />
+                Sign out{companyName ? ` (${companyName})` : ""}
+              </button>
+            ) : (
+              <Link
+                href="/login?next=/sell"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2 rounded text-sm font-semibold text-slate-900 bg-slate-100"
+              >
+                <Factory className="w-4 h-4" aria-hidden="true" />
+                For Sellers: sign in
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </header>

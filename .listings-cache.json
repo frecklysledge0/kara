@@ -1,5 +1,87 @@
 [
   {
+    "id": "listing-1792878981930",
+    "seller_id": "11111111-1111-4111-8111-111111111111",
+    "seller": {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "name": "Great Lakes Steel Service (Synthetic Demo)",
+      "business_type": "Steel Service Center",
+      "headquarters_city": "Gary",
+      "headquarters_state": "IN",
+      "rating": 4.9,
+      "is_synthetic_demo": true,
+      "contact_email": "orders@demo-greatlakes.internal"
+    },
+    "grade_id": "astm-a572-50",
+    "grade": "A572 Grade 50 (HSLA)",
+    "title": "0.750\" S235JRH (Heat SL81811)",
+    "product_form": "CHS (Circular Hollow Section) / Pipe",
+    "dimensions_display": "0.750\" x 96\" x 240\"",
+    "thickness_in": 0.75,
+    "width_in": 96,
+    "length_in": 240,
+    "pieces_available": 6,
+    "total_weight_lbs": 29372.544,
+    "price_per_cwt": 54,
+    "warehouse_city": "Gary",
+    "warehouse_state": "IN",
+    "warehouse_lat": 41.5934,
+    "warehouse_lng": -87.3464,
+    "min_order_quantity_lbs": 5000,
+    "status": "active",
+    "is_synthetic_demo": true,
+    "certificate": {
+      "id": "cert-1792878981930",
+      "heat_number": "SL81811",
+      "cert_number": "MTR-1792878981930",
+      "mill_name": "Yücel Boru ve Profil Endüstrisi A.Ş.",
+      "mill_country": "USA",
+      "specification": "S235JRH EN 10219-1",
+      "en10204_type": "3.1",
+      "product_form": "CHS (Circular Hollow Section) / Pipe",
+      "dimensions": {
+        "thickness_in": 0.75,
+        "width_in": 96,
+        "length_in": 240,
+        "weight_lbs": 29372.544
+      },
+      "chemical_analysis": {
+        "C": 0.15,
+        "Mn": 0.48,
+        "P": 0.016,
+        "S": 0.013,
+        "Si": 0.01,
+        "Cr": 0.02,
+        "Ni": 0.02,
+        "Mo": 0.003,
+        "Cu": 0.01,
+        "V": 0.001,
+        "Nb": 0.001,
+        "Ti": 0.049,
+        "Al": 0.001,
+        "B": 0,
+        "N": 0.003
+      },
+      "mechanical_results": {
+        "yield_strength_ksi": 353,
+        "tensile_strength_ksi": 421,
+        "elongation_pct": 31,
+        "charpy_avg_ft_lbs": 0
+      },
+      "heat_treatment": "As-Rolled",
+      "extracted_by_model": "gemini-2.5",
+      "qc_status": "passed",
+      "qc_summary": {
+        "status": "PASS",
+        "standards_met": [
+          "astm-a572-50"
+        ],
+        "flags": []
+      },
+      "is_synthetic_demo": true
+    }
+  },
+  {
     "id": "listing-1792854434556",
     "seller_id": "11111111-1111-4111-8111-111111111111",
     "seller": {
@@ -77,5 +159,630 @@
       },
       "is_synthetic_demo": true
     }
+  },
+  {
+    "id": "10101010-1010-4010-8010-101010101010",
+    "seller_id": "11111111-1111-4111-8111-111111111111",
+    "seller": {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "name": "Great Lakes Steel Service (Synthetic Demo)",
+      "business_type": "Steel Service Center",
+      "headquarters_city": "Gary",
+      "headquarters_state": "IN",
+      "rating": 4.9,
+      "is_synthetic_demo": true,
+      "contact_email": "orders@demo-greatlakes.internal"
+    },
+    "certificate_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "certificate": {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "heat_number": "H-784291",
+      "cert_number": "MTR-2026-GLS-0419",
+      "mill_name": "Burns Harbor Plate Works",
+      "mill_country": "USA",
+      "specification": "ASTM A572 Grade 50",
+      "en10204_type": "3.1",
+      "product_form": "Plate",
+      "dimensions": {
+        "thickness_in": 0.75,
+        "width_in": 96,
+        "length_in": 240,
+        "weight_lbs": 4896
+      },
+      "chemical_analysis": {
+        "C": 0.18,
+        "Mn": 1.15,
+        "P": 0.015,
+        "S": 0.008,
+        "Si": 0.24,
+        "V": 0.035,
+        "Nb": 0.021,
+        "Cr": 0.04,
+        "Ni": 0.03,
+        "Mo": 0.01,
+        "Cu": 0.12,
+        "CEV": 0.385
+      },
+      "mechanical_results": {
+        "yield_strength_ksi": 54.8,
+        "tensile_strength_ksi": 72.4,
+        "elongation_pct": 23.5
+      },
+      "heat_treatment": "As-Rolled",
+      "extracted_by_model": "gemini-2.5",
+      "qc_status": "passed",
+      "qc_summary": {
+        "status": "PASS",
+        "standards_met": [
+          "ASTM A572-50",
+          "AASHTO M223"
+        ],
+        "cev_evaluation": "Under 0.43 max threshold (0.385 calculated)",
+        "weldability": "Standard AWS D1.1 preheat applies",
+        "flags": []
+      },
+      "is_synthetic_demo": true
+    },
+    "grade_id": "astm-a572-50",
+    "grade": {
+      "id": "astm-a572-50",
+      "standard_org": "ASTM",
+      "grade_name": "A572 Grade 50 (HSLA)",
+      "category": "High-Strength Low-Alloy",
+      "description": "High-strength low-alloy columbium-vanadium structural steel offering exceptional strength-to-weight ratio with superior weldability.",
+      "typical_applications": [
+        "Highway bridges",
+        "Heavy construction equipment",
+        "Transmission towers",
+        "Crane booms"
+      ],
+      "weldability_rating": "Good with standard preheat",
+      "max_cev": 0.43,
+      "chem_limits": {
+        "C": {
+          "max": 0.23
+        },
+        "Mn": {
+          "max": 1.35
+        },
+        "P": {
+          "max": 0.04
+        },
+        "S": {
+          "max": 0.05
+        },
+        "Si": {
+          "max": 0.4
+        },
+        "V": {
+          "min": 0.01,
+          "max": 0.15
+        },
+        "Nb": {
+          "min": 0.005,
+          "max": 0.05
+        }
+      },
+      "mech_limits": {
+        "yield_min_ksi": 50,
+        "tensile_min_ksi": 65,
+        "elongation_min_pct": 18
+      }
+    },
+    "title": "0.750\" A572 Gr 50 Heavy Structural Plate (Heat H-784291)",
+    "product_form": "Plate",
+    "dimensions_display": "0.750\" x 96\" x 240\"",
+    "thickness_in": 0.75,
+    "width_in": 96,
+    "length_in": 240,
+    "pieces_available": 8,
+    "total_weight_lbs": 39168,
+    "price_per_cwt": 49.5,
+    "warehouse_city": "Gary",
+    "warehouse_state": "IN",
+    "warehouse_lat": 41.5934,
+    "warehouse_lng": -87.3464,
+    "min_order_quantity_lbs": 4896,
+    "status": "active",
+    "is_synthetic_demo": true
+  },
+  {
+    "id": "20202020-2020-4020-8020-202020202020",
+    "seller_id": "22222222-2222-4222-8222-222222222222",
+    "seller": {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "name": "Gulf Coast Energy Metals (Synthetic Demo)",
+      "business_type": "Master Distributor",
+      "headquarters_city": "Houston",
+      "headquarters_state": "TX",
+      "rating": 4.85,
+      "is_synthetic_demo": true,
+      "contact_email": "sales@demo-gulfcoastmetals.internal"
+    },
+    "certificate_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    "certificate": {
+      "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "heat_number": "H-912044",
+      "cert_number": "MTR-2026-GC-8812",
+      "mill_name": "Baytown Heavy Plate Rolling",
+      "mill_country": "USA",
+      "specification": "ASTM A516 Grade 70 (Normalized)",
+      "en10204_type": "3.1",
+      "product_form": "Plate",
+      "dimensions": {
+        "thickness_in": 1.25,
+        "width_in": 120,
+        "length_in": 480,
+        "weight_lbs": 20400
+      },
+      "chemical_analysis": {
+        "C": 0.22,
+        "Mn": 1.1,
+        "P": 0.012,
+        "S": 0.004,
+        "Si": 0.28,
+        "Cr": 0.05,
+        "Ni": 0.08,
+        "Mo": 0.02,
+        "Cu": 0.09,
+        "CEV": 0.418
+      },
+      "mechanical_results": {
+        "yield_strength_ksi": 46.2,
+        "tensile_strength_ksi": 78.9,
+        "elongation_pct": 27,
+        "charpy_impact_f": -50,
+        "charpy_avg_ft_lbs": 38
+      },
+      "heat_treatment": "Normalized @ 1650°F",
+      "extracted_by_model": "gemini-2.5",
+      "qc_status": "passed",
+      "qc_summary": {
+        "status": "PASS",
+        "standards_met": [
+          "ASTM A516-70",
+          "ASME SA-516-70"
+        ],
+        "cev_evaluation": "0.418 within PVQ limits",
+        "impact_testing": "Exceeds 20 ft-lbs @ -50°F requirement (38 ft-lbs avg)",
+        "flags": []
+      },
+      "is_synthetic_demo": true
+    },
+    "grade_id": "astm-a516-70",
+    "grade": {
+      "id": "astm-a516-70",
+      "standard_org": "ASTM",
+      "grade_name": "A516 Grade 70 (PVQ)",
+      "category": "Pressure Vessel Quality",
+      "description": "Carbon steel plate intended primarily for service in welded pressure vessels where improved notch toughness is essential for moderate and lower temperature service.",
+      "typical_applications": [
+        "Industrial boilers",
+        "Petrochemical pressure vessels",
+        "Gas storage spheres",
+        "Cryogenic tanks"
+      ],
+      "weldability_rating": "Good with ASME Section IX procedures",
+      "max_cev": 0.44,
+      "chem_limits": {
+        "C": {
+          "max": 0.28
+        },
+        "Mn": {
+          "min": 0.85,
+          "max": 1.2
+        },
+        "P": {
+          "max": 0.025
+        },
+        "S": {
+          "max": 0.025
+        },
+        "Si": {
+          "min": 0.15,
+          "max": 0.4
+        }
+      },
+      "mech_limits": {
+        "yield_min_ksi": 38,
+        "tensile_min_ksi": 70,
+        "tensile_max_ksi": 90,
+        "elongation_min_pct": 21,
+        "charpy_temp_f": -50,
+        "charpy_min_ft_lbs": 20
+      }
+    },
+    "title": "1.250\" A516 Gr 70 PVQ Normalized Vessel Plate (Charpy -50°F Tested)",
+    "product_form": "Plate",
+    "dimensions_display": "1.250\" x 120\" x 480\"",
+    "thickness_in": 1.25,
+    "width_in": 120,
+    "length_in": 480,
+    "pieces_available": 3,
+    "total_weight_lbs": 61200,
+    "price_per_cwt": 64,
+    "warehouse_city": "Houston",
+    "warehouse_state": "TX",
+    "warehouse_lat": 29.7604,
+    "warehouse_lng": -95.3698,
+    "min_order_quantity_lbs": 20400,
+    "status": "active",
+    "is_synthetic_demo": true
+  },
+  {
+    "id": "30303030-3030-4030-8030-303030303030",
+    "seller_id": "33333333-3333-4333-8333-333333333333",
+    "seller": {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "name": "Allegheny Structural Plate (Synthetic Demo)",
+      "business_type": "Integrated Mill Processor",
+      "headquarters_city": "Pittsburgh",
+      "headquarters_state": "PA",
+      "rating": 4.95,
+      "is_synthetic_demo": true,
+      "contact_email": "support@demo-alleghenyplate.internal"
+    },
+    "certificate_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+    "certificate": {
+      "id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "heat_number": "H-643810",
+      "cert_number": "MTR-2026-AP-1033",
+      "mill_name": "Coatesville Heavy Plate Mill",
+      "mill_country": "USA",
+      "specification": "ASTM A514 Grade B",
+      "en10204_type": "3.1",
+      "product_form": "Plate",
+      "dimensions": {
+        "thickness_in": 0.5,
+        "width_in": 96,
+        "length_in": 288,
+        "weight_lbs": 3916.8
+      },
+      "chemical_analysis": {
+        "C": 0.17,
+        "Mn": 0.88,
+        "P": 0.014,
+        "S": 0.003,
+        "Si": 0.27,
+        "Cr": 0.52,
+        "Mo": 0.21,
+        "B": 0.0022,
+        "CEV": 0.495
+      },
+      "mechanical_results": {
+        "yield_strength_ksi": 108.5,
+        "tensile_strength_ksi": 118.2,
+        "elongation_pct": 19,
+        "hardness_hbw": 269
+      },
+      "heat_treatment": "Quenched @ 1650°F, Tempered @ 1150°F",
+      "extracted_by_model": "gemini-2.5",
+      "qc_status": "passed",
+      "qc_summary": {
+        "status": "PASS",
+        "standards_met": [
+          "ASTM A514 Grade B"
+        ],
+        "yield_test": "108.5 ksi exceeds 100 ksi minimum",
+        "flags": []
+      },
+      "is_synthetic_demo": true
+    },
+    "grade_id": "astm-a514",
+    "grade": {
+      "id": "astm-a514",
+      "standard_org": "ASTM",
+      "grade_name": "A514 (T-1) Quenched & Tempered",
+      "category": "Quenched & Tempered Alloy",
+      "description": "High-yield strength quenched and tempered alloy steel plate intended primarily for welded bridges and mining equipment requiring 100 ksi minimum yield.",
+      "typical_applications": [
+        "Heavy mining dump bodies",
+        "Offshore crane jibs",
+        "Excavator buckets",
+        "Wear liners"
+      ],
+      "weldability_rating": "Requires strict WPS & low-hydrogen electrode control",
+      "max_cev": 0.58,
+      "chem_limits": {
+        "C": {
+          "min": 0.12,
+          "max": 0.21
+        },
+        "Mn": {
+          "min": 0.7,
+          "max": 1
+        },
+        "P": {
+          "max": 0.035
+        },
+        "S": {
+          "max": 0.035
+        },
+        "Si": {
+          "min": 0.2,
+          "max": 0.35
+        },
+        "Cr": {
+          "min": 0.4,
+          "max": 0.65
+        },
+        "Mo": {
+          "min": 0.15,
+          "max": 0.25
+        },
+        "B": {
+          "min": 0.001,
+          "max": 0.005
+        }
+      },
+      "mech_limits": {
+        "yield_min_ksi": 100,
+        "tensile_min_ksi": 110,
+        "tensile_max_ksi": 130,
+        "elongation_min_pct": 16,
+        "hardness_max_hbw": 293
+      }
+    },
+    "title": "0.500\" A514 T-1 High Yield 100ksi Quenched & Tempered Plate",
+    "product_form": "Plate",
+    "dimensions_display": "0.500\" x 96\" x 288\"",
+    "thickness_in": 0.5,
+    "width_in": 96,
+    "length_in": 288,
+    "pieces_available": 10,
+    "total_weight_lbs": 39168,
+    "price_per_cwt": 88,
+    "warehouse_city": "Pittsburgh",
+    "warehouse_state": "PA",
+    "warehouse_lat": 40.4406,
+    "warehouse_lng": -79.9959,
+    "min_order_quantity_lbs": 7833.6,
+    "status": "active",
+    "is_synthetic_demo": true
+  },
+  {
+    "id": "40404040-4040-4040-8040-404040404040",
+    "seller_id": "44444444-4444-4444-8444-444444444444",
+    "seller": {
+      "id": "44444444-4444-4444-8444-444444444444",
+      "name": "Midwest Stainless & Alloy Co (Synthetic Demo)",
+      "business_type": "Specialty Distributor",
+      "headquarters_city": "Chicago",
+      "headquarters_state": "IL",
+      "rating": 4.8,
+      "is_synthetic_demo": true,
+      "contact_email": "inventory@demo-midwestalloy.internal"
+    },
+    "certificate_id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+    "certificate": {
+      "id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      "heat_number": "H-339211",
+      "cert_number": "MTR-2026-MW-7741",
+      "mill_name": "Sandusky Precision Stainless",
+      "mill_country": "USA",
+      "specification": "AISI 316L / ASTM A240",
+      "en10204_type": "3.1",
+      "product_form": "Plate",
+      "dimensions": {
+        "thickness_in": 0.375,
+        "width_in": 72,
+        "length_in": 144,
+        "weight_lbs": 1101.6
+      },
+      "chemical_analysis": {
+        "C": 0.021,
+        "Mn": 1.45,
+        "P": 0.028,
+        "S": 0.002,
+        "Si": 0.45,
+        "Cr": 16.85,
+        "Ni": 11.2,
+        "Mo": 2.18,
+        "N": 0.042
+      },
+      "mechanical_results": {
+        "yield_strength_ksi": 39.5,
+        "tensile_strength_ksi": 84.1,
+        "elongation_pct": 52,
+        "hardness_hbw": 168
+      },
+      "heat_treatment": "Solution Annealed @ 1950°F, Water Quenched",
+      "extracted_by_model": "gemini-2.5",
+      "qc_status": "passed",
+      "qc_summary": {
+        "status": "PASS",
+        "standards_met": [
+          "AISI 316L",
+          "ASTM A240",
+          "NACE MR0175 / ISO 15156"
+        ],
+        "flags": []
+      },
+      "is_synthetic_demo": true
+    },
+    "grade_id": "aisi-316l",
+    "grade": {
+      "id": "aisi-316l",
+      "standard_org": "AISI",
+      "grade_name": "316L Marine Grade Stainless",
+      "category": "Stainless Steel",
+      "description": "Molybdenum-bearing austenitic stainless steel offering superior resistance to pitting and crevice corrosion in chloride and harsh marine environments.",
+      "typical_applications": [
+        "Marine hardware",
+        "Pharmaceutical equipment",
+        "Offshore piping",
+        "Chemical plants"
+      ],
+      "weldability_rating": "Excellent (316L filler required)",
+      "chem_limits": {
+        "C": {
+          "max": 0.03
+        },
+        "Mn": {
+          "max": 2
+        },
+        "P": {
+          "max": 0.045
+        },
+        "S": {
+          "max": 0.03
+        },
+        "Si": {
+          "max": 0.75
+        },
+        "Cr": {
+          "min": 16,
+          "max": 18
+        },
+        "Ni": {
+          "min": 10,
+          "max": 14
+        },
+        "Mo": {
+          "min": 2,
+          "max": 3
+        },
+        "N": {
+          "max": 0.1
+        }
+      },
+      "mech_limits": {
+        "yield_min_ksi": 25,
+        "tensile_min_ksi": 70,
+        "elongation_min_pct": 40,
+        "hardness_max_hbw": 217
+      }
+    },
+    "title": "0.375\" 316L Marine Grade Stainless Mill Plate (NACE Compliant)",
+    "product_form": "Plate",
+    "dimensions_display": "0.375\" x 72\" x 144\"",
+    "thickness_in": 0.375,
+    "width_in": 72,
+    "length_in": 144,
+    "pieces_available": 14,
+    "total_weight_lbs": 15422.4,
+    "price_per_cwt": 265,
+    "warehouse_city": "Chicago",
+    "warehouse_state": "IL",
+    "warehouse_lat": 41.8781,
+    "warehouse_lng": -87.6298,
+    "min_order_quantity_lbs": 2203.2,
+    "status": "active",
+    "is_synthetic_demo": true
+  },
+  {
+    "id": "50505050-5050-4050-8050-505050505050",
+    "seller_id": "11111111-1111-4111-8111-111111111111",
+    "seller": {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "name": "Great Lakes Steel Service (Synthetic Demo)",
+      "business_type": "Steel Service Center",
+      "headquarters_city": "Gary",
+      "headquarters_state": "IN",
+      "rating": 4.9,
+      "is_synthetic_demo": true,
+      "contact_email": "orders@demo-greatlakes.internal"
+    },
+    "certificate_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+    "certificate": {
+      "id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "heat_number": "H-552199",
+      "cert_number": "MTR-2026-GLS-9011",
+      "mill_name": "Midwest Structural Rolling Mill",
+      "mill_country": "USA",
+      "specification": "ASTM A36",
+      "en10204_type": "3.1",
+      "product_form": "Hot Rolled Coil",
+      "dimensions": {
+        "thickness_in": 0.25,
+        "width_in": 60,
+        "length_in": 0,
+        "weight_lbs": 38500
+      },
+      "chemical_analysis": {
+        "C": 0.21,
+        "Mn": 0.95,
+        "P": 0.018,
+        "S": 0.012,
+        "Si": 0.22,
+        "Cu": 0.22,
+        "CEV": 0.38
+      },
+      "mechanical_results": {
+        "yield_strength_ksi": 41.2,
+        "tensile_strength_ksi": 66.4,
+        "elongation_pct": 26
+      },
+      "heat_treatment": "As-Rolled Master Coil",
+      "extracted_by_model": "gemini-2.5",
+      "qc_status": "passed",
+      "qc_summary": {
+        "status": "PASS",
+        "standards_met": [
+          "ASTM A36"
+        ],
+        "flags": []
+      },
+      "is_synthetic_demo": true
+    },
+    "grade_id": "astm-a36",
+    "grade": {
+      "id": "astm-a36",
+      "standard_org": "ASTM",
+      "grade_name": "A36 Structural Carbon",
+      "category": "Carbon Structural",
+      "description": "Standard structural steel for bolted, riveted, or welded construction of bridges, buildings, and general structural applications.",
+      "typical_applications": [
+        "Bridge girders",
+        "Commercial buildings",
+        "Base plates",
+        "General fabrication"
+      ],
+      "weldability_rating": "Excellent (AWS D1.1 prequalified)",
+      "max_cev": 0.4,
+      "chem_limits": {
+        "C": {
+          "max": 0.25
+        },
+        "Mn": {
+          "min": 0.8,
+          "max": 1.2
+        },
+        "P": {
+          "max": 0.04
+        },
+        "S": {
+          "max": 0.05
+        },
+        "Si": {
+          "max": 0.4
+        },
+        "Cu": {
+          "min": 0.2
+        }
+      },
+      "mech_limits": {
+        "yield_min_ksi": 36,
+        "tensile_min_ksi": 58,
+        "tensile_max_ksi": 80,
+        "elongation_min_pct": 20
+      }
+    },
+    "title": "0.250\" A36 Hot Rolled Master Steel Coil (Slit-to-Width Available)",
+    "product_form": "Hot Rolled Coil",
+    "dimensions_display": "0.250\" x 60\" Master Coil",
+    "thickness_in": 0.25,
+    "width_in": 60,
+    "length_in": 0,
+    "pieces_available": 1,
+    "total_weight_lbs": 38500,
+    "price_per_cwt": 42,
+    "warehouse_city": "Gary",
+    "warehouse_state": "IN",
+    "warehouse_lat": 41.5934,
+    "warehouse_lng": -87.3464,
+    "min_order_quantity_lbs": 38500,
+    "status": "active",
+    "is_synthetic_demo": true
   }
 ]
