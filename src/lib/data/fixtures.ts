@@ -1,0 +1,526 @@
+// =====================================================================
+// MillProof: Typed Fixtures for Deterministic Local Development
+// Used when Supabase credentials are not provided or in offline mock.
+// NEVER silently switch to demo data after an unexpected live DB failure.
+// =====================================================================
+
+import { SellerRow, CertificateRow, ListingRow, OrderRow, ListingWithRelations } from "@/types/database";
+
+export const DEMO_MODE_METADATA = {
+  isDemoEnvironment: true,
+  environmentLabel: "Synthetic Demo Environment",
+  notice: "All sellers, listings, and certificates are synthetic demo records created for development. Not real mills or legal tenders.",
+  version: "2026.10"
+};
+
+export const FIXTURE_SELLERS: SellerRow[] = [
+  {
+    id: "11111111-1111-4111-8111-111111111111",
+    name: "Great Lakes Steel Service (Synthetic Demo)",
+    city: "Gary",
+    state: "IN",
+    country: "USA",
+    latitude: 41.5934,
+    longitude: -87.3464,
+    mill_route: "BOF",
+    description: "Fictional regional service center in Northwest Indiana specializing in heavy structural plate processing and coil leveling.",
+    demo_status: "synthetic_demo",
+    created_at: "2026-10-01T00:00:00Z"
+  },
+  {
+    id: "22222222-2222-4222-8222-222222222222",
+    name: "Gulf Coast Energy Metals (Synthetic Demo)",
+    city: "Houston",
+    state: "TX",
+    country: "USA",
+    latitude: 29.7604,
+    longitude: -95.3698,
+    mill_route: "EAF",
+    description: "Fictional master distributor supplying ASME Section VIII PVQ plate and high-pressure vessel fabricators.",
+    demo_status: "synthetic_demo",
+    created_at: "2026-10-02T00:00:00Z"
+  },
+  {
+    id: "33333333-3333-4333-8333-333333333333",
+    name: "Allegheny Structural Plate (Synthetic Demo)",
+    city: "Pittsburgh",
+    state: "PA",
+    country: "USA",
+    latitude: 40.4406,
+    longitude: -79.9959,
+    mill_route: "EAF",
+    description: "Fictional heavy steel processor serving the Appalachian infrastructure corridor and bridge contractors.",
+    demo_status: "synthetic_demo",
+    created_at: "2026-10-03T00:00:00Z"
+  },
+  {
+    id: "44444444-4444-4444-8444-444444444444",
+    name: "Midwest Stainless & Alloy Co (Synthetic Demo)",
+    city: "Chicago",
+    state: "IL",
+    country: "USA",
+    latitude: 41.8781,
+    longitude: -87.6298,
+    mill_route: "EAF",
+    description: "Fictional specialty distributor of austenitic stainless plate and sanitary piping materials.",
+    demo_status: "synthetic_demo",
+    created_at: "2026-10-04T00:00:00Z"
+  },
+  {
+    id: "55555555-5555-4555-8555-555555555555",
+    name: "Mississippi Delta Mini-Mill Yards (Synthetic Demo)",
+    city: "Blytheville",
+    state: "AR",
+    country: "USA",
+    latitude: 35.9273,
+    longitude: -89.9190,
+    mill_route: "EAF",
+    description: "Fictional EAF mini-mill depot stocking structural wide-flange beams, channels, and angles.",
+    demo_status: "synthetic_demo",
+    created_at: "2026-10-05T00:00:00Z"
+  }
+];
+
+export const FIXTURE_CERTIFICATES: CertificateRow[] = [
+  {
+    id: "c0010000-0000-4000-8000-000000000001",
+    seller_id: "11111111-1111-4111-8111-111111111111",
+    file_path: "mtr-documents/cert-a572-01.pdf",
+    original_filename: "MTR_H784291_A572_Gr50.pdf",
+    document_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    heat_number: "H-784291",
+    mill_name: "Burns Harbor Plate Works (Simulated Mill)",
+    grade: "ASTM A572 Grade 50",
+    melt_pour_country: "USA",
+    chemistry: { C: 0.16, Mn: 1.25, P: 0.015, S: 0.008, Si: 0.28, V: 0.045, Nb: 0.022, CEV: 0.38 },
+    mechanical: { yield_strength_ksi: 54.2, tensile_strength_ksi: 72.8, elongation_pct: 22.5, charpy_temp_f: 0, charpy_avg_ft_lbs: 38 },
+    extraction_status: "completed",
+    review_status: "approved",
+    risk_score: 4.5,
+    flags: [],
+    extraction_metadata: { extracted_at: "2026-10-20T10:00:00Z", model: "gemini-3.5-flash", confidence: 0.98 },
+    created_at: "2026-10-20T10:00:00Z"
+  },
+  {
+    id: "c0020000-0000-4000-8000-000000000002",
+    seller_id: "22222222-2222-4222-8222-222222222222",
+    file_path: "mtr-documents/cert-a516-01.pdf",
+    original_filename: "MTR_H918204_A516_Gr70_Normalized.pdf",
+    document_sha256: "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+    heat_number: "H-918204",
+    mill_name: "Mobile Tubular & Plate Mill (Simulated Mill)",
+    grade: "ASTM A516 Grade 70",
+    melt_pour_country: "USA",
+    chemistry: { C: 0.22, Mn: 1.15, P: 0.012, S: 0.005, Si: 0.32, Cu: 0.18, Ni: 0.12, CEV: 0.42 },
+    mechanical: { yield_strength_ksi: 46.5, tensile_strength_ksi: 76.2, elongation_pct: 24.0, charpy_temp_f: -50, charpy_avg_ft_lbs: 28 },
+    extraction_status: "completed",
+    review_status: "approved",
+    risk_score: 2.0,
+    flags: [],
+    extraction_metadata: { extracted_at: "2026-10-21T11:30:00Z", model: "gemini-3.5-flash", confidence: 0.99 },
+    created_at: "2026-10-21T11:30:00Z"
+  },
+  {
+    id: "c0030000-0000-4000-8000-000000000003",
+    seller_id: "33333333-3333-4333-8333-333333333333",
+    file_path: "mtr-documents/cert-a992-01.pdf",
+    original_filename: "MTR_H441092_A992_W14x90.pdf",
+    document_sha256: "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+    heat_number: "H-441092",
+    mill_name: "Steel Dynamics Structural Div (Simulated Mill)",
+    grade: "ASTM A992",
+    melt_pour_country: "USA",
+    chemistry: { C: 0.11, Mn: 1.05, P: 0.014, S: 0.018, Si: 0.22, Cu: 0.25, V: 0.02, CEV: 0.33 },
+    mechanical: { yield_strength_ksi: 53.0, tensile_strength_ksi: 69.5, elongation_pct: 21.0 },
+    extraction_status: "completed",
+    review_status: "approved",
+    risk_score: 5.0,
+    flags: [],
+    extraction_metadata: { extracted_at: "2026-10-19T08:15:00Z", model: "gemini-3.5-flash", confidence: 0.97 },
+    created_at: "2026-10-19T08:15:00Z"
+  },
+  {
+    id: "c0040000-0000-4000-8000-000000000004",
+    seller_id: "44444444-4444-4444-8444-444444444444",
+    file_path: "mtr-documents/cert-316l-01.pdf",
+    original_filename: "MTR_H316882_A240_316L.pdf",
+    document_sha256: "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+    heat_number: "H-316882",
+    mill_name: "North American Stainless (Simulated Mill)",
+    grade: "ASTM A240 Type 316L",
+    melt_pour_country: "USA",
+    chemistry: { C: 0.022, Mn: 1.45, P: 0.028, S: 0.002, Si: 0.45, Cr: 17.20, Ni: 10.40, Mo: 2.15, N: 0.045 },
+    mechanical: { yield_strength_ksi: 42.0, tensile_strength_ksi: 86.5, elongation_pct: 48.0, hardness_hbw: 155 },
+    extraction_status: "completed",
+    review_status: "approved",
+    risk_score: 3.0,
+    flags: [],
+    extraction_metadata: { extracted_at: "2026-10-18T14:20:00Z", model: "gemini-3.5-flash", confidence: 0.99 },
+    created_at: "2026-10-18T14:20:00Z"
+  },
+  {
+    id: "c0050000-0000-4000-8000-000000000005",
+    seller_id: "33333333-3333-4333-8333-333333333333",
+    file_path: "mtr-documents/cert-a514-01.pdf",
+    original_filename: "MTR_H514102_A514_GradeB.pdf",
+    document_sha256: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    heat_number: "H-514102",
+    mill_name: "Coatesville Plate Center (Simulated Mill)",
+    grade: "ASTM A514 Grade B",
+    melt_pour_country: "USA",
+    chemistry: { C: 0.17, Mn: 0.85, P: 0.010, S: 0.003, Si: 0.25, Cr: 0.55, Mo: 0.22, V: 0.05, B: 0.0025, CEV: 0.52 },
+    mechanical: { yield_strength_ksi: 108.5, tensile_strength_ksi: 122.0, elongation_pct: 18.5, hardness_hbw: 265, charpy_temp_f: -50, charpy_avg_ft_lbs: 32 },
+    extraction_status: "completed",
+    review_status: "approved",
+    risk_score: 6.0,
+    flags: [],
+    extraction_metadata: { extracted_at: "2026-10-15T09:00:00Z", model: "gemini-3.5-flash", confidence: 0.98 },
+    created_at: "2026-10-15T09:00:00Z"
+  },
+  {
+    id: "c0060000-0000-4000-8000-000000000006",
+    seller_id: "11111111-1111-4111-8111-111111111111",
+    file_path: "mtr-documents/cert-a36-01.pdf",
+    original_filename: "MTR_H360981_A36_Plate.pdf",
+    document_sha256: "8756040e1e695d8525b64c0fc891f7a0be875e542ef99ba31c9dd4f8303e9112",
+    heat_number: "H-360981",
+    mill_name: "Burns Harbor Plate Works (Simulated Mill)",
+    grade: "ASTM A36",
+    melt_pour_country: "USA",
+    chemistry: { C: 0.21, Mn: 0.92, P: 0.018, S: 0.012, Si: 0.20, Cu: 0.22, CEV: 0.38 },
+    mechanical: { yield_strength_ksi: 41.2, tensile_strength_ksi: 64.5, elongation_pct: 23.0 },
+    extraction_status: "completed",
+    review_status: "approved",
+    risk_score: 1.0,
+    flags: [],
+    extraction_metadata: { extracted_at: "2026-10-12T16:40:00Z", model: "gemini-3.5-flash", confidence: 0.97 },
+    created_at: "2026-10-12T16:40:00Z"
+  }
+];
+
+export const FIXTURE_LISTINGS: ListingRow[] = [
+  // Great Lakes Steel Service (Gary, IN)
+  {
+    id: "10101010-1010-4010-8010-101010101010",
+    seller_id: "11111111-1111-4111-8111-111111111111",
+    grade: "ASTM A572 Grade 50",
+    form: "Plate",
+    thickness_in: 0.7500,
+    quantity_tons: 24.50,
+    price_per_ton: 1080.00,
+    certificate_id: "c0010000-0000-4000-8000-000000000001",
+    status: "active",
+    created_at: "2026-10-20T10:00:00Z",
+    updated_at: "2026-10-20T10:00:00Z"
+  },
+  {
+    id: "10101010-1010-4010-8010-101010101011",
+    seller_id: "11111111-1111-4111-8111-111111111111",
+    grade: "ASTM A36",
+    form: "Plate",
+    thickness_in: 0.5000,
+    quantity_tons: 32.00,
+    price_per_ton: 960.00,
+    certificate_id: "c0060000-0000-4000-8000-000000000006",
+    status: "active",
+    created_at: "2026-10-20T10:00:00Z",
+    updated_at: "2026-10-20T10:00:00Z"
+  },
+  {
+    id: "10101010-1010-4010-8010-101010101012",
+    seller_id: "11111111-1111-4111-8111-111111111111",
+    grade: "ASTM A572 Grade 50",
+    form: "Plate",
+    thickness_in: 1.0000,
+    quantity_tons: 18.25,
+    price_per_ton: 1120.00,
+    certificate_id: "c0010000-0000-4000-8000-000000000001",
+    status: "active",
+    created_at: "2026-10-20T10:00:00Z",
+    updated_at: "2026-10-20T10:00:00Z"
+  },
+  {
+    id: "10101010-1010-4010-8010-101010101013",
+    seller_id: "11111111-1111-4111-8111-111111111111",
+    grade: "ASTM A36",
+    form: "Plate",
+    thickness_in: 1.5000,
+    quantity_tons: 40.00,
+    price_per_ton: 990.00,
+    certificate_id: "c0060000-0000-4000-8000-000000000006",
+    status: "active",
+    created_at: "2026-10-20T10:00:00Z",
+    updated_at: "2026-10-20T10:00:00Z"
+  },
+
+  // Gulf Coast Energy Metals (Houston, TX)
+  {
+    id: "20202020-2020-4020-8020-202020202020",
+    seller_id: "22222222-2222-4222-8222-222222222222",
+    grade: "ASTM A516 Grade 70",
+    form: "Plate",
+    thickness_in: 1.2500,
+    quantity_tons: 30.62,
+    price_per_ton: 1360.00,
+    certificate_id: "c0020000-0000-4000-8000-000000000002",
+    status: "active",
+    created_at: "2026-10-21T11:00:00Z",
+    updated_at: "2026-10-21T11:00:00Z"
+  },
+  {
+    id: "20202020-2020-4020-8020-202020202021",
+    seller_id: "22222222-2222-4222-8222-222222222222",
+    grade: "ASTM A516 Grade 70",
+    form: "Plate",
+    thickness_in: 2.0000,
+    quantity_tons: 26.50,
+    price_per_ton: 1420.00,
+    certificate_id: "c0020000-0000-4000-8000-000000000002",
+    status: "active",
+    created_at: "2026-10-21T11:00:00Z",
+    updated_at: "2026-10-21T11:00:00Z"
+  },
+  {
+    id: "20202020-2020-4020-8020-202020202022",
+    seller_id: "22222222-2222-4222-8222-222222222222",
+    grade: "ASTM A516 Grade 70",
+    form: "Plate",
+    thickness_in: 0.8750,
+    quantity_tons: 44.00,
+    price_per_ton: 1340.00,
+    certificate_id: "c0020000-0000-4000-8000-000000000002",
+    status: "active",
+    created_at: "2026-10-21T11:00:00Z",
+    updated_at: "2026-10-21T11:00:00Z"
+  },
+  {
+    id: "20202020-2020-4020-8020-202020202023",
+    seller_id: "22222222-2222-4222-8222-222222222222",
+    grade: "ASTM A516 Grade 70",
+    form: "Hot Rolled Coil",
+    thickness_in: 0.3750,
+    quantity_tons: 52.00,
+    price_per_ton: 1280.00,
+    certificate_id: "c0020000-0000-4000-8000-000000000002",
+    status: "active",
+    created_at: "2026-10-21T11:00:00Z",
+    updated_at: "2026-10-21T11:00:00Z"
+  },
+
+  // Allegheny Structural Plate (Pittsburgh, PA)
+  {
+    id: "30303030-3030-4030-8030-303030303030",
+    seller_id: "33333333-3333-4333-8333-333333333333",
+    grade: "ASTM A992",
+    form: "Wide Flange Beam",
+    thickness_in: 0.8750,
+    quantity_tons: 18.00,
+    price_per_ton: 1140.00,
+    certificate_id: "c0030000-0000-4000-8000-000000000003",
+    status: "active",
+    created_at: "2026-10-19T08:00:00Z",
+    updated_at: "2026-10-19T08:00:00Z"
+  },
+  {
+    id: "30303030-3030-4030-8030-303030303031",
+    seller_id: "33333333-3333-4333-8333-333333333333",
+    grade: "ASTM A514",
+    form: "Plate",
+    thickness_in: 1.0000,
+    quantity_tons: 14.50,
+    price_per_ton: 2250.00,
+    certificate_id: "c0050000-0000-4000-8000-000000000005",
+    status: "active",
+    created_at: "2026-10-19T08:00:00Z",
+    updated_at: "2026-10-19T08:00:00Z"
+  },
+  {
+    id: "30303030-3030-4030-8030-303030303032",
+    seller_id: "33333333-3333-4333-8333-333333333333",
+    grade: "ASTM A514",
+    form: "Plate",
+    thickness_in: 0.5000,
+    quantity_tons: 12.00,
+    price_per_ton: 2180.00,
+    certificate_id: "c0050000-0000-4000-8000-000000000005",
+    status: "active",
+    created_at: "2026-10-19T08:00:00Z",
+    updated_at: "2026-10-19T08:00:00Z"
+  },
+  {
+    id: "30303030-3030-4030-8030-303030303033",
+    seller_id: "33333333-3333-4333-8333-333333333333",
+    grade: "ASTM A588 Grade A",
+    form: "Plate",
+    thickness_in: 0.7500,
+    quantity_tons: 20.00,
+    price_per_ton: 1480.00,
+    certificate_id: "c0010000-0000-4000-8000-000000000001",
+    status: "active",
+    created_at: "2026-10-19T08:00:00Z",
+    updated_at: "2026-10-19T08:00:00Z"
+  },
+
+  // Midwest Stainless & Alloy Co (Chicago, IL)
+  {
+    id: "40404040-4040-4040-8040-404040404040",
+    seller_id: "44444444-4444-4444-8444-444444444444",
+    grade: "ASTM A240 Type 316L",
+    form: "Plate",
+    thickness_in: 0.5000,
+    quantity_tons: 12.26,
+    price_per_ton: 3800.00,
+    certificate_id: "c0040000-0000-4000-8000-000000000004",
+    status: "active",
+    created_at: "2026-10-18T14:00:00Z",
+    updated_at: "2026-10-18T14:00:00Z"
+  },
+  {
+    id: "40404040-4040-4040-8040-404040404041",
+    seller_id: "44444444-4444-4444-8444-444444444444",
+    grade: "ASTM A240 Type 304",
+    form: "Plate",
+    thickness_in: 0.2500,
+    quantity_tons: 15.00,
+    price_per_ton: 2900.00,
+    certificate_id: "c0040000-0000-4000-8000-000000000004",
+    status: "active",
+    created_at: "2026-10-18T14:00:00Z",
+    updated_at: "2026-10-18T14:00:00Z"
+  },
+  {
+    id: "40404040-4040-4040-8040-404040404042",
+    seller_id: "44444444-4444-4444-8444-444444444444",
+    grade: "ASTM A240 Type 316L",
+    form: "Round Bar",
+    thickness_in: 2.0000,
+    quantity_tons: 8.50,
+    price_per_ton: 4100.00,
+    certificate_id: "c0040000-0000-4000-8000-000000000004",
+    status: "active",
+    created_at: "2026-10-18T14:00:00Z",
+    updated_at: "2026-10-18T14:00:00Z"
+  },
+  {
+    id: "40404040-4040-4040-8040-404040404043",
+    seller_id: "44444444-4444-4444-8444-444444444444",
+    grade: "ASTM A240 Type 304",
+    form: "Hot Rolled Coil",
+    thickness_in: 0.1875,
+    quantity_tons: 28.00,
+    price_per_ton: 2750.00,
+    certificate_id: "c0040000-0000-4000-8000-000000000004",
+    status: "active",
+    created_at: "2026-10-18T14:00:00Z",
+    updated_at: "2026-10-18T14:00:00Z"
+  },
+
+  // Mississippi Delta Mini-Mill Yards (Blytheville, AR)
+  {
+    id: "50505050-5050-4050-8050-505050505050",
+    seller_id: "55555555-5555-4555-8555-555555555555",
+    grade: "ASTM A992",
+    form: "Wide Flange Beam",
+    thickness_in: 0.5000,
+    quantity_tons: 36.00,
+    price_per_ton: 1100.00,
+    certificate_id: "c0030000-0000-4000-8000-000000000003",
+    status: "active",
+    created_at: "2026-10-15T09:00:00Z",
+    updated_at: "2026-10-15T09:00:00Z"
+  },
+  {
+    id: "50505050-5050-4050-8050-505050505051",
+    seller_id: "55555555-5555-4555-8555-555555555555",
+    grade: "ASTM A500 Grade B",
+    form: "Structural Tubing",
+    thickness_in: 0.3750,
+    quantity_tons: 24.00,
+    price_per_ton: 1180.00,
+    certificate_id: "c0030000-0000-4000-8000-000000000003",
+    status: "active",
+    created_at: "2026-10-15T09:00:00Z",
+    updated_at: "2026-10-15T09:00:00Z"
+  },
+  {
+    id: "50505050-5050-4050-8050-505050505052",
+    seller_id: "55555555-5555-4555-8555-555555555555",
+    grade: "ASTM A36",
+    form: "Round Bar",
+    thickness_in: 1.2500,
+    quantity_tons: 16.50,
+    price_per_ton: 980.00,
+    certificate_id: "c0060000-0000-4000-8000-000000000006",
+    status: "active",
+    created_at: "2026-10-15T09:00:00Z",
+    updated_at: "2026-10-15T09:00:00Z"
+  },
+  {
+    id: "50505050-5050-4050-8050-505050505053",
+    seller_id: "55555555-5555-4555-8555-555555555555",
+    grade: "ASTM A572 Grade 50",
+    form: "Wide Flange Beam",
+    thickness_in: 0.6250,
+    quantity_tons: 48.00,
+    price_per_ton: 1150.00,
+    certificate_id: "c0010000-0000-4000-8000-000000000001",
+    status: "reserved",
+    created_at: "2026-10-15T09:00:00Z",
+    updated_at: "2026-10-15T09:00:00Z"
+  }
+];
+
+export const FIXTURE_ORDERS: OrderRow[] = [
+  {
+    id: "90909090-9090-4090-8090-909090909001",
+    listing_id: "10101010-1010-4010-8010-101010101010",
+    buyer_name: "Midwest Heavy Infrastructure LLC",
+    buyer_city: "Chicago, IL",
+    quantity_tons: 24.50,
+    estimated_delivered_cost: 28588.58,
+    status: "fulfilled",
+    created_at: "2026-10-21T00:00:00Z"
+  },
+  {
+    id: "90909090-9090-4090-8090-909090909002",
+    listing_id: "20202020-2020-4020-8020-202020202020",
+    buyer_name: "Apex Pressure Vessel Fabricators",
+    buyer_city: "Corpus Christi, TX",
+    quantity_tons: 30.62,
+    estimated_delivered_cost: 44433.00,
+    status: "accepted",
+    created_at: "2026-10-18T00:00:00Z"
+  },
+  {
+    id: "90909090-9090-4090-8090-909090909003",
+    listing_id: "30303030-3030-4030-8030-303030303030",
+    buyer_name: "Keystone Commercial Constructors",
+    buyer_city: "Cleveland, OH",
+    quantity_tons: 18.00,
+    estimated_delivered_cost: 22187.50,
+    status: "quoted",
+    created_at: "2026-10-22T00:00:00Z"
+  },
+  {
+    id: "90909090-9090-4090-8090-909090909004",
+    listing_id: "40404040-4040-4040-8040-404040404040",
+    buyer_name: "Great Lakes Bio-Refining Ltd",
+    buyer_city: "Indianapolis, IN",
+    quantity_tons: 12.26,
+    estimated_delivered_cost: 48106.00,
+    status: "under_review",
+    created_at: "2026-10-23T00:00:00Z"
+  }
+];
+
+export function getFixtureListingsWithRelations(): ListingWithRelations[] {
+  return FIXTURE_LISTINGS.map((listing) => {
+    const seller = FIXTURE_SELLERS.find((s) => s.id === listing.seller_id);
+    const certificate = FIXTURE_CERTIFICATES.find((c) => c.id === listing.certificate_id) || null;
+    return {
+      ...listing,
+      seller,
+      certificate
+    };
+  });
+}

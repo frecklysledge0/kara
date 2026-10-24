@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:verify": "npx -y tsx scripts/db-verify.ts"
   },
   "dependencies": {
     "@google/genai": "^2.31.0",
