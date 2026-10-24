@@ -222,14 +222,3 @@ npm run start
 
 ---
 
-## ⏱️ Two-Minute Hackathon Demo Script
-
-| Timestamp | Screen | Demonstration Actions | Key Talking Point |
-| :--- | :--- | :--- | :--- |
-| **0:00 - 0:20** | **Landing Page (`/`)** | Point out the "Conventional Broker vs. MillProof" comparison card. Click the **"40t Coastal Plate"** sourcing prompt chip. | *"Industrial buyers lose days deciphering paper MTRs and negotiating freight. MillProof connects verified steel lots with deterministic compliance and instant landed trucking costs."* |
-| **0:20 - 0:40** | **Sourcing Assistant (`/assistant`)** | Show the 4-stage workflow bar. Review parsed specification: Marine C4/C5 environment. Point out that ASTM A36 was deterministically marked **Ineligible** due to chloride corrosion, while 316L and Duplex 2205 are top-ranked. | *"Gemini parses the engineering request, but deterministic software rules enforce ASTM suitability. We never let AI hallucinate material safety."* |
-| **0:40 - 0:55** | **Specification Refinement** | Click **"Edit Requirements"**, change quantity to 45 tons, and click **"Re-Match & Filter"**. Click **"Batch Passport"** on the top recommendation. | *"Buyers can refine requirements in real time and re-run deterministic gating."* |
-| **0:55 - 1:15** | **Batch Passport (`/listings/[id]`)** | Inspect ladle chemistry bar chart vs. ASTM minimum/maximum limits. Review tensile elongation curves, Carbon Equivalent ($CEV$), and A1–A4 carbon intensity. | *"Every lot includes certified metallurgical evidence: heat chemistry, pull tests, and electric arc furnace carbon benchmarking."* |
-| **1:15 - 1:35** | **Quote Submission** | Click **"Request Official Quote"**, enter destination ZIP `48201` (Detroit), and submit. Show the confirmation view with audit reference ID and 48-hr SLA hold timeline. | *"Delivered cost calculates legal 45,000 lb flatbed payload constraints with an automated 48-hour hold SLA."* |
-| **1:35 - 1:50** | **Seller MTR Upload (`/sell`)** | Scroll to Benchmark Samples and click **"ASTM A572-50 High-Strength Low-Alloy"**. Show OCR extraction, private vault storage, and deterministic ASTM flag audit. | *"Sellers upload raw MTRs; our pipeline extracts fields into a private vault and audits chemistry and mechanical properties with zero crypto or blockchain overhead."* |
-| **1:50 - 2:00** | **Conclusion** | Click **"Publish Certified Lot"** to show instant live catalog creation. | *"MillProof delivers verifiable industrial procurement: fast, compliant, and production-ready."* |
