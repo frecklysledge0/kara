@@ -11,6 +11,7 @@ import { SupplierGlobe } from "./SupplierGlobe";
 import { filterCustomerListings } from "@/lib/customer/catalog";
 import type { AssistantResponse } from "@/types/assistant";
 import type { CustomerListing } from "@/types/customer";
+import { fetchWithTimeout } from "@/lib/network";
 
 const examples = [
   { label: "A coastal structure", prompt: "I am building a welded coastal structure. I need 40 tons of corrosion-resistant plate. My total budget is $120,000." },
@@ -51,7 +52,7 @@ export function CustomerSearch() {
   useEffect(() => {
     if (!ready) return;
     const controller = new AbortController();
-    fetch("/api/customer-inventory", { signal: controller.signal, cache: "no-store" })
+    fetchWithTimeout("/api/customer-inventory", { signal: controller.signal, cache: "no-store" })
       .then(async (res) => { if (!res.ok) throw new Error(); return res.json(); })
       .then((body: { listings: CustomerListing[] }) => { update({ inventory: body.listings }); setInventoryError(""); })
       .catch(() => { if (!controller.signal.aborted) setInventoryError("Inventory is temporarily unavailable. Try your search again."); })
@@ -71,19 +72,18 @@ export function CustomerSearch() {
     try {
       const [res, catalog] = await Promise.all([
         fetch("/api/assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: text }), signal: controller.signal }),
-        fetch("/api/customer-inventory", { cache: "no-store", signal: controller.signal }).catch(() => null),
+        fetchWithTimeout("/api/customer-inventory", { cache: "no-store", signal: controller.signal }).catch(() => null),
       ]);
-      if (!res.ok) throw new Error();
       const data: AssistantResponse = await res.json();
-      if (!data.success) throw new Error();
-      if (catalog?.ok) { update({ inventory: (await catalog.json()).listings }); setInventoryError(""); }
+      if (!res.ok || !data.success) throw new Error();
+      if (catalog?.ok) { update({ inventory: (await catalog.json()).listings }); setInventoryError(data.inventory_warning || ""); }
       else setInventoryError("Supplier information could not be refreshed. Displayed inventory may have changed.");
       update({ response: data, grade: data.eligible_grades[0]?.grade_id || "", selected: null, form: "", questionIndex: 0, answeredQuestions });
       setAnswer("");
-      requestAnimationFrame(() => results.current?.focus({ preventScroll: true }));
+      requestAnimationFrame(() => { results.current?.focus({ preventScroll: true }); results.current?.scrollIntoView({ behavior: "auto", block: "start" }); });
     } catch {
       setError(controller.signal.aborted ? "The search took too long. Please try again." : "We could not complete your search. Please try again; your brief is still here.");
-    } finally { clearTimeout(timeout); setBusy(false); }
+    } finally { clearTimeout(timeout); setBusy(false); setInventoryLoading(false); }
   }
 
   function submit(event: FormEvent) { event.preventDefault(); void search(); }
@@ -106,12 +106,22 @@ export function CustomerSearch() {
     if (fromGlobe) document.getElementById(`seller-${id}`)?.scrollIntoView({ behavior: "auto", block: "nearest" });
   }
 
+  function startOver() {
+    request.current?.abort();
+    update({ prompt: "", response: null, grade: "", location: "", form: "", selected: null, questionIndex: 0, answeredQuestions: [] });
+    setError(""); setAnswer("");
+    window.history.replaceState(null, "", "/");
+    promptBox.current?.focus();
+  }
+
   return <div className="customer-content">
     <Suspense><QuerySelection /></Suspense>
     <section className={`search-hero ${showResults ? "has-results" : ""}`} aria-labelledby="search-title">
-      <p className="eyebrow hero-eyebrow">From possibility to material</p>
-      <h1 id="search-title">Find the right steel.</h1>
-      <p className="hero-copy">Describe your project. Discover the material and the people behind it.</p>
+      <div className="smoke-field" aria-hidden="true"><span /><span /><span /></div>
+      <p className="eyebrow hero-eyebrow"><span className="live-ember" /> From possibility to material</p>
+      <h1 id="search-title">Great projects start <br />with <span>the right steel.</span></h1>
+      <p className="hero-copy">Tell us what you’re building. Understand your options, compare real lots, and connect directly with a supplier.</p>
+      <ol className="buyer-steps" aria-label="Your sourcing journey">{["Describe your project", "Choose your steel", "Pick a supplier", "Contact or request a quote"].map((step, index) => <li key={step} aria-current={index === (selectedId ? 3 : response ? 1 : grade ? 2 : 0) ? "step" : undefined}><span>{index + 1}</span>{step}</li>)}</ol>
       <form className="prompt-form" onSubmit={submit}>
         <label htmlFor="project-requirements" className="sr-only">Describe your project and steel requirements</label>
         <textarea ref={promptBox} id="project-requirements" value={prompt} maxLength={6000} required
@@ -123,11 +133,13 @@ export function CustomerSearch() {
         </div>
       </form>
       <div className="example-prompts">{examples.map((example) => <button type="button" key={example.label} disabled={busy} onClick={() => { update({ prompt: example.prompt }); promptBox.current?.focus(); }}>{example.label}<span aria-hidden="true">↗</span></button>)}</div>
+      <div className="search-secondary"><Link href="/compare">Compare supplier lots ↗</Link><Link href="/know-your-steel">Explore the material library ↗</Link><button type="button" onClick={startOver} disabled={busy}>Start over</button></div>
       <p className="search-status small muted" role="status">{busy ? "Reading your brief and checking available steel…" : ""}</p>
       {error && <p role="alert" className="customer-error">{error}{response && " Previous results remain below."}</p>}
     </section>
 
     {showResults && <section ref={results} className="search-results" tabIndex={-1} aria-label="Steel recommendations" aria-busy={busy}>
+      <div className="results-toolbar"><button type="button" className="text-button" onClick={() => promptBox.current?.focus()}>Edit my project</button><Link className="text-button" href="/compare">Compare lots ({state.compareIds.length}/3) <ArrowRight size={15} /></Link></div>
       {response && <>
         <div className="section-heading"><div><p className="eyebrow">01 / Material direction</p><h2>A starting point for your project.</h2></div><span className="small muted">{Math.min(eligible.length, 3)} suggested grades</span></div>
         <div className="grade-recommendations">{eligible.slice(0, 3).map((item, index) => <article key={item.grade_id} className={grade === item.grade_id ? "grade-option active" : "grade-option"}>
@@ -157,7 +169,7 @@ export function CustomerSearch() {
           <details className="additional-filters"><summary><SlidersHorizontal size={14} />Filters{form && " (1)"}</summary><div><label>Product form<select value={form} onChange={(event) => update({ form: event.target.value, selected: null })}><option value="">All forms</option>{[...new Set(inventory.filter((item) => !grade || item.grade_id === grade).map((item) => item.form))].map((value) => <option key={value}>{value}</option>)}</select></label><button className="text-button" type="button" onClick={() => update({ form: "" })}>Clear filter</button></div></details>
         </div>
         {allDemo && <p className="demo-notice">Demonstration inventory · All results shown here are synthetic.</p>}
-        {inventoryError && <p role="alert" className="customer-error">{inventoryError}</p>}
+        {inventoryError && <p role="alert" className="customer-error">{inventoryError} <button type="button" className="text-button" disabled={busy} onClick={() => void search()}>Retry search</button></p>}
         <div className="supplier-layout">
           <SupplierGlobe listings={filtered} selected={selectedId} onSelect={(id) => select(id, true)} />
           <div className="seller-list" id="seller-list" aria-label="Supplier inventory">

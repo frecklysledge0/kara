@@ -1,6 +1,7 @@
 import type { CustomerListing } from "@/types/customer";
 import type { RankedListingCandidate } from "@/types/assistant";
 import { formatPrice } from "@/lib/customer/catalog";
+import { CompareToggle } from "./CompareToggle";
 
 export function SellerCard({ listing, selected, showDemo, candidate, onSelect, onContact }: {
   listing: CustomerListing; selected: boolean; showDemo: boolean;
@@ -16,6 +17,7 @@ export function SellerCard({ listing, selected, showDemo, candidate, onSelect, o
     {showDemo && listing.is_demo && <span className="demo-label">Synthetic demo</span>}
     <p className="seller-material">{listing.grade_name} <span className="muted">/ {listing.form}</span></p>
     <div className="seller-meta"><span>{listing.quantity_tons} tons available</span><span>{formatPrice(listing.price_per_ton)}</span></div>
+    <CompareToggle id={listing.id} />
     <div className="seller-actions">
       <button type="button" className="contact-button" onClick={onContact}>Contact seller <span aria-hidden="true">↗</span></button>
       <details className="seller-details">

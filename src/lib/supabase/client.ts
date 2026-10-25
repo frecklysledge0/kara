@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/database";
+import { fetchWithTimeout } from "@/lib/network";
 
 let browserClient: SupabaseClient<Database> | null = null;
 
@@ -16,7 +17,7 @@ export function getSupabaseBrowserClient(): SupabaseClient<Database> | null {
   }
 
   if (!browserClient) {
-    browserClient = createClient<Database>(url, anonKey);
+    browserClient = createClient<Database>(url, anonKey, { global: { fetch: fetchWithTimeout } });
   }
 
   return browserClient;

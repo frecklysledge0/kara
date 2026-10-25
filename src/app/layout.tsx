@@ -4,6 +4,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import { AppChrome } from "@/components/layout/AppChrome";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,7 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <body className="min-h-screen flex flex-col bg-[#F8F9FB] text-slate-900 font-sans selection:bg-slate-900 selection:text-white">
         <AuthProvider>
-          <Suspense fallback={<div className="min-h-screen bg-[#0B0D10]" />}>
+          <Suspense fallback={<div className="workspace-loading" role="status">Opening MillProof… <Link href="/">Return to Find Steel</Link></div>}>
             <AppChrome>{children}</AppChrome>
           </Suspense>
         </AuthProvider>

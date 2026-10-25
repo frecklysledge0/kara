@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { X, Copy, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import type { CustomerListing } from "@/types/customer";
 
 export function ContactPanel({ listing, prompt, onClose }: {
@@ -32,6 +33,7 @@ export function ContactPanel({ listing, prompt, onClose }: {
       {!email && !phone && !website && <p className="empty-contact">{listing.is_demo ? "This is a synthetic supplier. Real business contact details are not available." : "This supplier has not published business contact details yet."}</p>}
     </div>
     <p className="small muted">Your conversation takes place directly with the supplier.</p>
+    <Link className="solid-button" href={`/listings/${encodeURIComponent(listing.id)}`}>Inspect lot & request a quote <ArrowUpRight size={16} /></Link>
     <button className="text-button copy-button" type="button" onClick={copyInquiry}><Copy size={15} />Copy inquiry</button>
     <p role="status" className="small muted">{copyStatus}</p>
   </dialog>;

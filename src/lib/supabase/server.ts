@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/database";
+import { fetchWithTimeout } from "@/lib/network";
 
 /**
  * Returns a typed Supabase server client for use in API routes and Server Actions.
@@ -14,6 +15,7 @@ export function getSupabaseServerClient(): SupabaseClient<Database> | null {
   }
 
   return createClient<Database>(url, key, {
+    global: { fetch: fetchWithTimeout },
     auth: {
       persistSession: false,
       autoRefreshToken: false,

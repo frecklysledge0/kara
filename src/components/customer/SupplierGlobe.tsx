@@ -12,7 +12,10 @@ export function SupplierGlobe({ listings, selected, onSelect }: {
   const { ref, active, reduced } = useSceneMotion();
   const [view, setView] = useState({ lat: 25, lng: -85 });
   const viewRef = useRef(view);
-  const drag = useRef<{ x: number; lng: number } | null>(null);
+  const drag = useRef<{ pointerId: number; x: number; lng: number } | null>(null);
+  const endDrag = (event: { pointerId: number }) => {
+    if (drag.current?.pointerId === event.pointerId) drag.current = null;
+  };
   const gradient = useId().replace(/:/g, "");
   const location = listings.find((item) => item.id === selected)?.coordinates;
   const selectedLat = location?.lat, selectedLng = location?.lng;
@@ -64,9 +67,20 @@ export function SupplierGlobe({ listings, selected, onSelect }: {
   return <div className="globe-column" ref={ref}>
     <div className="globe-scene" aria-label="Supplier locations on a rotatable globe">
       <svg viewBox="0 0 600 600" className="earth" role="img" aria-label="Schematic Earth. Use the location markers or supplier list to select inventory."
-        onPointerDown={(event) => { if (event.button !== 0) return; drag.current = { x: event.clientX, lng: view.lng }; event.currentTarget.setPointerCapture(event.pointerId); }}
-        onPointerMove={(event) => { if (drag.current) setView((current) => ({ ...current, lng: drag.current!.lng - (event.clientX - drag.current!.x) * 0.4 })); }}
-        onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }}>
+        onPointerDown={(event) => {
+          if (event.button !== 0 || drag.current) return;
+          event.currentTarget.setPointerCapture(event.pointerId);
+          drag.current = { pointerId: event.pointerId, x: event.clientX, lng: view.lng };
+        }}
+        onPointerMove={(event) => {
+          const start = drag.current;
+          if (!start || start.pointerId !== event.pointerId) return;
+          // React may apply this update after release/cancel has cleared the ref.
+          // Capture the position now so the queued update never reads mutable drag state.
+          const lng = start.lng - (event.clientX - start.x) * 0.4;
+          setView((current) => ({ ...current, lng }));
+        }}
+        onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag}>
         <defs><radialGradient id={gradient} cx="32%" cy="25%" r="80%"><stop offset="0" stopColor="#283a43" /><stop offset="0.6" stopColor="#142129" /><stop offset="1" stopColor="#0b1015" /></radialGradient></defs>
         <circle cx="300" cy="300" r="245" fill="none" stroke="#b5e4ea" strokeOpacity=".05" strokeWidth="10" />
         <circle cx="300" cy="300" r="235" fill={`url(#${gradient})`} stroke="#a7d2dc" strokeOpacity=".23" />

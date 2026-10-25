@@ -63,6 +63,20 @@ describe("Customer search integration", () => {
 });
 
 describe("Budget basis", () => {
+  it("accepts lenient AI fields while preserving total and per-ton budgets separately", () => {
+    expect(BuyerSpecificationSchema.parse({
+      use_case: "  Indoor structural plate  ", environment: null,
+      quantity_tons: "20", required_properties: "weldable",
+      budget_total: "25000", budget_per_ton: "1250",
+    })).toMatchObject({
+      use_case: "Indoor structural plate", environment: "Standard industrial environment",
+      quantity_tons: 20, required_properties: ["weldable"],
+      budget_total: 25000, budget_per_ton: 1250,
+    });
+  });
+  it.each([undefined, null, "", "null", "none", "unknown", 0, -10])("keeps an unknown or invalid total nullable: %s", (budget_total) => {
+    expect(BuyerSpecificationSchema.parse({ use_case: "Plate", budget_total }).budget_total).toBeNull();
+  });
   it.each(["$1,250 per ton", "$1,250/ton", "$1,250 a ton"])("recognizes an explicit unit price: %s", (budget) => {
     expect(parseRequirementsDeterministic(`20 tons of plate, ${budget}`)).toMatchObject({ budget_per_ton: 1250, budget_total: null });
   });

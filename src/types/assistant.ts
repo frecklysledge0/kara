@@ -124,5 +124,6 @@ export interface AssistantResponse {
   clarification_questions: string[];
   summary_guidance: string;
   notice: string;
+  inventory_warning?: string;
   error?: string;
 }

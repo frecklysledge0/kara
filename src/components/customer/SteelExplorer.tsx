@@ -7,7 +7,6 @@ import { ArrowRight, Plus, X } from "lucide-react";
 import type { SteelGradeEntry, StrengthProperty } from "@/types/grades";
 import { SteelSpecimen } from "./SteelSpecimen";
 
-const featured = ["astm-a36", "astm-a572-50", "aisi-304", "aisi-316l"];
 const properties = ["Composition", "Strength", "Corrosion", "Weldability"] as const;
 type Property = typeof properties[number];
 const strength = (property: StrengthProperty) => [
@@ -35,20 +34,21 @@ export function SteelExplorer({ grades }: { grades: SteelGradeEntry[] }) {
   const router = useRouter();
   const requested = params.get("grade");
   const grade = grades.find((item) => item.id === requested) ?? grades.find((item) => item.id === "astm-a36")!;
-  const [property, setProperty] = useState<Property | null>(null);
-  const options = grades.filter((item) => featured.includes(item.id) || item.id === grade.id);
+  const [property, setProperty] = useState<Property | null>("Composition");
+  const [compareId, setCompareId] = useState("");
+  const comparison = grades.find((item) => item.id === compareId && item.id !== grade.id);
 
   return <div className="explorer-page">
     <header className="explorer-heading">
       <div><p className="eyebrow">Know Your Steel / Material library</p><h1 key={grade.id}>{grade.canonical_name}</h1><p className="muted">{grade.material_family}</p></div>
-      <label className="grade-selector">Explore a grade<select value={grade.id} onChange={(event) => { setProperty(null); router.replace(`/know-your-steel?grade=${event.target.value}`, { scroll: false }); }}>{options.map((item) => <option key={item.id} value={item.id}>{item.canonical_name}</option>)}</select></label>
+      <label className="grade-selector">Explore a grade<select value={grade.id} onChange={(event) => { router.replace(`/know-your-steel?grade=${event.target.value}`, { scroll: false }); }}>{grades.map((item) => <option key={item.id} value={item.id}>{item.canonical_name}</option>)}</select></label>
     </header>
     {requested && requested !== grade.id && <p role="status" className="small muted">That grade is not in the reference library. Showing {grade.canonical_name}.</p>}
     <div className={`explorer-layout ${property ? "panel-open" : ""}`}>
       <div className="specimen-area">
-        <SteelSpecimen />
+        <SteelSpecimen grade={grade} />
         <div className="property-hotspots" aria-label="Reference properties">{properties.map((name, index) => <button key={name} className={`property-hotspot hotspot-${index} ${property === name ? "active" : ""}`} type="button" aria-expanded={property === name} aria-controls="property-panel" onClick={() => setProperty(property === name ? null : name)}><Plus size={14} aria-hidden="true" /><span>{name}</span></button>)}</div>
-        <p className="specimen-caption"><span className="eyebrow">01 / I-section study</span>Illustrative shape. Grade and product form are separate choices.</p>
+        <p className="specimen-caption"><span className="eyebrow">{grade.canonical_name} / Material study</span>Illustrative shape and finish. Grade and product form are separate choices.</p>
       </div>
       {property && <section id="property-panel" className="property-panel" aria-labelledby="property-title" key={`${grade.id}-${property}`}>
         <div className="property-panel-heading"><p className="eyebrow">Reference properties</p><button type="button" className="icon-button" aria-label="Close property panel" onClick={() => setProperty(null)}><X size={18} /></button></div>
@@ -59,6 +59,10 @@ export function SteelExplorer({ grades }: { grades: SteelGradeEntry[] }) {
         <p className="small muted">Reference values, not batch test results. {grade.disclaimer}</p>
       </section>}
     </div>
+    <section className="grade-compare" aria-label="Compare grade properties">
+      <div className="section-heading"><div><p className="eyebrow">Understand the trade-offs</p><h2>Compare with another steel.</h2></div><label className="grade-selector">Compare with<select value={comparison?.id || ""} onChange={(event) => setCompareId(event.target.value)}><option value="">Choose a second grade</option>{grades.filter((item) => item.id !== grade.id).map((item) => <option key={item.id} value={item.id}>{item.canonical_name}</option>)}</select></label></div>
+      {comparison && <div className="grade-compare-grid">{[grade, comparison].map((item) => <article key={item.id}><p className="eyebrow">{item.material_family}</p><h3>{item.canonical_name}</h3><dl><div><dt>Yield strength</dt><dd>{strength(item.mechanical_properties.yield_strength)}<small>{item.mechanical_properties.yield_strength.condition}</small></dd></div><div><dt>Tensile strength</dt><dd>{strength(item.mechanical_properties.tensile_strength)}<small>{item.mechanical_properties.tensile_strength.condition}</small></dd></div><div><dt>Corrosion resistance</dt><dd>{item.corrosion_resistance.category}</dd></div><div><dt>Weldability</dt><dd>{item.weldability.rating}</dd></div></dl><details className="grade-disclosure"><summary>Composition & limitations</summary><PropertyContent grade={item} property="Composition" /><p>{item.limitations_and_guidance.known_limitations.join(" ")}</p></details><Link className="text-button" href={`/?grade=${item.id}#suppliers`}>Find sellers <ArrowRight size={15} /></Link></article>)}</div>}
+    </section>
     <div className="explorer-bottom"><div><p className="eyebrow">From understanding to sourcing</p><p>{grade.description}</p></div><Link className="solid-button" href={`/?grade=${grade.id}#suppliers`}>Find sellers for this grade <ArrowRight size={17} /></Link></div>
     <p className="reference-note">Curated reference data · {grade.applicable_standard}. Your project brief is retained when you return to Find Steel.</p>
   </div>;

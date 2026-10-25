@@ -6,8 +6,9 @@ import { translateGrade, getPopularGradeTranslations } from "@/lib/engine/grade-
  * Returns sourced cross-standard steel grade translations and equivalence metadata.
  */
 export async function GET(req: NextRequest) {
+  // Keep the Cache Components request-time read outside application error handling.
+  const searchParams = req.nextUrl.searchParams;
   try {
-    const searchParams = req.nextUrl.searchParams;
     const query = searchParams.get("q") || "";
 
     if (!query.trim()) {
