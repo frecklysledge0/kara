@@ -1,224 +1,192 @@
-# MillProof ⚡
-### AI-Assisted Industrial Steel Marketplace with Certified Metallurgical Proof
+# MillProof
 
-**MillProof** is an industrial B2B procurement platform bridging structural fabricators, OEMs, and EPC engineering procurement teams with verified steel mill inventory. It translates natural language engineering requirements into suitable ASTM/EN steel grades, itemizes delivered flatbed logistics costs against legal highway payload constraints, and deterministically audits Material Test Reports (MTR / EN 10204 3.1) with mathematical precision.
+**Find the right steel. Trust the paperwork.**
+
+MillProof is an AI-assisted B2B platform that connects steel buyers with the mills and service centers that
+have what they need, and makes every mill test certificate checkable. We don't sell steel. We help people
+find it, understand it, and trust it.
+
+Built in 36 hours at **SBUHacks 2026** (theme: *Steel and Steam*).
 
 ---
 
-## 🏗️ Product Purpose & Core Architecture
+## The problem
+
+Every steel order ships with a **mill test certificate (MTR)**: the chemistry and strength of that exact
+batch. In practice:
+
+- **Buyers can't easily read them.** Grades, ASTM limits, and carbon equivalents are expert knowledge,
+  so small fabricators and first-time buyers are effectively gatekept.
+- **Certificates can be wrong or faked.** Falsified or altered certificates have let under-spec steel into
+  real projects, and verifying one usually means emailing the mill.
+- **Finding stock is slow.** Even after you know the grade, you still have to work out who has it, where,
+  and what it costs once it's delivered.
+
+## What MillProof does
+
+**For buyers (no account needed)**
+- Describe a project in plain English ("handrail for a seaside boardwalk in Miami, 3 tons, $20k total").
+- Gemini turns it into a structured spec; deterministic code picks eligible grades and explains why.
+- See matching supplier lots on an interactive globe and list, with delivered-cost estimates.
+- Compare lots side by side, explore grades in **Know Your Steel**, and request quotes.
+- Verify any certificate file against its mill's record on Solana.
+
+**For sellers (account required)**
+- Upload a certificate (PDF or photo). Gemini extracts heat number, chemistry, and mechanical results.
+- Deterministic QC checks the numbers against published grade limits, recomputes the IIW carbon
+  equivalent, flags duplicate heat numbers, and produces a 0-100 review score.
+- Optionally register the certificate's SHA-256 fingerprint on Solana as the issuing mill.
+- Publish the lot so buyers can find it.
+
+## How it works
 
 ```
-  ┌────────────────────────────────────────────────────────┐
-  │                 Industrial Buyer                       │
-  └──────────────────────────┬─────────────────────────────┘
-                             │ Natural language application criteria
-                             ▼
-  ┌────────────────────────────────────────────────────────┐
-  │    Gemini Requirement Parser (Server-Side Route)       │
-  │    /api/assistant & /api/translate-requirements        │
-  └──────────────────────────┬─────────────────────────────┘
-                             │ Validated BuyerSpecification & ASTM Gating
-                             ▼
-  ┌────────────────────────────────────────────────────────┐
-  │   DETERMINISTIC SUITABILITY & MULTI-CRITERIA RANKER    │
-  │   - 40% Material Fit (ASTM min yield, tensile, PREN)   │
-  │   - 30% Data Quality (MTR completeness, heat flags)    │
-  │   - 30% Delivered Cost (Flatbed freight itemization)   │
-  └──────────────────────────┬─────────────────────────────┘
-                             │ Ranked Active Lots & Landed $/ton
-                             ▼
-  ┌────────────────────────────────────────────────────────┐
-  │    Batch Passport & 48-Hour RFQ Hold Lifecycle         │
-  └────────────────────────────────────────────────────────┘
+Buyer prompt ──► Gemini (parse intent) ──► Grade matcher (code) ──► Ranker (code) ──► Globe + list
+                                                │                        │
+                                       grades.json limits        fit 40% · trust 30% · delivered cost 30%
 
-  ┌────────────────────────────────────────────────────────┐
-  │         Steel Seller / Service Center                  │
-  └──────────────────────────┬─────────────────────────────┘
-                             │ Uploads MTR Certificate (PDF / Image)
-                             ▼
-  ┌────────────────────────────────────────────────────────┐
-  │    Magic Byte Anti-Spoofing & Private Storage Vault    │
-  │    Supabase Storage (public: false, 1-hr signed URLs)  │
-  └──────────────────────────┬─────────────────────────────┘
-                             │ Sanitized fileBuffer
-                             ▼
-  ┌────────────────────────────────────────────────────────┐
-  │        Gemini Vision / OCR Extraction API              │
-  │        /api/extract-mtr (Strict Schema Server-Side)    │
-  └──────────────────────────┬─────────────────────────────┘
-                             │ Extracted ladle chemistry & tensile tests
-                             ▼
-  ┌────────────────────────────────────────────────────────┐
-  │       DETERMINISTIC COMPLIANCE ENGINE (PURE CODE)      │
-  │  - ASTM chemical tolerances (C, Mn, P, S, Si, etc.)    │
-  │  - IIW Carbon Equivalent (CEV) tolerance checks        │
-  │  - Yield strength, tensile strength, & elongation %    │
-  │  - 0-100 review risk score computation                 │
-  │  *** ZERO CRYPTO / NO FAKE AUTHENTICITY LABELS ***    │
-  └──────────────────────────┬─────────────────────────────┘
-                             │ Deterministic Flags (PASS / WARN / FAIL)
-                             ▼
-  ┌────────────────────────────────────────────────────────┐
-  │    Human-in-the-Loop Seller Review & Catalog Publish   │
-  └────────────────────────────────────────────────────────┘
+Certificate ──► file checks ──► Gemini (read the document) ──► normalizer ──► QC engine (code) ──► review score
+                                                                                  │
+                                                       SHA-256 fingerprint ──► Solana memo, signed by mill wallet
 ```
 
-### Strict Non-Negotiables & Guardrails
-1. **Separation of Extraction vs. Verification**: Gemini is used exclusively for optical character recognition (OCR) and initial natural-language parsing. All pass/fail compliance decisions, IIW Carbon Equivalents, and freight costs are computed **strictly by deterministic software rules** against published ASTM standards.
-2. **Transparent Data Provenance**: Every demo seller, listing, and test certificate is explicitly tagged with a `DEMO LOT` or `SYNTHETIC BENCHMARK` badge.
-3. **No Crypto / Blockchain Claims**: Zero Solana, blockchain, wallets, or on-chain signatures. A document is never labeled "cryptographically verified" merely because its text parsed cleanly.
-4. **Deterministic Freight Constraints**: Incorporates legal standard 45,000 lb flatbed trailer payload limits and transparent fuel surcharge indexes.
+**Design principle: AI interprets, code decides.** Gemini reads documents and understands buyer intent.
+Every pass/fail decision (chemistry limits, carbon equivalent, strength minimums, ranking, freight) is
+deterministic code checked against published standards. If Gemini is unavailable, the app falls back to
+rule-based guidance instead of failing.
 
----
+### What the Solana layer proves (and what it doesn't)
 
-## 🛠️ Technology Stack
+When a mill registers a certificate, its wallet signs a memo containing the file's SHA-256 fingerprint.
+Anyone can later recompute the fingerprint and look it up in that mill's public history:
 
-- **Framework**: Next.js 16.4.3 (App Router, Turbopack, Cache Components, Partial Prerendering)
-- **Runtime**: Node.js >= 20 (tested on v23.11.0) with React 19
-- **Language**: TypeScript 5 (`strict: true`)
-- **Styling**: Vanilla Tailwind CSS v4 with industrial forge design system
-- **Database & Storage**: Supabase Postgres & Storage (Row Level Security enabled, private bucket)
-- **AI Integration**: Google Gen AI SDK (`@google/genai`), called strictly server-side
-- **Data Visualizations**: Recharts for ladle chemistry bar charts and tensile pull curves
-- **Testing**: Vitest 3.2.7 (16 test suites, 172 tests, 100% passing)
-- **Deployment**: Vercel
+| Check | Result |
+|---|---|
+| Original file, correct mill | Mill-signed, unchanged |
+| One character edited | Not registered (caught) |
+| Real file claimed under a different mill | Not registered (caught) |
 
----
+It proves the **document** is unedited since the mill signed it. It does not prove the steel matches the
+paper; that is what the QC checks and physical testing are for.
 
-## 💻 Local Setup
+## Pages
 
-### 1. Clone & Install Dependencies
+| Route | What it is |
+|---|---|
+| `/` | Find Your Steel: guided search, grade recommendations, supplier globe |
+| `/know-your-steel` | Grade explorer with per-grade 3D specimens and property panels |
+| `/compare` | Side-by-side comparison of up to three lots |
+| `/listings`, `/listings/[id]` | Marketplace catalog and batch passport pages |
+| `/verify` | Check a certificate file against a mill's Solana record |
+| `/orders` | Quote requests (buyer and seller views) |
+| `/sell`, `/login` | Seller sign-in and certificate upload workspace |
+
+A light/dark toggle in the header switches themes (dark by default).
+
+## Tech stack
+
+| Layer | Tools |
+|---|---|
+| App | Next.js 16 (App Router, Cache Components), React 19, TypeScript |
+| UI | Tailwind CSS v4, custom design system, Recharts, lucide-react |
+| AI | Google Gemini via `@google/genai` (server-side only) |
+| Data and auth | Supabase (Postgres, Storage, Auth) |
+| Proof | Solana devnet via `@solana/web3.js` (Memo program) |
+| Validation and tests | Zod, Vitest (240 tests) |
+
+## Getting started
+
+Requires Node.js 20.9 or newer.
+
 ```bash
-git clone <repo-url>
-cd steel
+git clone https://github.com/frecklysledge0/kara.git
+cd kara
 npm install
+cp .env.example .env.local   # then fill in the values below
+npm run dev                  # http://localhost:3000
 ```
 
-### 2. Configure Environment Variables
-Copy `.env.example` to `.env.local`:
-```bash
-cp .env.example .env.local
-```
+The app runs without any keys, using built-in demo data and rule-based fallbacks. Add keys to enable the
+live features.
 
-### 3. Run Development Server
-```bash
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000).
+### Environment variables
 
----
+| Variable | Needed for | Notes |
+|---|---|---|
+| `GEMINI_API_KEY` | AI search and certificate reading | Server-only. Free key at aistudio.google.com |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Database reads, seller auth | Public, protected by row-level security |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side database and storage | Server-only. Never expose to the client |
+| `SUPABASE_MTR_BUCKET` | Certificate storage | Private bucket, default `mtr-documents` |
+| `SOLANA_RPC_URL`, `SOLANA_PAYER_SECRET`, `SOLANA_MILL_1..3_SECRET` | Solana proof | Devnet only. Generate with the script below |
+| `ELEVENLABS_API_KEY` | Voice narration (optional) | |
+| `FRED_API_KEY` | Live steel price index (optional) | Falls back to bundled data |
 
-## 🔐 Environment Variables & Security Rules
+Never commit `.env.local`. It is git-ignored.
 
-| Variable | Scope | Purpose | Security Rule |
-| :--- | :--- | :--- | :--- |
-| `GEMINI_API_KEY` | **Server-Only** | Google AI Studio key for requirements translation and MTR OCR | **NEVER** expose with `NEXT_PUBLIC_`. Kept exclusively on backend route handlers. |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Server-Only** | Admin database operations and private storage access | **CRITICAL**: Never commit to git or expose to client. |
-| `NEXT_PUBLIC_SUPABASE_URL` | Client & Server | Project URL for Supabase instance | Public URL for API gateway. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client & Server | Anonymous client key for public read requests | Subject to PostgreSQL Row Level Security (RLS). |
-| `SUPABASE_MTR_BUCKET` | Server-Only | Name of private storage bucket (`mtr-documents`) | Private bucket (`public: false`), accessed via signed URLs. |
-| `NODE_ENV` | Build/Runtime | Execution environment (`development`, `production`) | Configures logging and optimizations. |
-
-> **Graceful Degradation**: If `GEMINI_API_KEY` or Supabase credentials are not provided, MillProof automatically activates high-fidelity deterministic parsers and synthetic demo fixtures, ensuring complete offline demo reliability without crashes.
-
----
-
-## 🗄️ Database Migrations & Seed Commands
-
-### Schema Architecture
-The database schema is organized around four canonical entities:
-1. `sellers`: Certified steel service centers and processors (`demo_status`, `mill_route`).
-2. `certificates`: MTRs with ladle chemistry, mechanical pull tests, and QC risk scores.
-3. `listings`: Physical inventory lots (`grade`, `form`, `thickness_in`, `quantity_tons`, `price_per_ton`).
-4. `orders`: Procurement RFQs and quotes with 48-hour SLA lifecycle states.
-
-### Applying Migrations via Supabase Dashboard
-1. Open the [Supabase Dashboard](https://supabase.com/dashboard).
-2. Go to **SQL Editor** &rarr; **New Query**.
-3. Run [`supabase/migrations/20261024000001_millproof_tables.sql`](file:///Users/rohityarabati/Desktop/steel/supabase/migrations/20261024000001_millproof_tables.sql) to provision tables, constraints, triggers, and Row Level Security.
-4. Run [`supabase/seed.sql`](file:///Users/rohityarabati/Desktop/steel/supabase/seed.sql) to populate baseline demo sellers, certificates, and inventory lots.
-
-### Resetting the Demo Environment Safely
-To reset test quotes or restore initial demo inventory without dropping core schemas:
-```sql
--- Safe Demo Reset Script
-DELETE FROM orders WHERE id NOT IN ('90909090-9090-4090-8090-909090909001', '90909090-9090-4090-8090-909090909002');
-UPDATE listings SET status = 'active' WHERE status = 'reserved';
-```
-
----
-
-## 🧪 Testing & Production Build
+### Solana (devnet) setup
 
 ```bash
-# Run all 16 Vitest test suites (172 unit & integration tests)
-npm test
-
-# Run TypeScript compilation check
-npx tsc --noEmit
-
-# Run ESLint validation
-npm run lint
-
-# Compile production bundle
-npm run build
-
-# Start production server locally
-npm run start
+npx tsx scripts/solana-setup.ts   # creates 1 fee-payer + 3 demo mill wallets in .env.local
+# fund the printed fee-payer address at https://faucet.solana.com (Devnet)
+npx tsx scripts/solana-demo.ts    # signs a demo certificate, verifies the original, catches an edit
 ```
 
-### Test Suite Highlights
-- **Metallurgy & Compliance** (`test/metallurgy.test.ts`, `test/compliance.test.ts`):
-  - IIW Carbon Equivalent formula verification: $CEV = C + \frac{Mn}{6} + \frac{Cr+Mo+V}{5} + \frac{Ni+Cu}{15}$
-  - Out-of-spec chemical limits deterministic failure flags (e.g. Carbon > 0.23% for A572-50)
-  - PREN (Pitting Resistance Equivalent Number) for marine stainless steel: $PREN = Cr + 3.3 Mo + 16 N$
-- **Freight & Logistics Engine** (`test/freight.test.ts`):
-  - Great-circle Haversine with 1.15x highway circuity factor
-  - Multi-truckload partitioning based on 45,000 lb legal flatbed payload limits
-- **Quote Lifecycle & Authorization** (`test/quote-lifecycle.test.ts`):
-  - Validates full quote lifecycle (`submitted` &rarr; `under_review` &rarr; `quoted` &rarr; `accepted` &rarr; `closed`)
-  - Multi-tenant isolation: blocks buyers from reading foreign quotes, blocks sellers from viewing competitor RFQs
-- **Failure Modes & Security** (`test/failure-modes.test.ts`):
-  - Anti-spoofing magic byte verification (%PDF, PNG, JPEG)
-  - Filename sanitization against directory traversal (`../../../etc/passwd` &rarr; `passwd`)
-  - In-memory rate limiting and graceful AI fallback
+### Database
 
----
+1. In the Supabase SQL Editor, run the migrations in `supabase/migrations/` in order.
+2. Run `supabase/seed.sql` for the base demo data.
+3. Run `supabase/seed-demo-expansion.sql` for 17 more demo sellers across North America, 44 certificates,
+   and 74 listings covering all 10 reference grades. It is idempotent and adapts to older schemas.
+4. Check the connection with `npm run db:verify`.
 
-## 🚀 Deployment
+More detail: [`SETUP_DATABASE.md`](SETUP_DATABASE.md).
 
-### Vercel Production Deployment
-1. Import the repository into your [Vercel](https://vercel.com) team account.
-2. In **Project Settings &rarr; Environment Variables**, add:
-   - `GEMINI_API_KEY`
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `SUPABASE_MTR_BUCKET` (`mtr-documents`)
-3. Trigger a production deployment.
-4. **Claiming CLI Deployments**: If deployed via the CLI temporary workflow, claim the deployment via the secure URL token provided in the release report.
+## Scripts
 
----
+```bash
+npm run dev              # development server
+npm run build            # production build
+npm test                 # Vitest suite
+npm run lint             # ESLint
+npm run db:verify        # Supabase connectivity and schema check
+npm run grades:validate  # validate data/grades.json
+```
 
-## 🎭 Demo-Mode Behavior & Synthetic Data Disclosures
+## Project structure
 
-- **Synthetic Sellers & Lots**: All initial inventory records represent realistic synthetic demonstration lots modeled after real Midwest service centers (e.g., Gary, IN; Houston, TX; Pittsburgh, PA).
-- **MTR Benchmark Suite**: Curated test certificates simulate real EN 10204 3.1 documents with intentional testing variations:
-  - Clean Pass: ASTM A572-50 HSLA plate
-  - Missing Fields: Omitted heat number and tension test
-  - Out-of-Spec Chemistry: Elevated Carbon and Phosphorus exceeding ASTM limits
-  - Low Mechanical Properties: Yield strength below 50 ksi threshold
-- **Transparent Labelling**: Demo lots display `DEMO LOT` badges, and estimated freight costs are explicitly marked as preliminary flatbed estimates pending dispatcher confirmation.
+```
+src/
+  app/                 routes and API handlers (assistant, extract-mtr, listings, quotes, solana, ...)
+  components/          customer UI, seller workspace, auth, layout, charts
+  lib/
+    ai/                Gemini client: model routing, timeouts, fallbacks
+    engine/            deterministic logic: grade matching, ranking, QC, freight, emissions, normalizer
+    solana/            fingerprinting, signing, verification
+    supabase/          database, storage, and auth clients
+data/grades.json       reference grade library (chemistry and mechanical limits, uses, equivalents)
+supabase/              migrations and seed data
+test/                  Vitest suites
+```
 
----
+## Honest limitations
 
-## ⚠️ Known Limitations
+- **Demo data.** All sellers, lots, and seeded certificates are synthetic and labeled as such. Seller
+  locations use real industrial cities; prices are illustrative.
+- **Freight** is an estimate (distance, legal flatbed payload, assumed rates), not a carrier quote.
+- **Solana** runs on devnet with three demo mill wallets. Real adoption requires mills to sign their own
+  certificates.
+- **Publishing** currently writes new lots through a local fallback cache when the database insert fails;
+  persisting them to the canonical `listings` table is the next fix.
+- **Reference values** come from public grade summaries. MillProof is a screening tool, not a substitute
+  for a qualified engineer or lab testing.
 
-1. **Third-Party Live API Optionality**:
-   - Voice audio narration requires an active `ELEVENLABS_API_KEY`. When unconfigured, an informational banner appears while all visual text reasoning remains active.
-   - Real-time Producer Price Index (PPI) requires `FRED_API_KEY`. When unconfigured, verified synthetic historical benchmarks are displayed.
-2. **Dense Metallurgy Tables on Mobile**:
-   - Comparison tables retain horizontal scrolling (`overflow-x-auto`) to preserve dense metallurgical column alignment (C, Mn, P, S, Yield, Tensile).
+## Roadmap
 
----
+- Mills signing certificates at the source, with heat-number tonnage tracking to catch certificate reuse
+- Real freight quotes and carrier integrations
+- Voice-guided sourcing with ElevenLabs
+- Durable seller publishing to the canonical database, with verified business contacts
 
+## Team
+
+Built at SBUHacks 2026, Stony Brook University.
