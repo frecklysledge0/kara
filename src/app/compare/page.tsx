@@ -22,6 +22,20 @@ import { InventoryListing } from "@/types/steel";
 import { ListingWithRelations } from "@/types/database";
 import { calculateDeliveredCost } from "@/lib/engine/freight";
 import { SYNTHETIC_LISTINGS } from "@/lib/data/synthetic-listings";
+import { GRADE_STANDARDS_REGISTRY } from "@/lib/data/standards";
+
+function getGradeStandard(lot: InventoryListing) {
+  if (lot.grade_standard) return lot.grade_standard;
+  if (lot.grade && typeof lot.grade === "object") return lot.grade;
+  if (lot.grade_id && GRADE_STANDARDS_REGISTRY[lot.grade_id]) return GRADE_STANDARDS_REGISTRY[lot.grade_id];
+  return null;
+}
+
+function getGradeTitle(lot: InventoryListing): string {
+  if (typeof lot.grade === "string" && lot.grade.trim()) return lot.grade;
+  const std = getGradeStandard(lot);
+  return std?.grade_name || lot.grade_id || "ASTM Standard Grade";
+}
 
 export default function ComparePage() {
   const [comparedListings, setComparedListings] = useState<InventoryListing[]>([]);
@@ -70,14 +84,15 @@ export default function ComparePage() {
   }
 
   function convertToRelation(lot: InventoryListing): ListingWithRelations {
-    const tons = lot.total_weight_lbs / 2000;
-    const pricePerTon = lot.price_per_cwt * 20;
+    const tons = lot.total_weight_lbs ? lot.total_weight_lbs / 2000 : ((lot as unknown as { quantity_tons?: number }).quantity_tons || 20);
+    const pricePerTon = lot.price_per_cwt ? lot.price_per_cwt * 20 : ((lot as unknown as { price_per_ton?: number }).price_per_ton || 1000);
+    const gradeName = getGradeTitle(lot);
 
     return {
       id: lot.id,
       seller_id: lot.seller_id,
-      grade: lot.grade?.grade_name || lot.grade_id,
-      form: lot.product_form,
+      grade: gradeName,
+      form: lot.product_form || (lot as unknown as { form?: string }).form || "Plate",
       thickness_in: lot.thickness_in,
       quantity_tons: tons,
       price_per_ton: pricePerTon,
@@ -106,7 +121,7 @@ export default function ComparePage() {
         document_sha256: "sha256-demo",
         heat_number: lot.certificate.heat_number,
         mill_name: lot.certificate.mill_name,
-        grade: lot.grade?.grade_name || lot.grade_id,
+        grade: gradeName,
         melt_pour_country: lot.certificate.mill_country || "USA",
         chemistry: lot.certificate.chemical_analysis as unknown as import("@/types/database").Json,
         mechanical: lot.certificate.mechanical_results as unknown as import("@/types/database").Json,
@@ -222,7 +237,7 @@ export default function ComparePage() {
                               Heat: {lot.certificate?.heat_number}
                             </span>
                             <div className="font-bold text-slate-900 text-sm line-clamp-1">
-                              {lot.grade?.grade_name || lot.grade_id}
+                              {getGradeTitle(lot)}
                             </div>
                             <div className="text-xs text-slate-500 font-normal">
                               {lot.seller?.name || "Verified Producing Mill"}
@@ -318,31 +333,40 @@ export default function ComparePage() {
                   {/* Yield Strength Actual vs Spec */}
                   <TableRow>
                     <TableCell className="font-semibold text-slate-600 bg-slate-50/50">Yield Strength (MTR Actual)</TableCell>
-                    {comparedListings.map((lot) => (
-                      <TableCell key={lot.id}>
-                        <span className="font-mono font-bold text-slate-900">
-                          {lot.certificate?.mechanical_results.yield_strength_ksi ?? "50.0"} ksi
-                        </span>
-                        <span className="text-slate-500 block text-[11px]">
-                          Min: {lot.grade?.mech_limits.yield_min_ksi ?? 36} ksi (Conforms)
-                        </span>
-                      </TableCell>
-                    ))}
+                    {comparedListings.map((lot) => {
+                      const std = getGradeStandard(lot);
+                      const minYield = std?.mech_limits?.yield_min_ksi ?? 36;
+                      return (
+                        <TableCell key={lot.id}>
+                          <span className="font-mono font-bold text-slate-900">
+                            {lot.certificate?.mechanical_results.yield_strength_ksi ?? "50.0"} ksi
+                          </span>
+                          <span className="text-slate-500 block text-[11px]">
+                            Min: {minYield} ksi (Conforms)
+                          </span>
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
 
                   {/* Tensile Strength */}
                   <TableRow>
                     <TableCell className="font-semibold text-slate-600 bg-slate-50/50">Tensile Strength (MTR Actual)</TableCell>
-                    {comparedListings.map((lot) => (
-                      <TableCell key={lot.id}>
-                        <span className="font-mono font-bold text-slate-900">
-                          {lot.certificate?.mechanical_results.tensile_strength_ksi ?? "70.0"} ksi
-                        </span>
-                        <span className="text-slate-500 block text-[11px]">
-                          Range: {lot.grade?.mech_limits.tensile_min_ksi ?? 58}–{lot.grade?.mech_limits.tensile_max_ksi ?? 80} ksi
-                        </span>
-                      </TableCell>
-                    ))}
+                    {comparedListings.map((lot) => {
+                      const std = getGradeStandard(lot);
+                      const minTensile = std?.mech_limits?.tensile_min_ksi ?? 58;
+                      const maxTensile = std?.mech_limits?.tensile_max_ksi ?? 80;
+                      return (
+                        <TableCell key={lot.id}>
+                          <span className="font-mono font-bold text-slate-900">
+                            {lot.certificate?.mechanical_results.tensile_strength_ksi ?? "70.0"} ksi
+                          </span>
+                          <span className="text-slate-500 block text-[11px]">
+                            Range: {minTensile}–{maxTensile} ksi
+                          </span>
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
 
                   {/* Carbon Equivalent (CEV) */}

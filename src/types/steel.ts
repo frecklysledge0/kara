@@ -141,7 +141,8 @@ export interface InventoryListing {
   certificate_id?: string;
   certificate?: MaterialTestCertificate;
   grade_id: string;
-  grade?: GradeStandard;
+  grade?: GradeStandard | string;
+  grade_standard?: GradeStandard;
   title: string;
   product_form: 'Plate' | 'Hot Rolled Coil' | 'Wide Flange Beam' | 'Round Bar' | 'Structural Tubing';
   dimensions_display: string;
