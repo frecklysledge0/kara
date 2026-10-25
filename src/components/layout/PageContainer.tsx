@@ -33,7 +33,7 @@ export function PageContainer({
     >
       {/* Breadcrumb Navigation */}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav aria-label="Breadcrumb" className="-mb-2">
+        <nav aria-label="Breadcrumb">
           <ol className="flex items-center gap-1.5 text-xs text-slate-500 font-sans flex-wrap">
             {breadcrumbs.map((crumb, idx) => {
               const isLast = idx === breadcrumbs.length - 1;

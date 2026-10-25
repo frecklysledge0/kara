@@ -16,7 +16,6 @@ import {
   Sparkles,
   TrendingUp,
   ShieldCheck,
-  Scale,
 } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -30,6 +29,7 @@ import { CURATED_GRADES } from "@/lib/data/grades";
 import { estimateFreight, FreightCalculationResult } from "@/lib/freight";
 import { calculateDeliveredCost } from "@/lib/engine/freight";
 import { ListingWithRelations } from "@/types/database";
+import { CompareToggle } from "@/components/customer/CompareToggle";
 
 // Pre-defined buyer destination presets for instant freight calculations
 const DESTINATION_PRESETS = [
@@ -475,11 +475,6 @@ function extractGradeName(raw: unknown, fallback = "ASTM A572 Grade 50"): string
             </button>
           </div>
 
-          <Link href="/compare">
-            <Button variant="outline" size="sm" className="hidden md:flex items-center gap-1.5">
-              <Scale className="w-3.5 h-3.5 text-slate-700" /> Compare Lots
-            </Button>
-          </Link>
 
           <Link href="/assistant">
             <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-1.5">
@@ -950,6 +945,7 @@ function extractGradeName(raw: unknown, fallback = "ASTM A572 Grade 50"): string
 
                     {/* Action Link to Batch Passport */}
                     <div className="pt-3">
+                      <CompareToggle id={lot.id} />
                       <Link href={`/listings/${lot.id}`} className="w-full block">
                         <Button variant="outline" size="sm" className="w-full justify-between">
                           <span>Inspect Batch Passport</span>
@@ -1047,6 +1043,7 @@ function extractGradeName(raw: unknown, fallback = "ASTM A572 Grade 50"): string
                         )}
                       </TableCell>
                       <TableCell className="text-right">
+                        <CompareToggle id={lot.id} />
                         <Link href={`/listings/${lot.id}`}>
                           <Button size="sm" variant="outline">
                             Inspect

@@ -12,7 +12,6 @@ import {
   FileText,
   ChevronRight,
   ShieldCheck,
-  Scale,
   LogOut,
   Factory
 } from "lucide-react";
@@ -29,11 +28,8 @@ export function Header() {
 
   // Buyers never need an account; signed-in sellers get their own workspace links.
   const buyerLinks = [
-    { href: "/assistant", label: "Find Steel", icon: Sparkles },
-    { href: "/listings", label: "Browse Lots", icon: Search },
-    { href: "/compare", label: "Compare", icon: Scale },
-    { href: "/orders", label: "My Quotes", icon: FileText },
-    { href: "/verify", label: "Verify MTR", icon: ShieldCheck },
+    { href: "/", label: "Find Your Steel", icon: Sparkles },
+    { href: "/know-your-steel", label: "Know Your Steel", icon: Sparkles },
   ];
   const sellerLinks = [
     { href: "/sell", label: "List Inventory", icon: UploadCloud },

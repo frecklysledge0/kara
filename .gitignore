@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local customer browser review artifacts and isolated browser profile
+.customer-qa/

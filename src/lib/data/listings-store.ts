@@ -66,15 +66,15 @@ export function inventoryListingToListingWithRelations(item: InventoryListing): 
     updated_at: item.created_at || "2026-10-20T10:00:00.000Z",
     seller: {
       id: item.seller?.id || item.seller_id || "11111111-1111-4111-8111-111111111111",
-      name: item.seller?.name || "Great Lakes Steel Service (Synthetic Demo)",
-      city: item.seller?.headquarters_city || item.warehouse_city || "Gary",
-      state: item.seller?.headquarters_state || item.warehouse_state || "IN",
+      name: item.seller?.name || "Supplier name not provided",
+      city: item.warehouse_city || item.seller?.headquarters_city || "",
+      state: item.warehouse_state || item.seller?.headquarters_state || "",
       country: "USA",
-      latitude: item.warehouse_lat ?? 41.5934,
-      longitude: item.warehouse_lng ?? -87.3464,
-      mill_route: "EAF",
+      latitude: item.warehouse_lat ?? null,
+      longitude: item.warehouse_lng ?? null,
+      mill_route: null,
       description: null,
-      demo_status: "synthetic_demo",
+      demo_status: item.is_synthetic_demo || item.seller?.is_synthetic_demo ? "synthetic_demo" : "",
       created_at: item.created_at || "2026-10-20T10:00:00.000Z",
     },
     certificate: item.certificate
@@ -106,6 +106,11 @@ export function inventoryListingToListingWithRelations(item: InventoryListing): 
 }
 
 export async function getAllListings(): Promise<InventoryListing[]> {
+  // Route bundles/workers may have loaded before another request published a lot.
+  // Re-read the shared fallback cache so a new search sees that publication.
+  if (fs.existsSync(CACHE_FILE)) {
+    activeListingsStore.splice(0, activeListingsStore.length, ...loadInitialListings());
+  }
   const supabase = getSupabaseServerClient();
 
   if (supabase) {

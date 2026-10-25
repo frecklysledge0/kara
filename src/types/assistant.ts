@@ -38,6 +38,7 @@ export const BuyerSpecificationSchema = z.object({
   buyer_city: optionalString,
   state_or_country: optionalString,
   budget_per_ton: optionalPositiveNumber,
+  budget_total: optionalPositiveNumber,
   applicable_standard: optionalString,
   explicit_requirements: stringList,
   inferred_assumptions: stringList,
@@ -123,5 +124,6 @@ export interface AssistantResponse {
   clarification_questions: string[];
   summary_guidance: string;
   notice: string;
+  inventory_warning?: string;
   error?: string;
 }

@@ -36,13 +36,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/assistant" className="hover:text-slate-900 transition-colors">
-                  Sourcing Assistant
-                </Link>
-              </li>
-              <li>
-                <Link href="/orders" className="hover:text-slate-900 transition-colors">
-                  Orders &amp; Quotations
+                <Link href="/" className="hover:text-slate-900 transition-colors">
+                  Find Your Steel
                 </Link>
               </li>
             </ul>

@@ -18,6 +18,7 @@ describe("Assistant Voice Narration Module", () => {
       buyer_city: "Chicago",
       state_or_country: "IL",
       budget_per_ton: 1200,
+      budget_total: null,
       applicable_standard: "ASTM",
       explicit_requirements: ["40 tons plate", "marine atmospheric"],
       inferred_assumptions: ["Severe coastal salt fog"],
