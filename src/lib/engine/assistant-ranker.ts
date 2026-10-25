@@ -4,7 +4,7 @@ import {
   RankedListingCandidate, 
   ScoreWeightConfig 
 } from "@/types/assistant";
-import { fetchListings } from "@/lib/supabase/database";
+import { fetchAssistantInventory } from "@/lib/engine/assistant-inventory";
 import { calculateDeliveredCost } from "@/lib/engine/freight";
 import { ListingWithRelations } from "@/types/database";
 
@@ -51,7 +51,7 @@ export async function queryAndRankInventory(
   }
 
   // 1. Fetch active listings from Supabase layer
-  const { data: allListings } = await fetchListings({ status: "active" });
+  const allListings = await fetchAssistantInventory();
 
   if (!allListings || allListings.length === 0) {
     return [];
@@ -238,7 +238,7 @@ export async function queryAndRankInventory(
       has_certificate: Boolean(c.listing.certificate?.id),
       certificate_id: c.listing.certificate_id,
       heat_number: c.listing.certificate?.heat_number || null,
-      is_demo: Boolean(c.listing.seller?.demo_status),
+      is_demo: c.listing.seller?.demo_status === "synthetic_demo",
       destination_city: destCity,
       destination_state: destState,
       destination_zip: destZip,

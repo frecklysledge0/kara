@@ -15,6 +15,7 @@ export const BuyerSpecificationSchema = z.object({
   buyer_city: z.string().nullable().default(null),
   state_or_country: z.string().nullable().default(null),
   budget_per_ton: z.number().positive().nullable().default(null),
+  budget_total: z.number().positive().nullable().optional(),
   applicable_standard: z.string().nullable().default(null),
   explicit_requirements: z.array(z.string()).default([]),
   inferred_assumptions: z.array(z.string()).default([]),

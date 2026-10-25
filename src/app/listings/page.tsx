@@ -16,7 +16,6 @@ import {
   Sparkles,
   TrendingUp,
   ShieldCheck,
-  Scale,
 } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -475,11 +474,6 @@ function extractGradeName(raw: unknown, fallback = "ASTM A572 Grade 50"): string
             </button>
           </div>
 
-          <Link href="/compare">
-            <Button variant="outline" size="sm" className="hidden md:flex items-center gap-1.5">
-              <Scale className="w-3.5 h-3.5 text-slate-700" /> Compare Lots
-            </Button>
-          </Link>
 
           <Link href="/assistant">
             <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-1.5">

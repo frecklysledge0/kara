@@ -49,7 +49,9 @@ RULES:
 6. Extract numeric values cleanly:
    - quantity_tons: positive number or null
    - thickness_in: positive number (in inches) or null
-   - budget_per_ton: positive number ($/ton) or null
+   - budget_per_ton: positive number ONLY when explicitly stated per ton; otherwise null
+   - budget_total: positive number ONLY when explicitly stated as a total/project budget; otherwise null
+   - An unqualified dollar amount has an unknown basis: leave both budget fields null and ask whether it is total or per ton.
 
 JSON SCHEMA:
 {
@@ -63,6 +65,7 @@ JSON SCHEMA:
   "buyer_city": string or null,
   "state_or_country": string or null,
   "budget_per_ton": number or null,
+  "budget_total": number or null,
   "applicable_standard": string or null,
   "explicit_requirements": ["list of explicit requirements directly requested by user"],
   "inferred_assumptions": ["list of assumptions inferred by AI"],
@@ -152,10 +155,19 @@ export function parseRequirementsDeterministic(prompt: string): BuyerSpecificati
 
   // 4. Budget
   let budget_per_ton: number | null = null;
-  const budgetMatch = prompt.match(/\$\s*(\d+(?:,\d+)?(?:\.\d+)?)\s*(?:\/ton|per ton|a ton)?/i);
+  let budget_total: number | null = null;
+  const budgetMatch = prompt.match(/\$\s*(\d[\d,]*(?:\.\d+)?)\s*(k\b)?\s*(\/\s*ton\b|per\s+ton\b|a\s+ton\b)?/i);
   if (budgetMatch) {
-    budget_per_ton = parseFloat(budgetMatch[1].replace(/,/g, ""));
-    explicit.push(`Budget target: $${budget_per_ton}/ton`);
+    const amount = Number(budgetMatch[1].replace(/,/g, "")) * (budgetMatch[2] ? 1000 : 1);
+    if (amount > 0 && budgetMatch[3]) {
+      budget_per_ton = amount;
+      explicit.push(`Budget target: $${amount}/ton`);
+    } else if (amount > 0 && /\b(total|overall|project budget)\b/i.test(prompt)) {
+      budget_total = amount;
+      explicit.push(`Total budget: $${amount}`);
+    } else {
+      missing.push("Is your budget a total project budget or a budget per ton?");
+    }
   }
 
   // 5. Geography / City
@@ -245,6 +257,7 @@ export function parseRequirementsDeterministic(prompt: string): BuyerSpecificati
     buyer_city,
     state_or_country,
     budget_per_ton,
+    budget_total,
     applicable_standard: null,
     explicit_requirements: explicit,
     inferred_assumptions: inferred,
