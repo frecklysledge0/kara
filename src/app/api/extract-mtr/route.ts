@@ -4,6 +4,7 @@
 // Deterministic ASTM/SAE rules audit + 0-100 review score calculation.
 // =====================================================================
 
+import { normalizeMTRExtraction } from "@/lib/engine/mtr-normalize";
 import { NextRequest, NextResponse } from "next/server";
 import {
   MTRExtractionSchema,
@@ -287,46 +288,16 @@ JSON SCHEMA STRUCTURE TO RETURN:
       );
     }
 
+    // Normalize every extraction (not just failed validations) so gaps in photos/scans — e.g.
+    // `yield_strength: null` or chemistry as text — can never crash the QC engine.
     const validation = MTRExtractionSchema.safeParse(rawParsed);
-    let extractedMTR: MTRExtraction;
-
     if (!validation.success) {
       console.warn("MTR schema validation warning:", validation.error.format());
-      // Gracefully coerce / fill defaults while preserving extracted fields
-      extractedMTR = {
-        mill_name: (rawParsed as Record<string, unknown>)?.mill_name as string || null,
-        heat_number: (rawParsed as Record<string, unknown>)?.heat_number as string || null,
-        grade: (rawParsed as Record<string, unknown>)?.grade as string || null,
-        standard: (rawParsed as Record<string, unknown>)?.standard as string || null,
-        product_form: (rawParsed as Record<string, unknown>)?.product_form as string || null,
-        melt_and_pour_country: (rawParsed as Record<string, unknown>)?.melt_and_pour_country as string || null,
-        chemistry: ((rawParsed as Record<string, unknown>)?.chemistry as MTRExtraction["chemistry"]) || {},
-        mechanical_properties: {
-          yield_strength: { value: null, unit: "ksi" },
-          tensile_strength: { value: null, unit: "ksi" },
-          elongation_pct: { value: null, unit: "%" },
-          hardness: { value: null, scale: null },
-          charpy_impact: { value: null, unit: "ft-lbs" },
-          ...(((rawParsed as Record<string, unknown>)?.mechanical_properties as object) || {}),
-        },
-        dimensions: {
-          thickness_in: null,
-          width_in: null,
-          length_in: null,
-          weight_lbs: null,
-          ...(((rawParsed as Record<string, unknown>)?.dimensions as object) || {}),
-        },
-        printed_cev: ((rawParsed as Record<string, unknown>)?.printed_cev as number) ?? null,
-        unreadable_or_missing_fields: Array.isArray((rawParsed as Record<string, unknown>)?.unreadable_or_missing_fields)
-          ? ((rawParsed as Record<string, unknown>).unreadable_or_missing_fields as string[])
-          : [],
-        field_evidence: ((rawParsed as Record<string, unknown>)?.field_evidence as MTRExtraction["field_evidence"]) || {},
-        overall_confidence: "medium",
-        confidence_notes: "Schema recovered gracefully with partial defaults.",
-      };
-    } else {
-      extractedMTR = validation.data;
     }
+    const extractedMTR: MTRExtraction = normalizeMTRExtraction(
+      rawParsed,
+      validation.success ? undefined : "Some fields were unreadable or in an unexpected format; missing values were left blank for review.",
+    );
 
     // 7. Check Duplicate Heat Numbers Against Registry
     const dbStart = Date.now();

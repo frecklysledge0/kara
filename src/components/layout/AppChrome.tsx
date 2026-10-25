@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import { CustomerState, useCustomerSearch } from "@/components/customer/CustomerState";
 import { useAuth } from "@/components/auth/AuthProvider";
 import "@/components/customer/customer.css";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 function Chrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -29,6 +30,7 @@ function Chrome({ children }: { children: ReactNode }) {
         <Link key={href} href={href} aria-current={pathname === href || (href === "/" && pathname === "/assistant") ? "page" : undefined}>{label}</Link>
       )}</nav>
       <div className="account-actions">
+        <ThemeToggle />
         <Link className="seller-link" href="/sell">{user ? "Seller workspace" : "For Sellers"} <span aria-hidden="true">↗</span></Link>
         {user && <button type="button" onClick={async () => { setAuthError(""); try { await signOut(); } catch { setAuthError("Sign-out failed. Please try again."); } }}>Sign out</button>}
       </div>

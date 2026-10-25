@@ -277,7 +277,7 @@
 /* Dark theme for workspace pages (listings, passports, seller, orders, verify).
    Tailwind v4 reads every color from a CSS variable, so remapping them here re-themes
    all existing utility classes (bg-white, text-slate-900, ...) without editing each page. */
-.workspace-surface {
+:root:not([data-theme="light"]) .workspace-surface {
   color-scheme: dark; background: #0b0d10; color: #eef0f2; min-height: calc(100svh - 180px);
   --color-white: #14181d;
   --color-slate-50: #101418;
@@ -457,8 +457,8 @@
   --color-teal-900: color-mix(in srgb, #14b8a6 42%, #ffffff);
   --color-teal-950: color-mix(in srgb, #14b8a6 34%, #ffffff);
 }
-.workspace-surface ::placeholder { color: #7d8792; }
-.workspace-surface input, .workspace-surface select, .workspace-surface textarea { color-scheme: dark; }
+:root:not([data-theme="light"]) .workspace-surface ::placeholder { color: #7d8792; }
+:root:not([data-theme="light"]) .workspace-surface input, :root:not([data-theme="light"]) .workspace-surface select, :root:not([data-theme="light"]) .workspace-surface textarea { color-scheme: dark; }
 .workspace-loading { padding: 100px 24px; text-align: center; min-height: 55svh; background: #11151a; color: #f0f0ed; font: 16px Arial, sans-serif; }
 .workspace-loading a { display: block; margin: 24px; text-decoration: underline; }
 .submit-button, .solid-button { background: #f5b574; color: #21160e; font-weight: 600; }
@@ -601,4 +601,76 @@
 @media (prefers-reduced-motion: reduce) {
   .smoke-field span, .specimen-model { animation: none; }
 }
-.workspace-surface * { scrollbar-color: #3a424b transparent; }
+:root:not([data-theme="light"]) .workspace-surface * { scrollbar-color: #3a424b transparent; }
+
+
+/* =====================================================================
+   LIGHT THEME (toggle in the header; default is dark).
+   Warm "steel paper" palette. The globe and steel specimens intentionally stay dark/metallic.
+   ===================================================================== */
+:root[data-theme="light"] .workspace-surface { color-scheme: light; background: #f8f9fb; color: #0f172a; min-height: calc(100svh - 180px); }
+:root[data-theme="light"] .customer-app,
+:root[data-theme="light"] .millproof-shell {
+  --surface: #ffffff; --ink: #15191e; --quiet: #545d68; --line: #d9d5cd; --ice: #9a4f14;
+  color-scheme: light; background: #f4f2ee; color: var(--ink);
+}
+:root[data-theme="light"] .millproof-shell :focus-visible { outline-color: #9a4f14; }
+:root[data-theme="light"] .millproof-shell .customer-header { border-bottom-color: #0000000f; }
+:root[data-theme="light"] .customer-header a, :root[data-theme="light"] .customer-header nav a { color: #2b3138; }
+:root[data-theme="light"] .customer-header nav a[aria-current="page"] { color: #9a4f14; }
+:root[data-theme="light"] .brand-mark { border-color: #b56a2c; color: #9a4f14; }
+:root[data-theme="light"] .customer-header .seller-link { color: #9a4f14; }
+:root[data-theme="light"] .account-actions button { color: #2b3138; border-color: #c9c4ba; }
+:root[data-theme="light"] .customer-footer { color: #5f6873; }
+:root[data-theme="light"] .customer-footer a { color: #2b3138; }
+:root[data-theme="light"] .customer-app input, :root[data-theme="light"] .customer-app select, :root[data-theme="light"] .customer-app textarea { background: #ffffff; color: #15191e; border-color: #cfc9be; }
+:root[data-theme="light"] .customer-app input::placeholder, :root[data-theme="light"] .customer-app textarea::placeholder { color: #6b737d; }
+:root[data-theme="light"] .customer-app .text-button:hover { color: #15191e; }
+:root[data-theme="light"] .customer-app ::selection { background: #f5c796; color: #15191e; }
+:root[data-theme="light"] .customer-error { color: #8a2c17; border-left-color: #c2694f; }
+/* Home / search */
+:root[data-theme="light"] .customer-app .hero-eyebrow { color: #8a4a17; }
+:root[data-theme="light"] .search-hero h1 > span { color: #a3561b; }
+:root[data-theme="light"] .hero-copy { color: #3d454e; }
+:root[data-theme="light"] .smoke-field::after { background: linear-gradient(0deg,#f4f2ee 2%,transparent 35%,#f4f2ee20 75%,#f4f2ee); }
+:root[data-theme="light"] .smoke-field span { opacity: .35; }
+:root[data-theme="light"] .buyer-steps li { color: #4a525c; }
+:root[data-theme="light"] .buyer-steps li > span { border-color: #a9a399; }
+:root[data-theme="light"] .buyer-steps li[aria-current] { color: #9a4f14; }
+:root[data-theme="light"] .prompt-form { background: #ffffffee; border-color: #cfc9be; box-shadow: 0 24px 70px #3a2a1a14, inset 0 1px #ffffff; }
+:root[data-theme="light"] .prompt-form:focus-within { border-color: #c47a3a; box-shadow: 0 0 0 3px #f5b57433, 0 24px 70px #3a2a1a14; }
+:root[data-theme="light"] .search-secondary { color: #4a525c; }
+:root[data-theme="light"] .search-secondary a:hover, :root[data-theme="light"] .search-secondary button:hover { color: #9a4f14; }
+:root[data-theme="light"] .grade-option, :root[data-theme="light"] .property-panel, :root[data-theme="light"] .seller-auth-card { background: #ffffff; border-color: #ddd8cf; box-shadow: 0 10px 40px #3a2a1a0d; }
+:root[data-theme="light"] .grade-option.active { border-color: #c18d5c; background: linear-gradient(130deg,#fbefe2,#ffffff 70%); }
+:root[data-theme="light"] .customer-app .compare-toggle { color: #8a4a17; border-color: #c9c4ba; }
+:root[data-theme="light"] .compare-toggle[aria-pressed="true"] { color: #21160e; }
+:root[data-theme="light"] .comparison-table thead th { background: #ece8e1; }
+:root[data-theme="light"] .comparison-table small { color: #545d68; }
+:root[data-theme="light"] .comparison-empty { border-color: #bdb6aa; }
+:root[data-theme="light"] .comparison-empty > svg { color: #a3561b; }
+:root[data-theme="light"] .clarification, :root[data-theme="light"] .grade-disclosure { border-color: #ddd8cf; }
+:root[data-theme="light"] .composition-list > div { border-bottom-color: #e6e1d8; }
+:root[data-theme="light"] .selection-dot { border-color: #8f979f; }
+:root[data-theme="light"] .customer-app .contact-panel { border-color: #d0cabf; }
+:root[data-theme="light"] .explorer-loading { color: #545d68; }
+/* Know Your Steel hotspots stay legible over the (dark) specimen stage */
+:root[data-theme="light"] .property-hotspot { background: #ffffffee; color: #2b3138; border-color: #cfc9be; box-shadow: 0 4px 18px #3a2a1a1a; }
+:root[data-theme="light"] .property-hotspot.active { background: #fbefe2; border-color: #c47a3a; color: #7a3c0f; }
+:root[data-theme="light"] .specimen-shadow { background: #3a2a1a40; }
+/* Seller sign-in */
+:root[data-theme="light"] .seller-intro > .eyebrow { color: #8a4a17; }
+:root[data-theme="light"] .seller-intro h1 span, :root[data-theme="light"] .seller-intro > a, :root[data-theme="light"] .seller-benefits svg, :root[data-theme="light"] .email-confirmation > svg { color: #a3561b; }
+:root[data-theme="light"] .seller-intro > p:not(.eyebrow), :root[data-theme="light"] .seller-benefits span, :root[data-theme="light"] .seller-auth-card > p, :root[data-theme="light"] .email-confirmation p { color: #4a525c; }
+:root[data-theme="light"] .auth-mode { background: #efebe4; }
+:root[data-theme="light"] .auth-mode button { color: #4a525c; }
+:root[data-theme="light"] .auth-mode button[aria-pressed="true"] { color: #7a3c0f; background: #ffffff; }
+:root[data-theme="light"] .seller-auth-form label { color: #2b3138; }
+:root[data-theme="light"] .seller-auth-form input { background: #ffffff; border-color: #cfc9be; color: #15191e; }
+:root[data-theme="light"] .seller-auth-card .auth-footnote { color: #5f6873; }
+
+/* Theme toggle button */
+.theme-toggle { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid #48515c; background: transparent; color: #f0f0ed; cursor: pointer; }
+.theme-toggle:hover { border-color: #f5b574; color: #f5b574; }
+:root[data-theme="light"] .theme-toggle { border-color: #c9c4ba; color: #2b3138; }
+:root[data-theme="light"] .theme-toggle:hover { border-color: #9a4f14; color: #9a4f14; }

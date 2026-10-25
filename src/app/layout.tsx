@@ -4,6 +4,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import { AppChrome } from "@/components/layout/AppChrome";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { themeBootScript } from "@/components/layout/ThemeToggle";
 import Link from "next/link";
 
 const geistSans = Geist({
@@ -28,7 +29,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+      <head>
+        {/* Applies a saved light/dark choice before first paint (see ThemeToggle.tsx). */}
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       <body className="min-h-screen flex flex-col bg-[#F8F9FB] text-slate-900 font-sans selection:bg-slate-900 selection:text-white">
         <AuthProvider>
           <Suspense fallback={<div className="workspace-loading" role="status">Opening MillProof… <Link href="/">Return to Find Steel</Link></div>}>
