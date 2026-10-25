@@ -61,8 +61,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+const DEFAULT_AUTH_STATE: AuthState = {
+  user: null,
+  companyName: null,
+  loading: false,
+  configured: SUPABASE_CONFIGURED,
+  signOut: async () => {},
+};
+
 export function useAuth(): AuthState {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
-  return ctx;
+  return ctx ?? DEFAULT_AUTH_STATE;
 }

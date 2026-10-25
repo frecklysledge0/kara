@@ -76,6 +76,14 @@ export async function signFingerprint(hash: string, mill: MillId): Promise<SignR
   if (!/^[0-9a-f]{64}$/.test(hash)) throw new Error("Fingerprint must be a 64-character SHA-256 hex string");
   const payer = readKeypair("SOLANA_PAYER_SECRET");
   const millKp = millKeypair(mill);
+  const conn = connection();
+
+  const balance = await conn.getBalance(payer.publicKey).catch(() => 0);
+  if (balance < 5000) {
+    throw new Error(
+      `Fee payer wallet (${payer.publicKey.toBase58()}) has 0 Devnet SOL. Please get free test SOL from https://faucet.solana.com before signing.`
+    );
+  }
 
   const memo = new TransactionInstruction({
     programId: MEMO_PROGRAM_ID,

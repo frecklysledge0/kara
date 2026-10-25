@@ -4,22 +4,45 @@ import { z } from "zod";
 // MillProof: AI Sourcing Assistant Types & Validation Schemas
 // =====================================================================
 
+const optionalPositiveNumber = z.preprocess((val) => {
+  if (val === null || val === undefined || val === "" || val === "null" || val === "none") return null;
+  const num = Number(val);
+  return isNaN(num) || num <= 0 ? null : num;
+}, z.number().positive().nullable().default(null));
+
+const optionalString = z.preprocess((val) => {
+  if (val === null || val === undefined || val === "" || val === "null" || val === "none") return null;
+  return typeof val === "string" ? val.trim() : String(val);
+}, z.string().nullable().default(null));
+
+const stringList = z.preprocess((val) => {
+  if (Array.isArray(val)) return val.map((item) => (typeof item === "string" ? item.trim() : String(item))).filter(Boolean);
+  if (typeof val === "string" && val.trim()) return [val.trim()];
+  return [];
+}, z.array(z.string()).default([]));
+
 export const BuyerSpecificationSchema = z.object({
-  use_case: z.string().min(1, "Use case description is required"),
-  environment: z.string().default("Standard indoor industrial"),
-  required_properties: z.array(z.string()).default([]),
-  prohibited_materials_or_constraints: z.array(z.string()).default([]),
-  quantity_tons: z.number().positive().nullable().default(null),
-  form: z.string().nullable().default(null), // e.g. "Plate", "Wide Flange Beam", "Round Bar", "Sheet"
-  thickness_in: z.number().positive().nullable().default(null),
-  buyer_city: z.string().nullable().default(null),
-  state_or_country: z.string().nullable().default(null),
-  budget_per_ton: z.number().positive().nullable().default(null),
-  budget_total: z.number().positive().nullable().optional(),
-  applicable_standard: z.string().nullable().default(null),
-  explicit_requirements: z.array(z.string()).default([]),
-  inferred_assumptions: z.array(z.string()).default([]),
-  missing_information: z.array(z.string()).default([]),
+  use_case: z.preprocess((val) => {
+    if (typeof val === "string" && val.trim()) return val.trim();
+    return "Structural steel procurement requirement";
+  }, z.string().min(1).default("Structural steel procurement requirement")),
+  environment: z.preprocess((val) => {
+    if (typeof val === "string" && val.trim()) return val.trim();
+    return "Standard industrial environment";
+  }, z.string().default("Standard industrial environment")),
+  required_properties: stringList,
+  prohibited_materials_or_constraints: stringList,
+  quantity_tons: optionalPositiveNumber,
+  form: optionalString,
+  thickness_in: optionalPositiveNumber,
+  buyer_city: optionalString,
+  state_or_country: optionalString,
+  budget_per_ton: optionalPositiveNumber,
+  budget_total: optionalPositiveNumber,
+  applicable_standard: optionalString,
+  explicit_requirements: stringList,
+  inferred_assumptions: stringList,
+  missing_information: stringList,
 });
 
 export type BuyerSpecification = z.infer<typeof BuyerSpecificationSchema>;
